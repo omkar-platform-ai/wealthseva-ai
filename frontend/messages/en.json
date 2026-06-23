@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "advisor": "AI Advisor",
+    "goals": "Goals",
+    "insights": "Insights",
+    "profile": "Profile"
+  },
+  "onboarding": {
+    "welcome": "Welcome to WealthSeva AI",
+    "subtitle": "Your personal AI wealth advisor, powered by IDBI Bank",
+    "startQuiz": "Start Risk Assessment",
+    "riskTitle": "Let's understand your risk profile",
+    "conservative": "Conservative",
+    "moderate": "Moderate",
+    "aggressive": "Aggressive"
+  },
+  "advisor": {
+    "title": "Your Wealth Advisor",
+    "placeholder": "Ask me anything about your finances...",
+    "send": "Send",
+    "thinking": "Shreya is thinking...",
+    "switchLang": "Switch Language"
+  },
+  "dashboard": {
+    "portfolio": "Your Portfolio",
+    "riskProfile": "Risk Profile",
+    "goals": "Financial Goals",
+    "insights": "Today's Insights",
+    "uploadPortfolio": "Upload Portfolio CSV"
+  },
+  "goals": {
+    "title": "Your Financial Goals",
+    "addGoal": "Add Goal",
+    "retirement": "Retirement",
+    "home": "Buy a Home",
+    "education": "Child's Education",
+    "wedding": "Wedding",
+    "targetAmount": "Target Amount (₹)",
+    "targetDate": "Target Date",
+    "currentSavings": "Current Savings (₹)",
+    "monthly": "Monthly Contribution (₹)"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "lakh": "Lakh",
+    "crore": "Crore"
+  }
+}

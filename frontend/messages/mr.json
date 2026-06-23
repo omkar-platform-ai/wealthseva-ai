@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "dashboard": "डॅशबोर्ड",
+    "advisor": "AI सल्लागार",
+    "goals": "उद्दिष्टे",
+    "insights": "बाजार माहिती",
+    "profile": "प्रोफाइल"
+  },
+  "onboarding": {
+    "welcome": "WealthSeva AI मध्ये आपले स्वागत आहे",
+    "subtitle": "IDBI Bank द्वारे समर्थित तुमचा वैयक्तिक AI वेल्थ अॅडव्हायझर",
+    "startQuiz": "जोखीम मूल्यांकन सुरू करा",
+    "riskTitle": "आपली जोखीम प्रोफाइल समजून घेऊया",
+    "conservative": "सुरक्षित",
+    "moderate": "संतुलित",
+    "aggressive": "उच्च वाढ"
+  },
+  "advisor": {
+    "title": "तुमची वेल्थ अॅडव्हायझर",
+    "placeholder": "तुमच्या वित्ताबद्दल काहीही विचारा...",
+    "send": "पाठवा",
+    "thinking": "श्रेया विचार करत आहे...",
+    "switchLang": "भाषा बदला"
+  },
+  "dashboard": {
+    "portfolio": "तुमचा पोर्टफोलियो",
+    "riskProfile": "जोखीम प्रोफाइल",
+    "goals": "आर्थिक उद्दिष्टे",
+    "insights": "आजची माहिती",
+    "uploadPortfolio": "पोर्टफोलियो CSV अपलोड करा"
+  },
+  "goals": {
+    "title": "तुमची आर्थिक उद्दिष्टे",
+    "addGoal": "उद्दिष्ट जोडा",
+    "retirement": "निवृत्ती",
+    "home": "घर खरेदी",
+    "education": "मुलाचे शिक्षण",
+    "wedding": "लग्न",
+    "targetAmount": "लक्ष्य रक्कम (₹)",
+    "targetDate": "लक्ष्य तारीख",
+    "currentSavings": "सध्याची बचत (₹)",
+    "monthly": "मासिक योगदान (₹)"
+  },
+  "common": {
+    "loading": "लोड होत आहे...",
+    "error": "काहीतरी चुकले. कृपया पुन्हा प्रयत्न करा.",
+    "save": "जतन करा",
+    "cancel": "रद्द करा",
+    "lakh": "लाख",
+    "crore": "कोटी"
+  }
+}

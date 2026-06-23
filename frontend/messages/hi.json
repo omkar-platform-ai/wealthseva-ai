@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "advisor": "AI सलाहकार",
+    "goals": "लक्ष्य",
+    "insights": "बाज़ार जानकारी",
+    "profile": "प्रोफाइल"
+  },
+  "onboarding": {
+    "welcome": "WealthSeva AI में आपका स्वागत है",
+    "subtitle": "IDBI Bank द्वारा संचालित आपका व्यक्तिगत AI वेल्थ एडवाइज़र",
+    "startQuiz": "जोखिम मूल्यांकन शुरू करें",
+    "riskTitle": "आइए आपकी जोखिम प्रोफाइल समझें",
+    "conservative": "सुरक्षित",
+    "moderate": "संतुलित",
+    "aggressive": "उच्च विकास"
+  },
+  "advisor": {
+    "title": "आपकी वेल्थ एडवाइज़र",
+    "placeholder": "अपने वित्त के बारे में कुछ भी पूछें...",
+    "send": "भेजें",
+    "thinking": "श्रेया सोच रही है...",
+    "switchLang": "भाषा बदलें"
+  },
+  "dashboard": {
+    "portfolio": "आपका पोर्टफोलियो",
+    "riskProfile": "जोखिम प्रोफाइल",
+    "goals": "वित्तीय लक्ष्य",
+    "insights": "आज की जानकारी",
+    "uploadPortfolio": "पोर्टफोलियो CSV अपलोड करें"
+  },
+  "goals": {
+    "title": "आपके वित्तीय लक्ष्य",
+    "addGoal": "लक्ष्य जोड़ें",
+    "retirement": "सेवानिवृत्ति",
+    "home": "घर खरीदें",
+    "education": "बच्चे की शिक्षा",
+    "wedding": "विवाह",
+    "targetAmount": "लक्ष्य राशि (₹)",
+    "targetDate": "लक्ष्य तिथि",
+    "currentSavings": "वर्तमान बचत (₹)",
+    "monthly": "मासिक योगदान (₹)"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "error": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
+    "save": "सहेजें",
+    "cancel": "रद्द करें",
+    "lakh": "लाख",
+    "crore": "करोड़"
+  }
+}
