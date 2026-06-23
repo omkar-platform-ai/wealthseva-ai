@@ -55,3 +55,16 @@ htmlcov/
 # Misc
 *.pem
 .vercel
+
+#claude
+.claude
+
+# Tools
+.pytest_cache/
+.ruff_cache/
+ 
+# Claude
+headroom_memory.db
+.serena
+VALIDATION_REPORT.md
+ 
