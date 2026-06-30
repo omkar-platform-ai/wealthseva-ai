@@ -136,7 +136,7 @@ async def get_transactions(account_id: str = "demo"):
             f"{IDBI_BASE_URL}/accounts/{account_id}/transactions",
             headers={"Authorization": f"Bearer {IDBI_API_KEY}"},
         )
-        return response.json()
+        return {"data": response.json(), "source": "live"}
 
 
 @router.get("/idbi/portfolio", response_model=IDBIPortfolioResponse)
@@ -150,7 +150,7 @@ async def get_portfolio(account_id: str = "demo"):
             f"{IDBI_BASE_URL}/accounts/{account_id}/portfolio",
             headers={"Authorization": f"Bearer {IDBI_API_KEY}"},
         )
-        return response.json()
+        return {"data": response.json(), "source": "live"}
 
 
 @router.get("/idbi/risk", response_model=IDBIRiskProfileResponse)
@@ -164,7 +164,7 @@ async def get_risk_profile(account_id: str = "demo"):
             f"{IDBI_BASE_URL}/accounts/{account_id}/risk",
             headers={"Authorization": f"Bearer {IDBI_API_KEY}"},
         )
-        return response.json()
+        return {"data": response.json(), "source": "live"}
 
 
 @router.get("/idbi/goals", response_model=IDBIGoalsResponse)
@@ -178,4 +178,4 @@ async def get_goals(account_id: str = "demo"):
             f"{IDBI_BASE_URL}/accounts/{account_id}/goals",
             headers={"Authorization": f"Bearer {IDBI_API_KEY}"},
         )
-        return response.json()
+        return {"data": response.json(), "source": "live"}
