@@ -7,10 +7,13 @@ Built for IDBI Innovate 2026 hackathon — Track 01: Digital Wealth Management.
 ## Stack
 - Frontend: Next.js 14, TailwindCSS, TypeScript, next-intl (i18n)
 - Backend: FastAPI, Python 3.12, LangChain, langdetect
-- AI: Claude API (claude-sonnet-4-6) — natively multilingual
+- AI: Claude API via Amazon Bedrock (global.anthropic.claude-sonnet-4-6) — natively multilingual
+- Embeddings: Amazon Titan Text Embeddings V2 via Bedrock (amazon.titan-embed-text-v2:0)
 - Avatar: ElevenLabs Conversational AI (multilingual voices)
 - DB: Supabase (PostgreSQL), Pinecone (vector store)
 - Cloud: AWS (EC2/Lambda + S3), provided by IDBI Bank
+- Region: ap-south-1 (Mumbai) — compute and Bedrock inference run in India
+- Authentication: IAM role for Bedrock (no API keys when running on EC2/Lambda)
 
 ## Supported Languages
 EN (English), HI (Hindi/हिंदी), MR (Marathi/मराठी), TA (Tamil/தமிழ்), BN (Bengali/বাংলা)
@@ -67,9 +70,12 @@ or auto-dispatch is approved after Jul 9), update this section.
 ## Architecture Notes
 - Language detection: langdetect on incoming message, fallback to user.preferred_language
 - Claude prompt routing: load ai/system_prompts/wealth_advisor_{lang}.md per request
+- Bedrock integration: AsyncAnthropicBedrock for Claude, BedrockEmbeddings for Titan
+- Region: All Bedrock calls use ap-south-1; IAM authentication via boto3 credential chain
 - ElevenLabs voice: VOICE_MAP in language_service.py maps lang_code → voice_id
 - Pinecone namespaces: idbi-data-{lang} — separate namespace per language
-- RAG: index IDBI synthetic datasets; retrieve top-3 chunks per query for Claude context
+- RAG: index IDBI synthetic datasets; retrieve top-3 chunks per query using Titan embeddings
+- Graceful degradation: Missing AWS credentials return mock responses, never 500 errors
 
 ## Demo Priorities (for judges)
 1. Language switch mid-conversation (English → Hindi live demo)
