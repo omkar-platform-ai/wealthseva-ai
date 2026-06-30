@@ -1,52 +1,92 @@
 {
-  "nav": {
-    "dashboard": "डैशबोर्ड",
-    "advisor": "AI सलाहकार",
-    "goals": "लक्ष्य",
-    "insights": "बाज़ार जानकारी",
-    "profile": "प्रोफाइल"
-  },
   "onboarding": {
     "welcome": "WealthSeva AI में आपका स्वागत है",
     "subtitle": "IDBI Bank द्वारा संचालित आपका व्यक्तिगत AI वेल्थ एडवाइज़र",
-    "startQuiz": "जोखिम मूल्यांकन शुरू करें",
-    "riskTitle": "आइए आपकी जोखिम प्रोफाइल समझें",
+    "startButton": "शुरू करें",
     "conservative": "सुरक्षित",
     "moderate": "संतुलित",
     "aggressive": "उच्च विकास"
   },
+  "risk": {
+    "title": "जोखिम प्रोफाइल मूल्यांकन",
+    "question1": "मैं लंबी अवधि में बेहतर रिटर्न के लिए अल्पकालिक नुकसान सहन कर सकता/सकती हूं।",
+    "question2": "मुझे इक्विटी और म्यूचुअल फंड में निवेश के जोखिमों की समझ है।",
+    "question3": "मैं इस राशि को 5 या अधिक वर्षों तक निवेशित रख सकता/सकती हूं।",
+    "question4": "बाज़ार गिरने पर मैं और अधिक निवेश करूंगा/करूंगी।",
+    "question5": "मुझे पूंजी की सुरक्षा से अधिक उच्च विकास पसंद है।",
+    "option_a": "बिल्कुल नहीं",
+    "option_b": "कुछ हद तक",
+    "option_c": "काफ़ी हद तक",
+    "option_d": "पूरी तरह से",
+    "result_conservative": "सुरक्षित निवेशक",
+    "result_moderate": "संतुलित निवेशक",
+    "result_aggressive": "उच्च-विकास निवेशक",
+    "explanation_label": "आपकी जोखिम प्रोफाइल",
+    "retake_button": "फिर से लें",
+    "analysing_label": "आपके उत्तरों का विश्लेषण हो रहा है..."
+  },
   "advisor": {
     "title": "आपकी वेल्थ एडवाइज़र",
+    "inputPlaceholder": "अपने वित्त के बारे में कुछ भी पूछें...",
+    "sendButton": "भेजें",
+    "chip1": "मुझे हर महीने कितना निवेश करना चाहिए?",
+    "chip2": "कोई कम जोखिम वाला फंड सुझाएं",
+    "chip3": "मेरे पोर्टफोलियो की समीक्षा करें",
+    "welcomeMessage": "नमस्ते! मैं श्रेया हूं, आपकी IDBI वेल्थ एडवाइज़र। आज मैं आपकी कैसे मदद कर सकती हूं?",
+    "reconnecting": "पुनः कनेक्ट हो रहा है...",
     "placeholder": "अपने वित्त के बारे में कुछ भी पूछें...",
-    "send": "भेजें",
-    "thinking": "श्रेया सोच रही है...",
-    "switchLang": "भाषा बदलें"
+    "error": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
   },
   "dashboard": {
+    "title": "डैशबोर्ड",
+    "portfolio_value": "पोर्टफोलियो मूल्य",
+    "risk_profile": "जोखिम प्रोफाइल",
+    "monthly_sip": "मासिक SIP",
+    "insights_title": "आज की जानकारी",
+    "last_updated": "अंतिम अपडेट",
     "portfolio": "आपका पोर्टफोलियो",
-    "riskProfile": "जोखिम प्रोफाइल",
-    "goals": "वित्तीय लक्ष्य",
-    "insights": "आज की जानकारी",
     "uploadPortfolio": "पोर्टफोलियो CSV अपलोड करें"
   },
   "goals": {
     "title": "आपके वित्तीय लक्ष्य",
-    "addGoal": "लक्ष्य जोड़ें",
+    "preset_retirement": "सेवानिवृत्ति",
+    "preset_house": "घर खरीदें",
+    "preset_education": "बच्चे की शिक्षा",
+    "preset_wedding": "विवाह",
+    "target_amount": "लक्ष्य राशि (₹)",
+    "target_date": "लक्ष्य तिथि",
+    "current_savings": "वर्तमान बचत (₹)",
+    "monthly_contribution": "मासिक योगदान (₹)",
+    "submit_button": "लक्ष्य सहेजें",
+    "monthly_sip_label": "अनुशंसित मासिक SIP",
+    "projected_value_label": "अनुमानित मूल्य",
+    "advice_label": "श्रेया की सलाह",
     "retirement": "सेवानिवृत्ति",
-    "home": "घर खरीदें",
-    "education": "बच्चे की शिक्षा",
-    "wedding": "विवाह",
     "targetAmount": "लक्ष्य राशि (₹)",
-    "targetDate": "लक्ष्य तिथि",
-    "currentSavings": "वर्तमान बचत (₹)",
-    "monthly": "मासिक योगदान (₹)"
+    "monthly": "मासिक योगदान (₹)",
+    "addGoal": "लक्ष्य जोड़ें"
+  },
+  "portfolio": {
+    "title": "पोर्टफोलियो विश्लेषण",
+    "upload_button": "पोर्टफोलियो CSV अपलोड करें",
+    "sample_button": "नमूने के साथ आज़माएं",
+    "summary_label": "सारांश",
+    "recommendations_label": "सुझाव",
+    "sip_suggestion_label": "SIP सुझाव",
+    "upload_prompt": "अपनी पोर्टफोलियो CSV यहाँ खींचें, या चुनने के लिए क्लिक करें"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "advisor": "AI सलाहकार",
+    "goals": "लक्ष्य",
+    "portfolio": "पोर्टफोलियो",
+    "insights": "बाज़ार जानकारी",
+    "language_switcher_label": "भाषा बदलें"
   },
   "common": {
     "loading": "लोड हो रहा है...",
-    "error": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
-    "save": "सहेजें",
-    "cancel": "रद्द करें",
-    "lakh": "लाख",
-    "crore": "करोड़"
+    "error_generic": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।",
+    "shreya_break": "श्रेया थोड़े विराम पर हैं। कृपया थोड़ी देर में रिफ्रेश करें।",
+    "currency_symbol": "₹"
   }
 }
