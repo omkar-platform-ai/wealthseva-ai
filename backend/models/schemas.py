@@ -69,3 +69,38 @@ class GoalResponse(BaseModel):
     goals: List[dict]
     summary: str
     total_monthly_required: float
+
+
+class PortfolioHolding(BaseModel):
+    isin: str
+    name: str
+    category: str
+    units: float
+    nav: float
+    current_value: float
+    gain_loss_pct: float
+
+
+class IDBIPortfolioResponse(BaseModel):
+    data: List[PortfolioHolding]
+    source: str
+
+
+class IDBIRiskProfileResponse(BaseModel):
+    data: dict
+    source: str
+
+
+class IDBIGoal(BaseModel):
+    id: str
+    name: str
+    target_amount: float
+    target_date: str
+    current_savings: float
+    monthly_sip: float
+    progress_pct: float
+
+
+class IDBIGoalsResponse(BaseModel):
+    data: List[IDBIGoal]
+    source: str

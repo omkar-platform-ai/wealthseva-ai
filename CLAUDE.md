@@ -43,6 +43,27 @@ User preferred_language is stored in Supabase and passed to every Claude API cal
 [Update this daily]
 Phase 1 (Jun 23–26): Scaffold + avatar integration + language switcher working end-to-end
 
+## Agent Review & Triage Workflow
+Agents commit directly to `dev` (no PR gate — Option B). shreya-reviewer
+reviews commits after the fact and comments APPROVED / CHANGES_REQUESTED but
+does not block or merge.
+
+**When shreya-reviewer returns CHANGES_REQUESTED:**
+- It creates a new fix issue describing the required change, but leaves it
+  **unassigned, in `backlog` status**. It does NOT assign the fix to an
+  engineer agent automatically, even when confident which agent should own it.
+- It posts a comment on the *original* reviewed issue announcing the new
+  backlog issue ID — this is the actual notification mechanism, since
+  Paperclip has no push/email/Slack notifications configured for this
+  project. Watch the original issue thread, not just the backlog list.
+- A human (board operator) triages the backlog issue and assigns it to the
+  appropriate agent. This is a deliberate human-in-the-loop checkpoint —
+  reviewer confidence is not sufficient grounds for auto-dispatching fixes
+  on a no-PR-gate workflow.
+
+If this convention changes (e.g. notifications get wired up via a plugin,
+or auto-dispatch is approved after Jul 9), update this section.
+
 ## Architecture Notes
 - Language detection: langdetect on incoming message, fallback to user.preferred_language
 - Claude prompt routing: load ai/system_prompts/wealth_advisor_{lang}.md per request

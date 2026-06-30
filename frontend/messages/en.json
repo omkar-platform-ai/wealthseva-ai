@@ -1,52 +1,92 @@
 {
-  "nav": {
-    "dashboard": "Dashboard",
-    "advisor": "AI Advisor",
-    "goals": "Goals",
-    "insights": "Insights",
-    "profile": "Profile"
-  },
   "onboarding": {
     "welcome": "Welcome to WealthSeva AI",
     "subtitle": "Your personal AI wealth advisor, powered by IDBI Bank",
-    "startQuiz": "Start Risk Assessment",
-    "riskTitle": "Let's understand your risk profile",
+    "startButton": "Get Started",
     "conservative": "Conservative",
     "moderate": "Moderate",
     "aggressive": "Aggressive"
   },
+  "risk": {
+    "title": "Risk Profile Assessment",
+    "question1": "I am comfortable with short-term losses in exchange for higher long-term returns.",
+    "question2": "I understand the risks of investing in equity and mutual funds.",
+    "question3": "I can stay invested for 5 or more years without needing this money.",
+    "question4": "I would invest more when the markets fall.",
+    "question5": "I prefer higher growth over the safety of my capital.",
+    "option_a": "Not at all",
+    "option_b": "Somewhat",
+    "option_c": "Mostly",
+    "option_d": "Completely",
+    "result_conservative": "Conservative Investor",
+    "result_moderate": "Moderate Investor",
+    "result_aggressive": "Aggressive Investor",
+    "explanation_label": "Your risk profile",
+    "retake_button": "Retake Quiz",
+    "analysing_label": "Analysing your answers..."
+  },
   "advisor": {
     "title": "Your Wealth Advisor",
+    "inputPlaceholder": "Ask me anything about your finances...",
+    "sendButton": "Send",
+    "chip1": "How much should I invest monthly?",
+    "chip2": "Suggest a low-risk fund",
+    "chip3": "Review my portfolio",
+    "welcomeMessage": "Hello! I'm Shreya, your IDBI wealth advisor. How can I help you today?",
+    "reconnecting": "Reconnecting...",
     "placeholder": "Ask me anything about your finances...",
-    "send": "Send",
-    "thinking": "Shreya is thinking...",
-    "switchLang": "Switch Language"
+    "error": "Something went wrong. Please try again."
   },
   "dashboard": {
+    "title": "Dashboard",
+    "portfolio_value": "Portfolio Value",
+    "risk_profile": "Risk Profile",
+    "monthly_sip": "Monthly SIP",
+    "insights_title": "Today's Insights",
+    "last_updated": "Last updated",
     "portfolio": "Your Portfolio",
-    "riskProfile": "Risk Profile",
-    "goals": "Financial Goals",
-    "insights": "Today's Insights",
     "uploadPortfolio": "Upload Portfolio CSV"
   },
   "goals": {
     "title": "Your Financial Goals",
-    "addGoal": "Add Goal",
+    "preset_retirement": "Retirement",
+    "preset_house": "Buy a Home",
+    "preset_education": "Child's Education",
+    "preset_wedding": "Wedding",
+    "target_amount": "Target Amount (₹)",
+    "target_date": "Target Date",
+    "current_savings": "Current Savings (₹)",
+    "monthly_contribution": "Monthly Contribution (₹)",
+    "submit_button": "Save Goal",
+    "monthly_sip_label": "Recommended Monthly SIP",
+    "projected_value_label": "Projected Value",
+    "advice_label": "Shreya's Advice",
     "retirement": "Retirement",
-    "home": "Buy a Home",
-    "education": "Child's Education",
-    "wedding": "Wedding",
     "targetAmount": "Target Amount (₹)",
-    "targetDate": "Target Date",
-    "currentSavings": "Current Savings (₹)",
-    "monthly": "Monthly Contribution (₹)"
+    "monthly": "Monthly Contribution (₹)",
+    "addGoal": "Add Goal"
+  },
+  "portfolio": {
+    "title": "Portfolio Analysis",
+    "upload_button": "Upload Portfolio CSV",
+    "sample_button": "Try with Sample",
+    "summary_label": "Summary",
+    "recommendations_label": "Recommendations",
+    "sip_suggestion_label": "SIP Suggestion",
+    "upload_prompt": "Drag & drop your portfolio CSV here, or click to select"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "advisor": "AI Advisor",
+    "goals": "Goals",
+    "portfolio": "Portfolio",
+    "insights": "Insights",
+    "language_switcher_label": "Switch Language"
   },
   "common": {
     "loading": "Loading...",
-    "error": "Something went wrong. Please try again.",
-    "save": "Save",
-    "cancel": "Cancel",
-    "lakh": "Lakh",
-    "crore": "Crore"
+    "error_generic": "Something went wrong. Please try again.",
+    "shreya_break": "Shreya is taking a short break. Please refresh in a moment.",
+    "currency_symbol": "₹"
   }
 }
