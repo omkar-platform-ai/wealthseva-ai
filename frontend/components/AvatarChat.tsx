@@ -53,11 +53,13 @@ export default function AvatarChat() {
     setShowChips(true);
   }, [locale]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  const sendMessage = async (chipInput?: string) => {
+    const messageToSend = chipInput || input;
+    if (!messageToSend?.trim() || loading) return;
 
-    const userMsg: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg: Message = { role: 'user', content: messageToSend };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput('');
     setShowChips(false);
     setLoading(true);
@@ -67,10 +69,10 @@ export default function AvatarChat() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: input,
+          message: messageToSend,
           session_id: 'demo-session',
           language: locale,
-          history: messages.slice(-10), // Send last 10 messages for context
+          history: updatedMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
         }),
       });
 
@@ -140,13 +142,7 @@ export default function AvatarChat() {
                 ].map(chip => (
                   <button
                     key={chip.key}
-                    onClick={() => {
-                      setInput(chip.text);
-                      setTimeout(() => {
-                        const event = new KeyboardEvent('keydown', { key: 'Enter' });
-                        (document.activeElement as HTMLInputElement)?.dispatchEvent(event);
-                      }, 100);
-                    }}
+                    onClick={() => sendMessage(chip.text)}
                     className="text-xs bg-idbi-light text-idbi-blue px-4 py-2 rounded-full hover:bg-idbi-blue hover:text-white transition-colors"
                   >
                     {chip.text}
