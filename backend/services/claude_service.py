@@ -63,23 +63,66 @@ async def stream_chat(
             yield text
 
 
-async def analyze_portfolio(portfolio_data: dict, language: Language) -> str:
-    """Analyze a portfolio and return structured recommendations."""
+async def analyze_portfolio(portfolio_data: dict, language: Language) -> dict:
+    """Analyze a portfolio and return structured recommendations as JSON."""
     if client is None:
-        return "I apologize, but I'm currently unable to analyze your portfolio. Please ensure AWS credentials are properly configured."
+        return {
+            "summary": "Service temporarily unavailable. Please ensure AWS credentials are properly configured.",
+            "recommendations": ["Check AWS credentials", "Verify Bedrock access", "Contact support"],
+            "sip_suggestion": "N/A - Service unavailable"
+        }
 
     system_prompt = get_system_prompt(language)
+    
+    # Add strict JSON output instruction
+    json_instruction = """
+    
+IMPORTANT: You must respond with ONLY a valid JSON object. No markdown, no explanation, no additional text.
+Your response must be exactly in this format:
+{
+    "summary": "One sentence overview of the portfolio",
+    "recommendations": ["Recommendation 1", "Recommendation 2", "Recommendation 3"],
+    "sip_suggestion": "Specific fund category and amount suggestion"
+}
+
+Respond in the language matching the user's input.
+"""
+    
+    enhanced_prompt = f"""Analyze this portfolio and provide structured recommendations:
+
+Portfolio Data:
+{portfolio_data}
+
+{json_instruction}"""
 
     response = await client.messages.create(
         model=BEDROCK_MODEL_ID,
-        max_tokens=2048,
-        system=system_prompt,
+        max_tokens=1024,
+        system=system_prompt + json_instruction,
         messages=[{
             "role": "user",
-            "content": f"Analyze this portfolio and give me personalized recommendations:\n\n{portfolio_data}"
+            "content": enhanced_prompt
         }],
     )
-    return response.content[0].text
+    
+    import json
+    response_text = response.content[0].text.strip()
+    
+    # Remove markdown code blocks if present
+    if response_text.startswith("```json"):
+        response_text = response_text.replace("```json", "").replace("```", "").strip()
+    elif response_text.startswith("```"):
+        response_text = response_text.replace("```", "").strip()
+    
+    try:
+        return json.loads(response_text)
+    except json.JSONDecodeError:
+        # Fallback if JSON parsing fails
+        return {
+            "summary": response_text[:200],
+            "recommendations": ["Review portfolio allocation", "Consider diversification", "Rebalance periodically"],
+            "sip_suggestion": "Consider starting with ₹5000/month in a balanced fund"
+        }
 
 
 async def generate_goal_plan(goals: list[dict], language: Language) -> str:
