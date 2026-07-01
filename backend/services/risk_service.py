@@ -56,10 +56,14 @@ RISK_QUESTIONS = [
     },
 ]
 
+# Allocations per requirements:
+# Conservative (5-8): 60% debt, 30% large cap, 10% gold
+# Moderate (9-13): 40% equity diversified, 40% debt, 20% balanced
+# Aggressive (14-20): 70% equity, 20% mid/small cap, 10% debt
 ALLOCATIONS = {
-    RiskProfile.CONSERVATIVE: {"FD/Bonds": 70, "Debt MF": 20, "Equity MF": 10},
-    RiskProfile.MODERATE: {"FD/Bonds": 30, "Debt MF": 30, "Equity MF": 40},
-    RiskProfile.AGGRESSIVE: {"FD/Bonds": 10, "Debt MF": 10, "Equity MF": 80},
+    RiskProfile.CONSERVATIVE: {"Debt": 60, "Large Cap": 30, "Gold": 10},
+    RiskProfile.MODERATE: {"Equity Diversified": 40, "Debt": 40, "Balanced": 20},
+    RiskProfile.AGGRESSIVE: {"Equity": 70, "Mid/Small Cap": 20, "Debt": 10},
 }
 
 

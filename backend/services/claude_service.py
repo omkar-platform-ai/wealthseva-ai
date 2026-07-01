@@ -11,6 +11,8 @@ from services.language_service import get_system_prompt
 # Bedrock configuration
 BEDROCK_REGION = os.getenv("BEDROCK_REGION", "ap-south-1")
 BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "global.anthropic.claude-sonnet-4-6")
+MAX_HISTORY = 10
+TIMEOUT_SECONDS = 10
 
 # Lazy initialization with graceful fallback for missing AWS credentials
 # When running on EC2/Lambda with IAM role, boto3 automatically finds credentials
@@ -38,14 +40,16 @@ async def stream_chat(
     """Stream a Claude response for the wealth advisor chat."""
     if client is None:
         # Graceful fallback: return mock response if AWS credentials not configured
-        yield "I apologize, but I'm currently unable to connect to my AI backend. Please ensure AWS credentials are properly configured."
+        yield "Mock response — add ANTHROPIC_API_KEY to .env"
         return
 
     system_prompt = get_system_prompt(language)
     if context:
         system_prompt += f"\n\n## Relevant IDBI Data Context\n{context}"
 
-    messages = [{"role": m.role, "content": m.content} for m in history]
+    # Trim history to MAX_HISTORY (keep only last N messages)
+    trimmed_history = history[-MAX_HISTORY:] if len(history) > MAX_HISTORY else history
+    messages = [{"role": m.role, "content": m.content} for m in trimmed_history]
     messages.append({"role": "user", "content": message})
 
     async with client.messages.stream(
@@ -53,6 +57,7 @@ async def stream_chat(
         max_tokens=1024,
         system=system_prompt,
         messages=messages,
+        timeout=TIMEOUT_SECONDS,
     ) as stream:
         async for text in stream.text_stream:
             yield text
@@ -110,6 +115,25 @@ async def generate_market_insights(language: Language) -> str:
         messages=[{
             "role": "user",
             "content": "Give me today's key market insights relevant to Indian retail investors in 3-4 concise points."
+        }],
+    )
+    return response.content[0].text
+
+
+async def generate_risk_explanation(profile: str, score: int, allocation: dict, language: Language) -> str:
+    """Generate a personalized explanation for the risk profile."""
+    if client is None:
+        return f"Your risk profile is {profile} with a score of {score}. We recommend an allocation of {allocation}."
+
+    system_prompt = get_system_prompt(language)
+
+    response = await client.messages.create(
+        model=BEDROCK_MODEL_ID,
+        max_tokens=256,
+        system=system_prompt,
+        messages=[{
+            "role": "user",
+            "content": f"Explain in one sentence why a {profile} investor with score {score} should use this allocation: {allocation}"
         }],
     )
     return response.content[0].text

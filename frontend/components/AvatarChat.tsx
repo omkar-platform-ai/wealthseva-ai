@@ -8,7 +8,13 @@ interface Message {
   content: string;
 }
 
+interface HealthStatus {
+  healthy: boolean;
+  loading: boolean;
+}
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
+const ELEVENLABS_AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
 
 export default function AvatarChat() {
   const t = useTranslations('advisor');
@@ -16,18 +22,46 @@ export default function AvatarChat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [health, setHealth] = useState<HealthStatus>({ healthy: true, loading: false });
+  const [showChips, setShowChips] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
+  // Health check every 30 seconds
+  useEffect(() => {
+    const checkHealth = async () => {
+      setHealth(prev => ({ ...prev, loading: true }));
+      try {
+        const res = await fetch(`${BACKEND_URL}/health`);
+        setHealth({ healthy: res.ok, loading: false });
+      } catch {
+        setHealth({ healthy: false, loading: false });
+      }
+    };
 
-    const userMsg: Message = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
+    checkHealth();
+    const interval = setInterval(checkHealth, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Clear chat and show welcome message on locale change
+  useEffect(() => {
+    setMessages([]);
+    setShowChips(true);
+  }, [locale]);
+
+  const sendMessage = async (chipInput?: string) => {
+    const messageToSend = chipInput || input;
+    if (!messageToSend?.trim() || loading) return;
+
+    const userMsg: Message = { role: 'user', content: messageToSend };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput('');
+    setShowChips(false);
     setLoading(true);
 
     try {
@@ -35,10 +69,10 @@ export default function AvatarChat() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: input,
+          message: messageToSend,
           session_id: 'demo-session',
           language: locale,
-          history: messages,
+          history: updatedMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
         }),
       });
 
@@ -74,21 +108,49 @@ export default function AvatarChat() {
         </div>
         <div>
           <p className="text-white font-semibold">Shreya</p>
-          <p className="text-blue-200 text-xs">IDBI Wealth Advisor · {locale.toUpperCase()}</p>
+          <p className="text-blue-200 text-xs">IDBI Wealth Advisor · {locale.toUpperCase()} · {
+            locale === 'en' ? 'English' :
+            locale === 'hi' ? 'हिंदी' :
+            locale === 'mr' ? 'मराठी' :
+            locale === 'ta' ? 'தமிழ்' :
+            locale === 'bn' ? 'বাংলা' : locale.toUpperCase()
+          }</p>
         </div>
-        <span className="ml-auto w-2 h-2 rounded-full bg-green-400" />
+        <div className="ml-auto flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${health.healthy ? 'bg-green-400' : 'bg-red-500'}`} />
+          {health.loading && <span className="text-xs text-blue-200">...</span>}
+          {!health.healthy && <span className="text-xs text-red-200">{t('reconnecting' as never)}</span>}
+        </div>
       </div>
 
       {/* Chat messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <p className="text-center text-gray-400 text-sm mt-8">
-            {locale === 'hi' ? 'नमस्ते! मैं श्रेया हूं, आपकी AI वेल्थ एडवाइज़र।' :
-             locale === 'mr' ? 'नमस्कार! मी श्रेया आहे, तुमची AI वेल्थ अॅडव्हायझर.' :
-             locale === 'ta' ? 'வணக்கம்! நான் ஸ்ரேயா, உங்கள் AI செல்வ ஆலோசகர்.' :
-             locale === 'bn' ? 'নমস্কার! আমি শ্রেয়া, আপনার AI ওয়েলথ অ্যাডভাইজার।' :
-             'Hello! I\'m Shreya, your AI wealth advisor. How can I help you today?'}
-          </p>
+          <div className="text-center mt-8">
+            <p className="text-gray-600 text-lg mb-2">{t('welcomeMessage' as never)}</p>
+            {!ELEVENLABS_AGENT_ID && (
+              <p className="text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-full inline-block">
+                Voice preview — add ElevenLabs agent ID to enable avatar
+              </p>
+            )}
+            {showChips && (
+              <div className="flex flex-wrap gap-2 justify-center mt-4">
+                {[
+                  { key: 'chip1', text: t('chip1' as never) },
+                  { key: 'chip2', text: t('chip2' as never) },
+                  { key: 'chip3', text: t('chip3' as never) },
+                ].map(chip => (
+                  <button
+                    key={chip.key}
+                    onClick={() => sendMessage(chip.text)}
+                    className="text-xs bg-idbi-light text-idbi-blue px-4 py-2 rounded-full hover:bg-idbi-blue hover:text-white transition-colors"
+                  >
+                    {chip.text}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -115,8 +177,8 @@ export default function AvatarChat() {
           disabled={loading}
         />
         <button
-          onClick={sendMessage}
-          disabled={loading || !input.trim()}
+          onClick={() => sendMessage()}
+          disabled={loading || !input.trim() || !health.healthy}
           className="bg-idbi-blue text-white px-4 py-2 rounded-xl hover:bg-blue-900 disabled:opacity-50 transition-colors"
         >
           <Send size={16} />

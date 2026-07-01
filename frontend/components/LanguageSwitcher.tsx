@@ -17,17 +17,36 @@ export default function LanguageSwitcher() {
   const router = useRouter();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
 
   const switchLanguage = (newLocale: string) => {
-    // Replace current locale segment in path
     const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
     router.push(newPath);
     setOpen(false);
+    
+    // Show toast after switch
+    const lang = LANGUAGES.find(l => l.code === newLocale);
+    if (lang) {
+      setTimeout(() => {
+        setToast({ show: true, message: `Switched to ${lang.native}` });
+        setTimeout(() => setToast({ show: false, message: '' }), 2000);
+      }, 100);
+    }
   };
 
   const current = LANGUAGES.find(l => l.code === locale);
 
   return (
+    <>
+    {toast.show && (
+      <div 
+        key={toast.message}
+        className="fixed top-20 right-4 bg-idbi-blue text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300"
+        style={{ animation: 'slideInDown 0.3s ease-out' }}
+      >
+        {toast.message}
+      </div>
+    )}
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
@@ -55,5 +74,6 @@ export default function LanguageSwitcher() {
         </div>
       )}
     </div>
+    </>
   );
 }
