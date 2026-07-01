@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from typing import Optional, List
 from enum import Enum
 
@@ -43,6 +43,12 @@ class RiskQuizAnswer(BaseModel):
 class RiskProfileRequest(BaseModel):
     answers: List[RiskQuizAnswer]
     language: Language = Language.EN
+
+    @model_validator(mode='after')
+    def validate_answers_count(self):
+        if len(self.answers) != 5:
+            raise ValueError("Exactly 5 answers required")
+        return self
 
 
 class RiskProfileResponse(BaseModel):
