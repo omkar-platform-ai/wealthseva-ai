@@ -177,7 +177,7 @@ export default function AvatarChat() {
           disabled={loading}
         />
         <button
-          onClick={sendMessage}
+          onClick={() => sendMessage()}
           disabled={loading || !input.trim() || !health.healthy}
           className="bg-idbi-blue text-white px-4 py-2 rounded-xl hover:bg-blue-900 disabled:opacity-50 transition-colors"
         >
