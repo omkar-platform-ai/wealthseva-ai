@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
@@ -19,6 +19,7 @@ interface RiskProfile {
 
 export default function RiskQuiz() {
   const t = useTranslations('risk');
+  const locale = useLocale();
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -62,7 +63,7 @@ export default function RiskQuiz() {
       const response = await fetch('http://localhost:8000/api/risk-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers: quizAnswers, language: 'en' }),
+        body: JSON.stringify({ answers: quizAnswers, language: locale }),
       });
 
       if (!response.ok) throw new Error('Failed to submit quiz');
