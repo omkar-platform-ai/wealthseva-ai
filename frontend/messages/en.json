@@ -9,6 +9,7 @@
   },
   "risk": {
     "title": "Risk Profile Assessment",
+    "step_label": "Step {current} of {total}",
     "question1": "I am comfortable with short-term losses in exchange for higher long-term returns.",
     "question2": "I understand the risks of investing in equity and mutual funds.",
     "question3": "I can stay invested for 5 or more years without needing this money.",
@@ -23,7 +24,7 @@
     "result_aggressive": "Aggressive Investor",
     "explanation_label": "Your risk profile",
     "retake_button": "Retake Quiz",
-    "analysing_label": "Analysing your answers..."
+    "analysing_label": "Shreya is analysing your profile..."
   },
   "advisor": {
     "title": "Your Wealth Advisor",
