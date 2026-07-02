@@ -25,7 +25,7 @@ except ImportError:
 
 if _aws_credentials_available:
     client = anthropic.AsyncAnthropicBedrock(
-        region=BEDROCK_REGION,
+        aws_region=BEDROCK_REGION,
     )
 else:
     client = None
@@ -101,10 +101,14 @@ async def generate_goal_plan(goals: list[dict], language: Language) -> str:
     return response.content[0].text
 
 
-async def generate_market_insights(language: Language) -> str:
-    """Generate daily personalized market insights."""
+async def generate_market_insights(language: Language) -> list[str]:
+    """Generate daily personalized market insights as a list of 3 strings."""
     if client is None:
-        return "I apologize, but I'm currently unable to generate market insights. Please ensure AWS credentials are properly configured."
+        return [
+            "Mock insight 1: SIP investments remain a stable long-term wealth strategy.",
+            "Mock insight 2: Diversify across equity and debt for balanced risk.",
+            "Mock insight 3: Review your portfolio allocation quarterly.",
+        ]
 
     system_prompt = get_system_prompt(language)
 
@@ -114,10 +118,20 @@ async def generate_market_insights(language: Language) -> str:
         system=system_prompt,
         messages=[{
             "role": "user",
-            "content": "Give me today's key market insights relevant to Indian retail investors in 3-4 concise points."
+            "content": (
+                "Give 3 brief market insights for Indian retail investors today. "
+                f"Respond in {language.value}. Return ONLY valid JSON. No markdown, no explanation. "
+                'Format: ["insight1", "insight2", "insight3"]'
+            ),
         }],
+        timeout=TIMEOUT_SECONDS,
     )
-    return response.content[0].text
+    import json
+    raw = response.content[0].text.strip()
+    parsed = json.loads(raw)
+    if isinstance(parsed, list) and all(isinstance(s, str) for s in parsed):
+        return parsed
+    return [str(item) for item in parsed[:3]]
 
 
 async def generate_risk_explanation(profile: str, score: int, allocation: dict, language: Language) -> str:
