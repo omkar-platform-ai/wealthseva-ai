@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy-backend:
-    name: Deploy Backend to AWS
+    name: Deploy Backend to AWS EC2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,9 +16,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
-      - name: Deploy to EC2
+      - name: Set up SSH key
         run: |
-          echo "Add your deployment script here (rsync, docker push, etc.)"
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2_key.pem
+          chmod 600 /tmp/ec2_key.pem
+      - name: Sync backend to EC2
+        run: |
+          rsync -avz --exclude 'venv' --exclude '__pycache__' --exclude '.pytest_cache' \
+            -e "ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no" \
+            backend/ ubuntu@${{ secrets.EC2_HOST }}:/app/backend/
+      - name: Restart service on EC2
+        run: |
+          ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} \
+            "cd /app/backend && pip install -r requirements.txt -q && sudo systemctl restart wealthseva-backend"
 
   deploy-frontend:
     name: Deploy Frontend to Vercel
@@ -31,3 +41,5 @@ jobs:
       - name: Deploy to Vercel
         run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: frontend
+        env:
+          NEXT_PUBLIC_BACKEND_URL: ${{ secrets.BACKEND_URL }}
