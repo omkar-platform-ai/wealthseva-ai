@@ -39,6 +39,8 @@ def detect_language(text: str, fallback: Language = Language.EN) -> Language:
 
 def get_system_prompt(language: Language) -> str:
     """Load the per-language wealth advisor system prompt."""
+    # Prompt is always read from ai/system_prompts/wealth_advisor_{lang}.md — never hardcoded.
+    # RBI FREE-AI compliance text (AI disclosure + financial figures guardrail) lives in those files.
     prompt_file = os.path.join(SYSTEM_PROMPT_DIR, f"wealth_advisor_{language.value}.md")
     fallback_file = os.path.join(SYSTEM_PROMPT_DIR, "wealth_advisor_en.md")
 
