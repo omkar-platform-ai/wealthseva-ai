@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Health check
         run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "${{ secrets.BACKEND_URL }}/health")
+          STATUS=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 10 "${{ secrets.BACKEND_URL }}/health")
           if [ "$STATUS" != "200" ]; then
             echo "Health check failed with HTTP $STATUS"
             exit 1
