@@ -2,7 +2,8 @@
 
 > AI-powered multilingual wealth advisor avatar for IDBI Bank — IDBI Innovate 2026, Track 01
 
-[![CI](https://github.com/your-username/wealthseva-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/wealthseva-ai/actions)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-WealthSeva-brightgreen)](https://github.com/omkar-platform-ai/wealthseva-ai)
+[![CI](https://github.com/omkar-platform-ai/wealthseva-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/omkar-platform-ai/wealthseva-ai/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
@@ -517,7 +518,7 @@ wealthseva-ai/
 
 ```bash
 # Clone
-git clone https://github.com/your-username/wealthseva-ai.git
+git clone https://github.com/omkar-platform-ai/wealthseva-ai.git
 cd wealthseva-ai
 
 # One-command setup (installs both frontend and backend)
@@ -564,10 +565,10 @@ See `.env.example` for the full list.
 ### Backend (AWS EC2)
 ```bash
 # SSH into your IDBI-provided EC2 instance
-ssh -i key.pem ec2-user@your-ec2-ip
+ssh -i key.pem ec2-user@<EC2_IP>  # update with IDBI-provided IP after WEA-22 deployment
 
 # Clone and run
-git clone https://github.com/your-username/wealthseva-ai.git
+git clone https://github.com/omkar-platform-ai/wealthseva-ai.git
 cd wealthseva-ai/backend
 pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4

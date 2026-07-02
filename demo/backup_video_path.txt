@@ -1,0 +1,6 @@
+# Backup demo video path / URL
+# Update this before the live demo with the actual file path or YouTube/Drive URL
+# Example: /Users/sonaw/Desktop/wealthseva-demo-backup.mp4
+# Example: https://drive.google.com/file/d/YOUR_FILE_ID/view
+
+BACKUP_VIDEO=
