@@ -1,8 +1,22 @@
 'use client';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
+
+function DemoLink({ locale }: { locale: string }) {
+  const params = useSearchParams();
+  if (params.get('demo') !== 'true') return null;
+  return (
+    <Link
+      href={`/${locale}/demo?demo=true`}
+      className="text-sm text-idbi-gold font-semibold hover:text-white transition-colors border border-idbi-gold/60 px-3 py-1 rounded-full"
+    >
+      Judge Demo →
+    </Link>
+  );
+}
 
 export default function Navbar() {
   const t = useTranslations('nav');
@@ -32,6 +46,9 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Suspense fallback={null}>
+            <DemoLink locale={locale} />
+          </Suspense>
         </div>
 
         <div className="flex items-center gap-2">
