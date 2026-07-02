@@ -202,6 +202,7 @@ async def generate_market_insights(language: Language) -> list:
             "role": "user",
             "content": f"Give me 3 brief market insights for Indian retail investors today. Respond in {language.value}. Return as a JSON array of strings only, no markdown."
         }],
+        timeout=TIMEOUT_SECONDS,
     )
 
     response_text = response.content[0].text.strip()
