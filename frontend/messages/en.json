@@ -73,7 +73,12 @@
     "summary_label": "Summary",
     "recommendations_label": "Recommendations",
     "sip_suggestion_label": "SIP Suggestion",
-    "upload_prompt": "Drag & drop your portfolio CSV here, or click to select"
+    "upload_prompt": "Drag & drop your portfolio CSV here, or click to select",
+    "analyzing": "Analyzing your portfolio...",
+    "allocation_chart_label": "Current Allocation",
+    "file_too_large": "File size exceeds 2MB limit. Please upload a smaller file.",
+    "invalid_format": "Only CSV files are allowed.",
+    "sample_upload_error": "Failed to load sample portfolio. Please try again."
   },
   "nav": {
     "dashboard": "Dashboard",
