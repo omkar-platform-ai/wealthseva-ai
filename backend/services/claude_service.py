@@ -3,6 +3,8 @@ Claude API service — handles all LLM calls, streaming, and tool use.
 Uses Amazon Bedrock for model inference with IAM authentication.
 """
 import os
+import json
+import time
 from typing import AsyncIterator
 import anthropic
 from models.schemas import Language, ChatMessage
@@ -29,6 +31,10 @@ if _aws_credentials_available:
     )
 else:
     client = None
+
+# Simple in-memory cache for market insights (60-second TTL)
+_insights_cache = {}
+_INSIGHTS_CACHE_TTL = 60  # seconds
 
 
 async def stream_chat(
@@ -144,10 +150,47 @@ async def generate_goal_plan(goals: list[dict], language: Language) -> str:
     return response.content[0].text
 
 
-async def generate_market_insights(language: Language) -> str:
-    """Generate daily personalized market insights."""
+async def generate_market_insights(language: Language) -> list:
+    """Generate daily personalized market insights as a JSON array of strings."""
+    cache_key = f"insights_{language.value}"
+    current_time = time.time()
+
+    # Check cache
+    if cache_key in _insights_cache:
+        cached_data, cached_time = _insights_cache[cache_key]
+        if current_time - cached_time < _INSIGHTS_CACHE_TTL:
+            return cached_data
+
     if client is None:
-        return "I apologize, but I'm currently unable to generate market insights. Please ensure AWS credentials are properly configured."
+        # Return mock insights in the requested language
+        mock_insights = {
+            Language.EN: [
+                "Market volatility continues amid global economic uncertainty",
+                "Banking sector shows resilience with NPA levels improving",
+                "IT sector facing headwinds due to global slowdown concerns"
+            ],
+            Language.HI: [
+                "वैश्विक आर्थिक अनिश्चितता के बीच बाजार की अस्थिरता जारी है",
+                "एनपीए स्तर में सुधार के साथ बैंकिंग क्षेत्र मजबूत दिख रहा है",
+                "वैश्विक मंदी की चिंताओं से आईटी क्षेत्र पर दबाव"
+            ],
+            Language.MR: [
+                "वैश्विक आर्थिक अनिश्चितता आणि सर्व्हलेला बाजार अस्थिर",
+                "बँक क्षेत्र एनपीए पातळीत सुधार करत आहे",
+                "आयटी क्षेत्रावर ग्लोबल स्लोडाउनचा परिणाम"
+            ],
+            Language.TA: [
+                "உலகளாவிய பொருளாதார நிச்சயமற்ற தன்மையின் போது சந்தை ஏற்ற இறக்கம் தொடர்கிறது",
+                "என்பிஏ அளவுகள் மேம்படுவதால் வங்கி துறை எதிர்காலம் காண்கிறது",
+                "உலகளாவிய மெதுவான செயல்பாடு காரணமாக ஐடி துறை அழுத்தம் எதிர்கொள்கிறது"
+            ],
+            Language.BN: [
+                "বিশ্বব্যাপী অর্থনৈতিক অনিশ্চয়তার মধ্যে বাজারের অস্থিরতা অব্যাহত",
+                "এনপিএ স্তরের উন্নতির সাথে ব্যাংকিং খাত স্থিতিস্থাপক দেখাচ্ছে",
+                "বিশ্বব্যাপী মন্থরতার কারণে আইটি খাতের মন্থর গতি"
+            ],
+        }
+        return mock_insights.get(language, mock_insights[Language.EN])
 
     system_prompt = get_system_prompt(language)
 
@@ -157,10 +200,33 @@ async def generate_market_insights(language: Language) -> str:
         system=system_prompt,
         messages=[{
             "role": "user",
-            "content": "Give me today's key market insights relevant to Indian retail investors in 3-4 concise points."
+            "content": f"Give me 3 brief market insights for Indian retail investors today. Respond in {language.value}. Return as a JSON array of strings only, no markdown."
         }],
     )
-    return response.content[0].text
+
+    response_text = response.content[0].text.strip()
+
+    # Parse JSON response
+    try:
+        # Remove markdown code blocks if present
+        if response_text.startswith("```json"):
+            response_text = response_text.replace("```json", "").replace("```", "").strip()
+        elif response_text.startswith("```"):
+            response_text = response_text.replace("```", "").strip()
+
+        insights = json.loads(response_text)
+
+        # Ensure it's a list
+        if not isinstance(insights, list):
+            insights = [insights]
+
+        # Cache the result
+        _insights_cache[cache_key] = (insights, current_time)
+        return insights
+
+    except (json.JSONDecodeError, TypeError):
+        # Fallback if JSON parsing fails — wrap in array
+        return [response_text]
 
 
 async def generate_risk_explanation(profile: str, score: int, allocation: dict, language: Language) -> str:

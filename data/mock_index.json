@@ -1,0 +1,58 @@
+[
+  {
+    "text": "In June 2026, a retail customer spent \u20b98500 on Food & Dining.",
+    "category": "Food & Dining",
+    "amount": "8500",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b93200 on Transport.",
+    "category": "Transport",
+    "amount": "3200",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b912000 on Shopping.",
+    "category": "Shopping",
+    "amount": "12000",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b94500 on Utilities.",
+    "category": "Utilities",
+    "amount": "4500",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b96000 on Entertainment.",
+    "category": "Entertainment",
+    "amount": "6000",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b915000 on Investments.",
+    "category": "Investments",
+    "amount": "15000",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b97500 on Healthcare.",
+    "category": "Healthcare",
+    "amount": "7500",
+    "month": "June 2026",
+    "segment": "retail"
+  },
+  {
+    "text": "In June 2026, a retail customer spent \u20b912000 on Education.",
+    "category": "Education",
+    "amount": "12000",
+    "month": "June 2026",
+    "segment": "retail"
+  }
+]

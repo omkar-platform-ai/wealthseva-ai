@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse
 from models.schemas import ChatRequest, Language
 from services.claude_service import stream_chat
 from services.language_service import detect_language
-from services.rag_service import retrieve_context
+from services.rag_service import retrieve_context, get_rag_status
 
 router = APIRouter()
 
@@ -24,3 +24,9 @@ async def chat(req: ChatRequest):
 
     return StreamingResponse(generate(), media_type="text/plain",
                               headers={"X-Detected-Language": effective_lang.value})
+
+
+@router.get("/rag/status")
+async def rag_status():
+    """Get RAG pipeline status and document count."""
+    return get_rag_status()
