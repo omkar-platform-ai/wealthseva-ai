@@ -27,7 +27,7 @@ except ImportError:
 
 if _aws_credentials_available:
     client = anthropic.AsyncAnthropicBedrock(
-        region=BEDROCK_REGION,
+        aws_region=BEDROCK_REGION,
     )
 else:
     client = None
@@ -138,16 +138,20 @@ async def generate_goal_plan(goals: list[dict], language: Language) -> str:
 
     system_prompt = get_system_prompt(language)
 
-    response = await client.messages.create(
-        model=BEDROCK_MODEL_ID,
-        max_tokens=2048,
-        system=system_prompt,
-        messages=[{
-            "role": "user",
-            "content": f"Create a detailed savings and investment plan for these goals:\n\n{goals}"
-        }],
-    )
-    return response.content[0].text
+    try:
+        response = await client.messages.create(
+            model=BEDROCK_MODEL_ID,
+            max_tokens=2048,
+            system=system_prompt,
+            messages=[{
+                "role": "user",
+                "content": f"Create a detailed savings and investment plan for these goals:\n\n{goals}"
+            }],
+            timeout=TIMEOUT_SECONDS,
+        )
+        return response.content[0].text
+    except Exception:
+        return "I'm unable to generate your goal plan right now. Please try again in a moment."
 
 
 async def generate_market_insights(language: Language) -> list:
