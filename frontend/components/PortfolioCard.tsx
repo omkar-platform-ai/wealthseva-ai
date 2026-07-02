@@ -1,5 +1,5 @@
 'use client';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useDropzone } from 'react-dropzone';
 import { useState } from 'react';
 import * as Papa from 'papaparse';
@@ -22,6 +22,7 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
 export default function PortfolioCard() {
   const t = useTranslations('portfolio');
+  const locale = useLocale();
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [allocationData, setAllocationData] = useState<Array<{ category: string; value: number }>>([]);
@@ -77,7 +78,7 @@ export default function PortfolioCard() {
     setAnalyzing(true);
     const form = new FormData();
     form.append('file', file);
-    form.append('language', 'en');
+    form.append('language', locale);
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio`, {
