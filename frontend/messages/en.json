@@ -65,7 +65,12 @@
     "retirement": "Retirement",
     "targetAmount": "Target Amount (₹)",
     "monthly": "Monthly Contribution (₹)",
-    "addGoal": "Add Goal"
+    "addGoal": "Add Goal",
+    "goal_name_label": "Goal Name",
+    "calculate_button": "Calculate My Plan",
+    "years_away": "years away",
+    "total_monthly_label": "Total Monthly Commitment",
+    "corpus_chart_label": "Corpus Growth"
   },
   "portfolio": {
     "title": "Portfolio Analysis",

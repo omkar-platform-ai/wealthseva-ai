@@ -64,7 +64,12 @@
     "retirement": "ஓய்வூதியம்",
     "targetAmount": "இலக்கு தொகை (₹)",
     "monthly": "மாதாந்திர பங்களிப்பு (₹)",
-    "addGoal": "இலக்கு சேர்"
+    "addGoal": "இலக்கு சேர்",
+    "goal_name_label": "இலக்கு பெயர்",
+    "calculate_button": "என் திட்டத்தை கணக்கிடு",
+    "years_away": "ஆண்டுகள் உள்ளன",
+    "total_monthly_label": "மொத்த மாதாந்திர உறுதிமொழி",
+    "corpus_chart_label": "நிதி வளர்ச்சி"
   },
   "portfolio": {
     "title": "போர்ட்ஃபோலியோ பகுப்பாய்வு",

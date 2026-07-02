@@ -64,7 +64,12 @@
     "retirement": "निवृत्ती",
     "targetAmount": "लक्ष्य रक्कम (₹)",
     "monthly": "मासिक योगदान (₹)",
-    "addGoal": "उद्दिष्ट जोडा"
+    "addGoal": "उद्दिष्ट जोडा",
+    "goal_name_label": "उद्दिष्टाचे नाव",
+    "calculate_button": "माझी योजना मोजा",
+    "years_away": "वर्षे शिल्लक",
+    "total_monthly_label": "एकूण मासिक वचनबद्धता",
+    "corpus_chart_label": "कॉर्पस वाढ"
   },
   "portfolio": {
     "title": "पोर्टफोलिओ विश्लेषण",

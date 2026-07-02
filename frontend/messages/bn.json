@@ -64,7 +64,12 @@
     "retirement": "অবসর",
     "targetAmount": "লক্ষ্য পরিমাণ (₹)",
     "monthly": "মাসিক অবদান (₹)",
-    "addGoal": "লক্ষ্য যোগ করুন"
+    "addGoal": "লক্ষ্য যোগ করুন",
+    "goal_name_label": "লক্ষ্যের নাম",
+    "calculate_button": "আমার পরিকল্পনা গণনা করুন",
+    "years_away": "বছর বাকি",
+    "total_monthly_label": "মোট মাসিক প্রতিশ্রুতি",
+    "corpus_chart_label": "কর্পাস বৃদ্ধি"
   },
   "portfolio": {
     "title": "পোর্টফোলিও বিশ্লেষণ",
