@@ -1,0 +1,169 @@
+<mxfile host="app.diagrams.net" modified="2026-07-03" agent="Claude" version="21.0" type="device">
+  <diagram id="wealthseva-ec2-prototype" name="EC2 Prototype — Jul 9">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ══════════════════════════════ HEADER ══════════════════════════════ -->
+        <mxCell id="header" value="" style="rounded=1;fillColor=#161B22;strokeColor=#30363D;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="1634" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="badge-proto" value="&lt;b&gt;PROTOTYPE&lt;/b&gt;" style="ellipse;whiteSpace=wrap;fillColor=#FF9900;strokeColor=none;fontColor=#0D1117;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="22" width="110" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="badge-date" value="📅 Due: Jul 9, 2026" style="ellipse;whiteSpace=wrap;fillColor=#1F2937;strokeColor=#374151;fontColor=#E5E7EB;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="145" y="22" width="160" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="title" value="&lt;b&gt;&lt;font style=&apos;font-size:18px;color:#F9FAFB;&apos;&gt;WealthSeva AI — EC2 Prototype Architecture&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;font style=&apos;font-size:11px;color:#9CA3AF;&apos;&gt;Simplified deployment · ap-south-1 (Mumbai) · ~3 days to ship · IDBI Innovate 2026&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="310" y="10" width="1000" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="badge-days" value="✓ 3 days to ship" style="ellipse;whiteSpace=wrap;fillColor=#059669;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1494" y="22" width="140" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ LEGEND ══════════════════════════════ -->
+        <mxCell id="legend" value="" style="rounded=1;fillColor=#161B22;strokeColor=#21262D;" vertex="1" parent="1">
+          <mxGeometry x="10" y="80" width="1634" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="l1" value="&lt;font color=&apos;#3B82F6&apos;&gt;■&lt;/font&gt; New (add now)" style="text;html=1;fillColor=none;strokeColor=none;fontSize=10;fontColor=#9CA3AF;" vertex="1" parent="1">
+          <mxGeometry x="80" y="83" width="170" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="l2" value="&lt;font color=&apos;#10B981&apos;&gt;■&lt;/font&gt; Existing — keep unchanged" style="text;html=1;fillColor=none;strokeColor=none;fontSize=10;fontColor=#9CA3AF;" vertex="1" parent="1">
+          <mxGeometry x="270" y="83" width="220" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="l3" value="&lt;font color=&apos;#D97706&apos;&gt;■&lt;/font&gt; Improve (small change only)" style="text;html=1;fillColor=none;strokeColor=none;fontSize=10;fontColor=#9CA3AF;" vertex="1" parent="1">
+          <mxGeometry x="510" y="83" width="240" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="l4" value="&lt;font color=&apos;#4B5563&apos;&gt;■ - - -&lt;/font&gt; Keep for now / migrate Phase 2" style="text;html=1;fillColor=none;strokeColor=none;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="770" y="83" width="280" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="l5" value="&lt;font color=&apos;#374151&apos;&gt;■ - - -&lt;/font&gt; Deferred → Phase 2" style="text;html=1;fillColor=none;strokeColor=none;fontSize=10;fontColor=#4B5563;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="83" width="240" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ ROW 1: USERS ══════════════════════════════ -->
+        <mxCell id="users-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#4B5563;letter-spacing:2px;&apos;&gt;USERS&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#1E293B;strokeColor=#334155;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="114" width="1634" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="browser" value="&lt;b&gt;📱💻 Browser (Mobile + Desktop)&lt;/b&gt;&lt;br&gt;5 languages · EN / HI / MR / TA / BN · Next.js 14 avatar chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontSize=10;fontColor=#E2E8F0;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="80" y="128" width="480" height="42" as="geometry"/>
+        </mxCell>
+        <mxCell id="elevenlabs" value="&lt;font color=&apos;#FCD34D&apos;&gt;&lt;b&gt;🔊 ElevenLabs&lt;/b&gt;&lt;/font&gt; &lt;font color=&apos;#FCA5A5&apos;&gt;⚠ US-hosted — demo acceptable · Phase 2: Amazon Polly&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C1408;strokeColor=#78350F;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="600" y="128" width="500" height="42" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="arr1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#374151;fontColor=#6B7280;fontSize=9;" edge="1" parent="1" source="users-bg" target="edge-bg">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ ROW 2: EDGE ══════════════════════════════ -->
+        <mxCell id="edge-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#3B82F6;letter-spacing:2px;&apos;&gt;EDGE &amp;amp; SECURITY — Day 2&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#0C1A2E;strokeColor=#1E3A5F;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="204" width="1634" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="cloudfront" value="&lt;b&gt;&lt;font color=&apos;#60A5FA&apos;&gt;🌐 Amazon CloudFront&lt;/font&gt;&lt;/b&gt;&lt;br&gt;CDN · Origin Shield: ap-south-1&lt;br&gt;Two origins: Amplify (frontend) + EC2:8000 (API)&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2137;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="224" width="460" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="waf" value="&lt;b&gt;&lt;font color=&apos;#60A5FA&apos;&gt;🛡️ AWS WAF&lt;/font&gt;&lt;/b&gt;&lt;br&gt;OWASP Top 10 Managed Rules&lt;br&gt;Rate limit: 30 req/min/IP (matches existing slowapi config)&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2137;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="224" width="530" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="acm" value="&lt;b&gt;&lt;font color=&apos;#60A5FA&apos;&gt;🔐 ACM (TLS cert)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Free managed cert on CloudFront — replaces self-signed Dockerfile certs&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2137;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="224" width="504" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="arr2" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#374151;" edge="1" parent="1" source="edge-bg" target="compute-bg">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ ROW 3: COMPUTE ══════════════════════════════ -->
+        <mxCell id="compute-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#4B5563;letter-spacing:2px;&apos;&gt;COMPUTE — ap-south-1&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#111827;strokeColor=#21262D;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="314" width="1634" height="210" as="geometry"/>
+        </mxCell>
+
+        <!-- Amplify -->
+        <mxCell id="amplify" value="&lt;b&gt;&lt;font color=&apos;#93C5FD&apos;&gt;🚀 AWS Amplify Hosting — Next.js 14 Frontend&lt;/font&gt;&lt;/b&gt;&lt;br&gt;✓ Connect GitHub repo → auto-deploy on push to main&lt;br&gt;✓ SSR / App Router / next-intl i18n middleware&lt;br&gt;✓ Env vars via Amplify console (no .env committed)&lt;br&gt;✓ Served through CloudFront Indian origin&lt;br&gt;&lt;font color=&apos;#FB923C&apos;&gt;[REPLACE VERCEL] ⏱ ~1 hour · zero code changes · Day 3&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D1F30;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="336" width="700" height="170" as="geometry"/>
+        </mxCell>
+
+        <!-- EC2 -->
+        <mxCell id="ec2" value="&lt;b&gt;&lt;font color=&apos;#86EFAC&apos;&gt;🖥️ EC2 — t3.medium (ap-south-1)&lt;br&gt;Docker — FastAPI Backend&lt;/font&gt;&lt;/b&gt;&lt;br&gt;&lt;br&gt;Same backend/Dockerfile — &lt;b&gt;zero code changes&lt;/b&gt;&lt;br&gt;Deploy: &lt;font color=&apos;#FCD34D&apos;&gt;docker pull ECR image → docker run&lt;/font&gt; (not rsync)&lt;br&gt;EC2 IAM Role → Bedrock + S3 + Secrets Manager&lt;br&gt;Security Group: port 8000 open to CloudFront IPs only&lt;br&gt;&lt;br&gt;&lt;font color=&apos;#D97706&apos;&gt;[IMPROVE existing EC2] ⏱ ~0.5 day · Day 1&lt;/font&gt;&lt;br&gt;Update deploy.yml: remove rsync · add docker pull + run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2010;strokeColor=#16A34A;strokeWidth=2;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="770" y="336" width="854" height="170" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="arr3" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#374151;" edge="1" parent="1" source="compute-bg" target="bedrock-bg">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ ROW 4: BEDROCK ══════════════════════════════ -->
+        <mxCell id="bedrock-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#A78BFA;letter-spacing:2px;&apos;&gt;AI LAYER — AMAZON BEDROCK (ap-south-1) — ZERO CHANGES&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#150E2A;strokeColor=#3730A3;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="544" width="1634" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="claude" value="&lt;b&gt;&lt;font color=&apos;#C4B5FD&apos;&gt;🤖 Claude Sonnet (claude-sonnet-4-6)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Via Amazon Bedrock · ap-south-1&lt;br&gt;claude_service.py · 5 language system prompts · streaming&lt;br&gt;&lt;font color=&apos;#4ADE80&apos;&gt;[EXISTS ✓ — zero changes]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1035;strokeColor=#5B21B6;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="566" width="490" height="78" as="geometry"/>
+        </mxCell>
+        <mxCell id="titan" value="&lt;b&gt;&lt;font color=&apos;#C4B5FD&apos;&gt;🔢 Titan Embeddings v2&lt;/font&gt;&lt;/b&gt;&lt;br&gt;rag_service.py · BEDROCK_REGION=ap-south-1&lt;br&gt;Generates vectors for RAG retrieval&lt;br&gt;&lt;font color=&apos;#4ADE80&apos;&gt;[EXISTS ✓ — zero changes]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1035;strokeColor=#5B21B6;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="566" width="490" height="78" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;&lt;font color=&apos;#C4B5FD&apos;&gt;🪣 Amazon S3 (ap-south-1)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;wealthseva-ai-assets · documents + audio + assets&lt;br&gt;Minor hardening: SSE-S3 encrypt · block public access&lt;br&gt;&lt;font color=&apos;#4ADE80&apos;&gt;[EXISTS ✓ — minor hardening only]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1035;strokeColor=#5B21B6;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="566" width="524" height="78" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="arr4" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#374151;" edge="1" parent="1" source="bedrock-bg" target="data-bg">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ ROW 5: DATA ══════════════════════════════ -->
+        <mxCell id="data-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#9CA3AF;letter-spacing:2px;&apos;&gt;DATA &amp;amp; SECRETS&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#111827;strokeColor=#374151;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="674" width="1634" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="supabase" value="&lt;b&gt;&lt;font color=&apos;#6B7280&apos;&gt;🗄️ Supabase (PostgreSQL)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;User data · goals · risk profiles · consent records · session history&lt;br&gt;&lt;font color=&apos;#F59E0B&apos;&gt;⚠ Keep for prototype — data residency gap acknowledged&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Phase 2: Migrate → Aurora Serverless v2 (ap-south-1)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#374151;strokeDashPattern=6 3;fontSize=10;fontColor=#6B7280;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="696" width="490" height="88" as="geometry"/>
+        </mxCell>
+        <mxCell id="pinecone" value="&lt;b&gt;&lt;font color=&apos;#6B7280&apos;&gt;🔍 Pinecone (Vector DB)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;RAG index · IDBI dataset · 5 language namespaces&lt;br&gt;&lt;font color=&apos;#F59E0B&apos;&gt;⚠ Keep for prototype · Fallback: mock_index.json already in repo&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Phase 2: Migrate → OpenSearch Serverless (ap-south-1)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#374151;strokeDashPattern=6 3;fontSize=10;fontColor=#6B7280;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="696" width="490" height="88" as="geometry"/>
+        </mxCell>
+        <mxCell id="secrets" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;🔑 AWS Secrets Manager&lt;/font&gt;&lt;/b&gt;&lt;br&gt;All API keys: ElevenLabs · IDBI Sandbox · Pinecone · Claude&lt;br&gt;EC2 IAM Role fetches secrets at startup — removes .env from repo &amp;amp; image&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW] ⏱ ~2 hours · Day 1&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1408;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="696" width="524" height="88" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ ROW 6: SPRINT ══════════════════════════════ -->
+        <mxCell id="sprint-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#4B5563;letter-spacing:2px;&apos;&gt;3-DAY SPRINT PLAN — Jul 3 to Jul 5 (done) · Jul 6–8 demo polish&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#161B22;strokeColor=#21262D;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="804" width="1634" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="day1" value="&lt;b&gt;&lt;font color=&apos;#60A5FA&apos;&gt;Day 1 (Jul 3) — Backend&lt;/font&gt;&lt;/b&gt;&lt;br&gt;• Create ECR repo, push Docker image&lt;br&gt;• Secrets Manager: store all API keys&lt;br&gt;• Attach IAM Role to EC2 instance&lt;br&gt;• Update deploy.yml: rsync → docker pull + run" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2137;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="826" width="490" height="58" as="geometry"/>
+        </mxCell>
+        <mxCell id="day2" value="&lt;b&gt;&lt;font color=&apos;#60A5FA&apos;&gt;Day 2 (Jul 4) — Edge Layer&lt;/font&gt;&lt;/b&gt;&lt;br&gt;• Request ACM certificate for domain&lt;br&gt;• Create CloudFront distribution (2 origins: Amplify + EC2)&lt;br&gt;• Attach WAF with OWASP rules&lt;br&gt;• EC2 Security Group: port 8000 → CloudFront IPs only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2137;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="560" y="826" width="490" height="58" as="geometry"/>
+        </mxCell>
+        <mxCell id="day3" value="&lt;b&gt;&lt;font color=&apos;#60A5FA&apos;&gt;Day 3 (Jul 5) — Frontend + Test&lt;/font&gt;&lt;/b&gt;&lt;br&gt;• AWS Amplify → connect GitHub repo (frontend/)&lt;br&gt;• Update CORS_ORIGINS + NEXT_PUBLIC_BACKEND_URL&lt;br&gt;• Update uptime.yml health check URL&lt;br&gt;• End-to-end smoke test — all 5 languages · Jul 6–8: polish" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0D2137;strokeColor=#1D4ED8;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="826" width="524" height="58" as="geometry"/>
+        </mxCell>
+
+        <!-- ══════════════════════════════ DEFERRED ══════════════════════════════ -->
+        <mxCell id="defer-bg" value="&lt;b&gt;&lt;font style=&apos;font-size:8px;color:#4ADE80;letter-spacing:2px;&apos;&gt;PHASE 2 DEFERRED — Jul 9 → Jul 31&lt;/font&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;fillColor=#0B1A10;strokeColor=#1A3A1A;verticalAlign=top;align=left;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="10" y="904" width="1634" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="d1" value="ECS Fargate + ALB&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Replace EC2 (HA + auto-scale)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F1F0F;strokeColor=#166534;strokeDashPattern=4 2;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="30" y="924" width="250" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d2" value="Aurora Serverless v2&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Replace Supabase (data residency)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F1F0F;strokeColor=#166534;strokeDashPattern=4 2;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="300" y="924" width="270" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d3" value="OpenSearch Serverless&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Replace Pinecone (data residency)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F1F0F;strokeColor=#166534;strokeDashPattern=4 2;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="590" y="924" width="270" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d4" value="Amazon Cognito&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Replace Supabase Auth&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F1F0F;strokeColor=#166534;strokeDashPattern=4 2;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="880" y="924" width="240" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d5" value="Bedrock Guardrails&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;RBI FREE-AI compliance&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F1F0F;strokeColor=#166534;strokeDashPattern=4 2;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="924" width="240" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="d6" value="CloudWatch + X-Ray · CDK IaC&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Observability + reproducible infra&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F1F0F;strokeColor=#166534;strokeDashPattern=4 2;fontSize=10;fontColor=#6B7280;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="924" width="234" height="50" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
