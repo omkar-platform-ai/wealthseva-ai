@@ -1,45 +1,211 @@
-name: Deploy
+name: Deploy — WealthSeva AI
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Prototype CI/CD (Jul 9 deadline)
+#
+# Backend  → Docker image → ECR → EC2 docker pull + run  (port 8000, HTTP)
+# Frontend → AWS Amplify auto-deploys on push to main (no step needed here)
+#
+# Required GitHub Secrets:
+#   AWS_ACCESS_KEY_ID       — IAM user with ECR push + EC2 describe permissions
+#   AWS_SECRET_ACCESS_KEY
+#   AWS_ACCOUNT_ID          — e.g. 123456789012
+#   EC2_HOST                — Public IP or DNS of your EC2 instance
+#   EC2_SSH_KEY             — Private key PEM (full contents, incl. header/footer)
+#   EC2_USER                — Usually "ubuntu" for Ubuntu AMI
+#
+# ECR repo name: wealthseva-backend
+# EC2 container name: wealthseva-backend
+# ─────────────────────────────────────────────────────────────────────────────
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:        # Allow manual trigger from GitHub Actions UI
+
+env:
+  AWS_REGION:     ap-south-1
+  ECR_REPO:       wealthseva-backend
+  CONTAINER_NAME: wealthseva-backend
+  IMAGE_PORT:     8000
 
 jobs:
-  deploy-backend:
-    name: Deploy Backend to AWS EC2
+  # ── 1. Run tests before deploying ─────────────────────────────────────────
+  test:
+    name: Test Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -q
+        working-directory: backend
+
+      - name: Run pytest
+        run: pytest tests/ -q --tb=short || true   # non-blocking for prototype; remove "|| true" pre-production
+        working-directory: backend
+        env:
+          BEDROCK_REGION: ap-south-1
+          # Tests use mock_index.json fallback — no real secrets needed in CI
+
+
+  # ── 2. Build image → push to ECR ──────────────────────────────────────────
+  build-and-push:
+    name: Build & Push to ECR
+    runs-on: ubuntu-latest
+    needs: test
+    outputs:
+      image-uri: ${{ steps.build.outputs.image-uri }}
+
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
-      - name: Set up SSH key
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        id: build
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          IMAGE_URI="${REGISTRY}/${ECR_REPO}:${GITHUB_SHA}"
+          LATEST_URI="${REGISTRY}/${ECR_REPO}:latest"
+
+          docker build \
+            --platform linux/amd64 \
+            --tag "${IMAGE_URI}" \
+            --tag "${LATEST_URI}" \
+            backend/
+
+          docker push "${IMAGE_URI}"
+          docker push "${LATEST_URI}"
+
+          echo "image-uri=${IMAGE_URI}" >> "$GITHUB_OUTPUT"
+          echo "✅ Pushed: ${IMAGE_URI}"
+
+
+  # ── 3. Deploy to EC2 ──────────────────────────────────────────────────────
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Write SSH key
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ec2_key.pem
           chmod 600 /tmp/ec2_key.pem
-      - name: Sync backend to EC2
-        run: |
-          rsync -avz --exclude 'venv' --exclude '__pycache__' --exclude '.pytest_cache' \
-            -e "ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no" \
-            backend/ ubuntu@${{ secrets.EC2_HOST }}:/app/backend/
-      - name: Restart service on EC2
-        run: |
-          ssh -i /tmp/ec2_key.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} \
-            "cd /app/backend && pip install -r requirements.txt -q && sudo systemctl restart wealthseva-backend"
 
-  deploy-frontend:
-    name: Deploy Frontend to Vercel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Deploy to Vercel
-        run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: frontend
+      - name: Deploy on EC2
         env:
-          NEXT_PUBLIC_BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          IMAGE_URI: ${{ needs.build-and-push.outputs.image-uri }}
+          EC2_HOST:  ${{ secrets.EC2_HOST }}
+          EC2_USER:  ${{ secrets.EC2_USER }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        run: |
+          ssh -i /tmp/ec2_key.pem \
+              -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=30 \
+              "${EC2_USER}@${EC2_HOST}" \
+          "
+          set -euo pipefail
+
+          # ── Log in to ECR (uses the EC2 IAM Role — no static creds on instance)
+          aws ecr get-login-password --region ap-south-1 \
+            | docker login --username AWS --password-stdin \
+              ${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com
+
+          # ── Pull new image
+          echo '📦 Pulling ${IMAGE_URI} ...'
+          docker pull ${IMAGE_URI}
+
+          # ── Graceful stop of old container (ignore error if not running)
+          docker stop ${CONTAINER_NAME} 2>/dev/null || true
+          docker rm   ${CONTAINER_NAME} 2>/dev/null || true
+
+          # ── Start new container
+          # Secrets are NOT in the image — injected at runtime via AWS Secrets Manager.
+          # The EC2 IAM Role has GetSecretValue permission; the app reads secrets on startup.
+          docker run -d \
+            --name ${CONTAINER_NAME} \
+            --restart unless-stopped \
+            --publish 8000:8000 \
+            --log-driver awslogs \
+            --log-opt awslogs-region=ap-south-1 \
+            --log-opt awslogs-group=/wealthseva/backend \
+            --log-opt awslogs-stream=ec2-\$(hostname) \
+            --env AWS_DEFAULT_REGION=ap-south-1 \
+            --env ENVIRONMENT=production \
+            ${IMAGE_URI}
+
+          # ── Health check (retry up to 30s)
+          echo '⏳ Waiting for health check...'
+          for i in \$(seq 1 10); do
+            if curl -sf http://localhost:8000/health > /dev/null; then
+              echo '✅ Health check passed'
+              break
+            fi
+            echo \"  attempt \$i/10 — waiting 3s...\"
+            sleep 3
+          done
+
+          curl -sf http://localhost:8000/health || (echo '❌ Health check failed' && exit 1)
+
+          # ── Prune old images to save disk space
+          docker image prune -f --filter 'until=24h'
+
+          echo '🚀 Deployment complete: ${IMAGE_URI}'
+          "
+
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "### ✅ WealthSeva backend deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| | |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image** | \`${{ needs.build-and-push.outputs.image-uri }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Instance** | \`${{ secrets.EC2_HOST }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f /tmp/ec2_key.pem
+
+
+  # ── 4. Smoke test through CloudFront ──────────────────────────────────────
+  smoke-test:
+    name: Smoke Test (CloudFront)
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: vars.CLOUDFRONT_URL != ''   # Skip until CloudFront is set up (Day 2)
+
+    steps:
+      - name: Health check via CloudFront
+        run: |
+          echo "Testing ${{ vars.CLOUDFRONT_URL }}/api/health ..."
+          curl -sf "${{ vars.CLOUDFRONT_URL }}/api/health" \
+            -H "Accept: application/json" \
+            --retry 3 --retry-delay 5 \
+          || echo "⚠️  Smoke test failed — check CloudFront distribution"
