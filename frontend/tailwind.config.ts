@@ -9,16 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Exact values from idbi.bank.in style.css :root tokens
         idbi: {
-          green: "#00594C",
-          dark: "#003D34",
-          teal: "#2E9C8F",
-          orange: "#EE6C2D",
-          light: "#E6F4F1",
+          green: "#00836C",
+          dark: "#307360",
+          teal: "#4FA9A7",
+          orange: "#F37021",
+          light: "#E5F2F0",
         },
       },
       fontFamily: {
-        sans: ["Inter", "Noto Sans Devanagari", "Noto Sans Tamil", "sans-serif"],
+        sans: ["Montserrat", "Noto Sans Devanagari", "Noto Sans Tamil", "sans-serif"],
       },
     },
   },

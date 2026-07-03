@@ -3,10 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --idbi-green: #00594C;
-  --idbi-orange: #EE6C2D;
+  --idbi-green: #00836C;
+  --idbi-orange: #F37021;
 }
 
 body {
-  font-family: 'Inter', 'Noto Sans Devanagari', 'Noto Sans Tamil', sans-serif;
+  font-family: 'Montserrat', 'Noto Sans Devanagari', 'Noto Sans Tamil', sans-serif;
 }

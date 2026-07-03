@@ -277,7 +277,7 @@ export default function GoalPlanner() {
                       <Line
                         type="monotone"
                         dataKey="corpus"
-                        stroke="#00594C"
+                        stroke="#00836C"
                         strokeWidth={2}
                         dot={false}
                         activeDot={{ r: 4 }}
