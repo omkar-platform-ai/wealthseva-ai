@@ -1,0 +1,24 @@
+version: 1
+# WealthSeva AI — Amplify Hosting build config
+#
+# Monorepo layout: this file lives at the repo root and points Amplify at the
+# `frontend/` sub-directory (Next.js 14 App Router + next-intl middleware).
+# Backend deploys separately via .github/workflows/deploy.yml to EC2.
+applications:
+  - appRoot: frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci --prefer-offline --no-audit
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
