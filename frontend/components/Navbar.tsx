@@ -1,7 +1,7 @@
 'use client';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
-import { useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 
@@ -21,7 +21,6 @@ function DemoLink({ locale }: { locale: string }) {
 export default function Navbar() {
   const t = useTranslations('nav');
   const locale = useLocale();
-  const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
     { href: `/${locale}/dashboard`, label: t('dashboard') },
@@ -51,37 +50,9 @@ export default function Navbar() {
           </Suspense>
         </div>
 
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-          {/* Hamburger — mobile only */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-blue-900 transition-colors"
-            onClick={() => setMenuOpen(o => !o)}
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-          >
-            <div className="w-5 h-0.5 bg-white mb-1" />
-            <div className="w-5 h-0.5 bg-white mb-1" />
-            <div className="w-5 h-0.5 bg-white" />
-          </button>
-        </div>
+        {/* Mobile navigation lives in MobileBottomNav — only the switcher up top */}
+        <LanguageSwitcher />
       </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="md:hidden border-t border-blue-900 px-4 pb-4">
-          {links.map(link => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="block py-2 text-sm text-blue-100 hover:text-idbi-gold transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-      )}
     </nav>
   );
 }

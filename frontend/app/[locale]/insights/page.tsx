@@ -2,6 +2,7 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { TrendingUp, RefreshCw } from 'lucide-react';
+import FadeIn from '@/components/FadeIn';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
@@ -68,12 +69,14 @@ export default function InsightsPage() {
       {status === 'ready' && insights.length > 0 && (
         <div className="space-y-4">
           {insights.map((item, i) => (
-            <div key={i} className="bg-white rounded-2xl shadow p-6 flex items-start gap-4">
-              <div className="w-9 h-9 rounded-full bg-idbi-light flex items-center justify-center flex-shrink-0">
-                <TrendingUp size={16} className="text-idbi-blue" />
+            <FadeIn key={i} delay={i * 0.08}>
+              <div className="bg-white rounded-2xl shadow p-6 flex items-start gap-4">
+                <div className="w-9 h-9 rounded-full bg-idbi-light flex items-center justify-center flex-shrink-0">
+                  <TrendingUp size={16} className="text-idbi-blue" />
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed">{item}</p>
               </div>
-              <p className="text-sm text-gray-700 leading-relaxed">{item}</p>
-            </div>
+            </FadeIn>
           ))}
         </div>
       )}

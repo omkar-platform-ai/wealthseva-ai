@@ -2,8 +2,9 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChevronDown, Info } from 'lucide-react';
+import { ChevronDown, Info, Palmtree, Home, GraduationCap, Gem, Target, LucideIcon } from 'lucide-react';
 import { formatINR } from '@/lib/format';
+import FadeIn from '@/components/FadeIn';
 
 interface Preset {
   id: string;
@@ -41,6 +42,14 @@ const PRESET_KEY_MAP: Record<string, 'preset_retirement' | 'preset_house' | 'pre
   house: 'preset_house',
   education: 'preset_education',
   wedding: 'preset_wedding',
+};
+
+// Lucide icons replace the emoji the backend sends in preset.icon
+const PRESET_ICONS: Record<string, LucideIcon> = {
+  retirement: Palmtree,
+  house: Home,
+  education: GraduationCap,
+  wedding: Gem,
 };
 
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
@@ -124,7 +133,9 @@ export default function GoalPlanner() {
       {/* Preset Cards */}
       {presets.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {presets.map(preset => (
+          {presets.map(preset => {
+            const Icon = PRESET_ICONS[preset.id] ?? Target;
+            return (
             <button
               key={preset.id}
               onClick={() => selectPreset(preset)}
@@ -134,7 +145,9 @@ export default function GoalPlanner() {
                   : 'border-gray-200 bg-white hover:border-idbi-blue/50'
               }`}
             >
-              <div className="text-2xl mb-1">{preset.icon}</div>
+              <div className="w-9 h-9 rounded-lg bg-idbi-blue/10 flex items-center justify-center mb-2">
+                <Icon size={18} className="text-idbi-blue" />
+              </div>
               <div className="font-semibold text-sm text-gray-800">
                 {PRESET_KEY_MAP[preset.id] ? t(PRESET_KEY_MAP[preset.id]) : preset.id}
               </div>
@@ -145,7 +158,8 @@ export default function GoalPlanner() {
                 {preset.years} {t('years_away')}
               </div>
             </button>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -210,7 +224,7 @@ export default function GoalPlanner() {
 
       {/* Results */}
       {result && (
-        <div className="space-y-4">
+        <FadeIn className="space-y-4">
           {(result.projections ?? []).map((proj, i) => (
             <div key={i} className="bg-white rounded-2xl shadow p-6">
               <h3 className="font-bold text-idbi-blue text-lg mb-4">{proj.name}</h3>
@@ -343,7 +357,7 @@ export default function GoalPlanner() {
               </div>
             )}
           </div>
-        </div>
+        </FadeIn>
       )}
     </div>
   );

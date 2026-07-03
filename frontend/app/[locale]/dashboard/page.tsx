@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import PortfolioCard from '@/components/PortfolioCard';
 import RiskProfileBadge from '@/components/RiskProfileBadge';
+import FadeIn from '@/components/FadeIn';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
@@ -60,7 +61,7 @@ function DashboardInner() {
       <h1 className="text-2xl font-bold text-idbi-blue mb-6">{t('title')}</h1>
 
       {/* 3 stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <FadeIn className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-2xl shadow p-6">
           <p className="text-sm text-gray-500 mb-1">{t('portfolio_value')}</p>
           <p className="text-2xl font-bold text-idbi-blue">
@@ -76,18 +77,22 @@ function DashboardInner() {
             {monthlySip != null ? `₹${monthlySip.toLocaleString('en-IN')}` : '—'}
           </p>
         </div>
-      </div>
+      </FadeIn>
 
       {/* Portfolio Card */}
-      <div className="mb-6">
+      <FadeIn delay={0.08} className="mb-6">
         <PortfolioCard />
-      </div>
+      </FadeIn>
 
       {/* Market insights strip */}
-      <div className="bg-white rounded-2xl shadow p-6">
+      <FadeIn delay={0.16} className="bg-white rounded-2xl shadow p-6">
         <h2 className="text-lg font-semibold text-idbi-blue mb-3">{t('insights_title')}</h2>
         {insightsLoading ? (
-          <span className="text-gray-400 text-sm animate-pulse">●●●</span>
+          <div className="space-y-2 animate-pulse">
+            <div className="h-4 bg-gray-200 rounded w-3/4" />
+            <div className="h-4 bg-gray-200 rounded w-2/3" />
+            <div className="h-4 bg-gray-100 rounded w-1/2" />
+          </div>
         ) : insights.length === 0 ? (
           <p className="text-sm text-gray-400">—</p>
         ) : (
@@ -100,7 +105,7 @@ function DashboardInner() {
             ))}
           </ul>
         )}
-      </div>
+      </FadeIn>
     </div>
   );
 }
