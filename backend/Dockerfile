@@ -1,10 +1,14 @@
 FROM python:3.12-slim
 WORKDIR /app
 
-COPY requirements.txt .
+# Build context is the repo root (see .github/workflows/deploy.yml) so that
+# ai/system_prompts/ can be copied in — services/language_service.py resolves
+# prompts via `../../ai/system_prompts` from /app/services/, which lands at /ai/.
+COPY backend/requirements.txt .
 RUN pip install -r requirements.txt --no-cache-dir
 
-COPY . .
+COPY backend/ .
+COPY ai /ai
 
 # ── Prototype note ────────────────────────────────────────────────────────────
 # TLS terminates at CloudFront + ACM.  EC2 only needs plain HTTP on port 8000.

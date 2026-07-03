@@ -71,11 +71,13 @@ jobs:
           IMAGE_URI="${REGISTRY}/${ECR_REPO}:${COMMIT_SHA}"
           LATEST_URI="${REGISTRY}/${ECR_REPO}:latest"
 
+          # Build context = repo root so the image can COPY both backend/ and ai/.
           docker build \
             --platform linux/amd64 \
+            --file backend/Dockerfile \
             --tag "${IMAGE_URI}" \
             --tag "${LATEST_URI}" \
-            backend/
+            .
 
           docker push "${IMAGE_URI}"
           docker push "${LATEST_URI}"
