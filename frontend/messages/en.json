@@ -100,6 +100,14 @@
     "invalid_format": "Only CSV files are allowed.",
     "sample_upload_error": "Failed to load sample portfolio. Please try again."
   },
+  "insights": {
+    "title": "Today's Market Insights",
+    "subtitle": "AI-generated market context in your language",
+    "empty": "No insights available right now — please check back soon.",
+    "error": "Couldn't load insights. Please try again.",
+    "retry": "Retry",
+    "disclaimer": "AI-generated for information only — not investment advice."
+  },
   "nav": {
     "dashboard": "Dashboard",
     "advisor": "AI Advisor",

@@ -8,9 +8,10 @@ from services.rag_service import retrieve_context, get_rag_status
 
 router = APIRouter()
 
+# Compliance: recommend fund *categories*, never specific fund names (see system prompt rules)
 _DEMO_SIP_HINDI = (
     "रमेश जी, ₹5,000 प्रति माह के SIP से 10 साल में लगभग ₹11.6 लाख बनेंगे। "
-    "मैं आपको HDFC Flexi Cap Fund में SIP शुरू करने की सलाह दूंगी — "
+    "मैं आपको flexi-cap श्रेणी के diversified equity fund में SIP शुरू करने की सलाह दूंगी — "
     "यह moderate risk profile के लिए उपयुक्त है। "
     "क्या आप अपने retirement goal के बारे में भी जानना चाहेंगे?"
 )

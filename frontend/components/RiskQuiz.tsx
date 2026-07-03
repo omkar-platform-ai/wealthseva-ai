@@ -5,6 +5,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
+
 interface QuizAnswer {
   question_id: number;
   answer: string;
@@ -60,7 +62,7 @@ export default function RiskQuiz() {
     setIsAnalyzing(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/risk-profile', {
+      const response = await fetch(`${BACKEND_URL}/api/risk-profile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: quizAnswers, language: locale }),

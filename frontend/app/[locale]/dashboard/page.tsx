@@ -7,14 +7,16 @@ import RiskProfileBadge from '@/components/RiskProfileBadge';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
+// Demo customer: Ramesh, 42 — keep consistent with backend/routers/idbi.py mocks.
+// Compliance: no specific market figures in canned insights (FINANCIAL FIGURES rule).
 const DEMO_DATA = {
-  portfolioValue: 2500000,
+  portfolioValue: 509620,
   riskProfile: 'moderate' as const,
-  monthlySip: 15000,
+  monthlySip: 16000,
   insights: [
-    'Nifty 50 gained 1.2% today — markets showing steady recovery momentum.',
-    'Fixed deposit rates remain elevated at 7–7.5% — consider laddering for stability.',
-    'Gold at ₹72,000/10g — diversify up to 10% for inflation hedge.',
+    'Staying invested through market cycles has historically beaten trying to time entries and exits.',
+    'Laddering fixed deposits across maturities balances liquidity with returns.',
+    'Gold can hedge inflation — most advisors suggest capping it near 10% of your portfolio.',
   ],
 };
 

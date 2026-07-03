@@ -2,9 +2,11 @@
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
+// Keep identical to _DEMO_SIP_HINDI in backend/routers/chat.py.
+// Compliance: fund *category*, never a specific fund name.
 const HINDI_SIP =
   'रमेश जी, ₹5,000 प्रति माह के SIP से 10 साल में लगभग ₹11.6 लाख बनेंगे। ' +
-  'मैं आपको HDFC Flexi Cap Fund में SIP शुरू करने की सलाह दूंगी — यह moderate risk profile के लिए उपयुक्त है। ' +
+  'मैं आपको flexi-cap श्रेणी के diversified equity fund में SIP शुरू करने की सलाह दूंगी — यह moderate risk profile के लिए उपयुक्त है। ' +
   'क्या आप अपने retirement goal के बारे में भी जानना चाहेंगे?';
 
 const QUIZ = [
@@ -30,11 +32,13 @@ const QUIZ = [
   },
 ];
 
+// Ramesh's holdings — keep consistent with MOCK_PORTFOLIO in backend/routers/idbi.py
 const PORTFOLIO = [
   { name: 'HDFC Flexi Cap Fund', category: 'Equity', value: 114240, gain: 12.4 },
-  { name: 'SBI Bluechip Fund', category: 'Equity', value: 61880, gain: 8.2 },
+  { name: 'SBI Blue Chip Fund', category: 'Equity', value: 61880, gain: 8.2 },
   { name: 'HDFC Short Term Debt', category: 'Debt', value: 84200, gain: 4.1 },
   { name: 'SBI Gold ETF', category: 'Gold', value: 9300, gain: 6.3 },
+  { name: 'ICICI Pru Liquid Fund', category: 'Liquid', value: 240000, gain: 6.9 },
 ];
 
 const TOTAL_PORTFOLIO = PORTFOLIO.reduce((s, h) => s + h.value, 0);
@@ -85,7 +89,7 @@ function Step1Intro({ onStart }: { onStart: () => void }) {
       <p className="text-gray-500 mb-6">Age 42 · Mumbai · Salaried Professional</p>
       <div className="bg-idbi-light rounded-xl p-5 text-left text-sm text-gray-700 mb-6 space-y-2 max-w-sm mx-auto">
         <p>💼 Monthly income: <strong>₹80,000</strong></p>
-        <p>💰 Current savings: <strong>₹2,50,000</strong></p>
+        <p>💰 Investments: <strong>₹5.1L</strong> (₹2.4L idle in a liquid fund)</p>
         <p>🎯 Goal: Retire at 62 with <strong>₹50L corpus</strong></p>
         <p>📊 Risk preference: <strong>Moderate</strong></p>
         <p>🗣️ Preferred language: <strong>Hindi</strong></p>
@@ -234,6 +238,7 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
               <span className={`text-xs px-2 py-0.5 rounded-full mt-0.5 inline-block ${
                 h.category === 'Equity' ? 'bg-emerald-100 text-emerald-700'
                 : h.category === 'Debt' ? 'bg-blue-100 text-blue-700'
+                : h.category === 'Liquid' ? 'bg-sky-100 text-sky-700'
                 : 'bg-amber-100 text-amber-700'
               }`}>{h.category}</span>
             </div>
@@ -271,7 +276,7 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
           ['Goal Name', 'Retirement'],
           ['Target Corpus', '₹50,00,000'],
           ['Time Horizon', '20 Years'],
-          ['Current Savings', '₹2,50,000'],
+          ['Earmarked So Far', '₹0 — starting fresh'],
         ].map(([label, value]) => (
           <div key={label} className="bg-gray-50 rounded-xl p-4">
             <p className="text-xs text-gray-500 mb-1">{label}</p>
@@ -282,11 +287,12 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
       <div className="bg-idbi-light rounded-xl p-5">
         <p className="text-sm text-gray-600 mb-2">Recommended Monthly SIP</p>
         <p className="text-3xl font-bold text-idbi-blue mb-1">₹5,000 / month</p>
-        <p className="text-xs text-gray-500 mb-3">At 12% p.a. CAGR → ₹49.9L in 20 years</p>
+        <p className="text-xs text-gray-500 mb-3">At 12% p.a. CAGR → ≈₹50L in 20 years</p>
+        {/* Compliance: fund categories only, never specific fund names */}
         <div className="bg-white rounded-lg p-3 text-xs text-gray-700 space-y-1">
-          <p>🏦 HDFC Flexi Cap Fund — 60% (Equity core)</p>
-          <p>📈 SBI Bluechip Fund — 20% (Large cap stability)</p>
-          <p>🔒 HDFC Short Term Debt — 20% (Debt cushion)</p>
+          <p>🏦 Flexi-cap equity fund — 60% (growth core)</p>
+          <p>📈 Large-cap index fund — 20% (stability)</p>
+          <p>🔒 Short-duration debt fund — 20% (cushion)</p>
         </div>
       </div>
       <p className="text-xs text-gray-400 text-center mt-4 animate-pulse">Switching to Hindi for SIP advice…</p>

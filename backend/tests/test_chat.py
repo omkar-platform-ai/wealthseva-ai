@@ -83,9 +83,9 @@ class TestChatEndpoint:
                     "history": []
                 })
 
-                # Should return 200 with mock response, not 500
+                # Should return 200 with demo-mode fallback response, not 500
                 assert response.status_code == 200
-                assert "Mock response" in response.text
+                assert "demo mode" in response.text
 
     @pytest.mark.asyncio
     async def test_post_chat_with_15_message_history(self):
