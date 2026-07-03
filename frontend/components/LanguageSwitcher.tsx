@@ -41,7 +41,7 @@ export default function LanguageSwitcher() {
     {toast.show && (
       <div 
         key={toast.message}
-        className="fixed top-20 right-4 bg-idbi-blue text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300"
+        className="fixed top-20 right-4 bg-idbi-green text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300"
         style={{ animation: 'slideInDown 0.3s ease-out' }}
       >
         {toast.message}
@@ -50,7 +50,7 @@ export default function LanguageSwitcher() {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-idbi-blue text-idbi-blue hover:bg-idbi-light transition-colors font-medium text-sm"
+        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-idbi-green text-idbi-green hover:bg-idbi-light transition-colors font-medium text-sm"
       >
         <Globe size={16} />
         <span>{current?.native ?? 'EN'}</span>
@@ -64,7 +64,7 @@ export default function LanguageSwitcher() {
               key={lang.code}
               onClick={() => switchLanguage(lang.code)}
               className={`w-full text-left px-4 py-3 hover:bg-idbi-light transition-colors first:rounded-t-xl last:rounded-b-xl flex justify-between items-center ${
-                lang.code === locale ? 'bg-idbi-light text-idbi-blue font-semibold' : 'text-gray-700'
+                lang.code === locale ? 'bg-idbi-light text-idbi-green font-semibold' : 'text-gray-700'
               }`}
             >
               <span>{lang.native}</span>

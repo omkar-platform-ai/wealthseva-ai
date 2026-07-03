@@ -26,7 +26,7 @@ export default function MobileBottomNav() {
               key={href}
               href={href}
               className={`flex flex-col items-center gap-1 py-2 text-xs font-medium transition-colors ${
-                active ? 'text-idbi-blue' : 'text-gray-400 hover:text-gray-600'
+                active ? 'text-idbi-green' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
               <Icon size={20} strokeWidth={active ? 2.4 : 2} />

@@ -11,7 +11,7 @@ function DemoLink({ locale }: { locale: string }) {
   return (
     <Link
       href={`/${locale}/demo?demo=true`}
-      className="text-sm text-idbi-gold font-semibold hover:text-white transition-colors border border-idbi-gold/60 px-3 py-1 rounded-full"
+      className="text-sm text-idbi-orange font-semibold hover:text-white transition-colors border border-idbi-orange/60 px-3 py-1 rounded-full"
     >
       Judge Demo →
     </Link>
@@ -30,18 +30,18 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-idbi-blue text-white shadow-md">
+    <nav className="bg-idbi-green text-white shadow-md">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-idbi-gold font-bold text-xl">WealthSeva</span>
-          <span className="text-xs text-blue-200 bg-blue-900 px-2 py-0.5 rounded-full">AI</span>
+          <span className="text-idbi-orange font-bold text-xl">WealthSeva</span>
+          <span className="text-xs text-emerald-200 bg-idbi-dark px-2 py-0.5 rounded-full">AI</span>
         </div>
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-6">
           {links.map(link => (
             <Link key={link.href} href={link.href}
-              className="text-sm text-blue-100 hover:text-idbi-gold transition-colors">
+              className="text-sm text-emerald-100 hover:text-idbi-orange transition-colors">
               {link.label}
             </Link>
           ))}

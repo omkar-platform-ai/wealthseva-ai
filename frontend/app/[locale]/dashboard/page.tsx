@@ -58,13 +58,13 @@ function DashboardInner() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-idbi-blue mb-6">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-idbi-green mb-6">{t('title')}</h1>
 
       {/* 3 stat cards */}
       <FadeIn className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-2xl shadow p-6">
           <p className="text-sm text-gray-500 mb-1">{t('portfolio_value')}</p>
-          <p className="text-2xl font-bold text-idbi-blue">
+          <p className="text-2xl font-bold text-idbi-green">
             {portfolioValue != null ? `₹${portfolioValue.toLocaleString('en-IN')}` : '—'}
           </p>
         </div>
@@ -73,7 +73,7 @@ function DashboardInner() {
 
         <div className="bg-white rounded-2xl shadow p-6">
           <p className="text-sm text-gray-500 mb-1">{t('monthly_sip')}</p>
-          <p className="text-2xl font-bold text-idbi-blue">
+          <p className="text-2xl font-bold text-idbi-green">
             {monthlySip != null ? `₹${monthlySip.toLocaleString('en-IN')}` : '—'}
           </p>
         </div>
@@ -86,7 +86,7 @@ function DashboardInner() {
 
       {/* Market insights strip */}
       <FadeIn delay={0.16} className="bg-white rounded-2xl shadow p-6">
-        <h2 className="text-lg font-semibold text-idbi-blue mb-3">{t('insights_title')}</h2>
+        <h2 className="text-lg font-semibold text-idbi-green mb-3">{t('insights_title')}</h2>
         {insightsLoading ? (
           <div className="space-y-2 animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -99,7 +99,7 @@ function DashboardInner() {
           <ul className="space-y-2">
             {insights.slice(0, 3).map((item, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                <span className="text-idbi-gold font-bold mt-0.5">•</span>
+                <span className="text-idbi-orange font-bold mt-0.5">•</span>
                 <span>{item}</span>
               </li>
             ))}

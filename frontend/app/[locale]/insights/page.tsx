@@ -33,7 +33,7 @@ export default function InsightsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-2xl font-bold text-idbi-blue mb-1">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-idbi-green mb-1">{t('title')}</h1>
       <p className="text-sm text-gray-500 mb-6">{t('subtitle')}</p>
 
       {status === 'loading' && (
@@ -52,7 +52,7 @@ export default function InsightsPage() {
           <p className="text-gray-600 mb-4">{t('error')}</p>
           <button
             onClick={load}
-            className="inline-flex items-center gap-2 bg-idbi-blue text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-blue-900 transition-colors"
+            className="inline-flex items-center gap-2 bg-idbi-green text-white px-5 py-2 rounded-xl text-sm font-medium hover:bg-idbi-dark transition-colors"
           >
             <RefreshCw size={14} />
             {t('retry')}
@@ -72,7 +72,7 @@ export default function InsightsPage() {
             <FadeIn key={i} delay={i * 0.08}>
               <div className="bg-white rounded-2xl shadow p-6 flex items-start gap-4">
                 <div className="w-9 h-9 rounded-full bg-idbi-light flex items-center justify-center flex-shrink-0">
-                  <TrendingUp size={16} className="text-idbi-blue" />
+                  <TrendingUp size={16} className="text-idbi-green" />
                 </div>
                 <p className="text-sm text-gray-700 leading-relaxed">{item}</p>
               </div>

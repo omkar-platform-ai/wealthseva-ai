@@ -54,12 +54,12 @@ function StepProgress({ step }: { step: number }) {
   return (
     <div className="mb-8">
       <div className="flex justify-between text-sm mb-2">
-        <span className="font-semibold text-idbi-blue">Step {step} of 5</span>
+        <span className="font-semibold text-idbi-green">Step {step} of 5</span>
         <span className="text-gray-500">{Math.round((step / 5) * 100)}% complete</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
         <div
-          className="bg-idbi-blue h-2 rounded-full transition-all duration-700"
+          className="bg-idbi-green h-2 rounded-full transition-all duration-700"
           style={{ width: `${(step / 5) * 100}%` }}
         />
       </div>
@@ -67,7 +67,7 @@ function StepProgress({ step }: { step: number }) {
         {STEP_LABELS.map((label, i) => (
           <span
             key={i}
-            className={`text-xs transition-colors ${i + 1 <= step ? 'text-idbi-blue font-semibold' : 'text-gray-400'}`}
+            className={`text-xs transition-colors ${i + 1 <= step ? 'text-idbi-green font-semibold' : 'text-gray-400'}`}
           >
             {label}
           </span>
@@ -82,10 +82,10 @@ function StepProgress({ step }: { step: number }) {
 function Step1Intro({ onStart }: { onStart: () => void }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-      <div className="w-24 h-24 bg-gradient-to-br from-idbi-blue to-blue-400 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-lg">
+      <div className="w-24 h-24 bg-gradient-to-br from-idbi-green to-idbi-teal rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-lg">
         👨‍💼
       </div>
-      <h2 className="text-3xl font-bold text-idbi-blue mb-1">Meet Ramesh</h2>
+      <h2 className="text-3xl font-bold text-idbi-green mb-1">Meet Ramesh</h2>
       <p className="text-gray-500 mb-6">Age 42 · Mumbai · Salaried Professional</p>
       <div className="bg-idbi-light rounded-xl p-5 text-left text-sm text-gray-700 mb-6 space-y-2 max-w-sm mx-auto">
         <p>💼 Monthly income: <strong>₹80,000</strong></p>
@@ -99,7 +99,7 @@ function Step1Intro({ onStart }: { onStart: () => void }) {
       </p>
       <button
         onClick={onStart}
-        className="bg-idbi-blue text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-blue-900 transition-colors shadow-md"
+        className="bg-idbi-green text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-idbi-dark transition-colors shadow-md"
       >
         Start Demo →
       </button>
@@ -140,7 +140,7 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
         <div className="text-6xl mb-4">✅</div>
-        <h2 className="text-2xl font-bold text-idbi-blue mb-2">Risk Profile: Moderate</h2>
+        <h2 className="text-2xl font-bold text-idbi-green mb-2">Risk Profile: Moderate</h2>
         <p className="text-gray-600 mb-6">Ramesh has a balanced, growth-oriented investment approach.</p>
         <div className="flex gap-3 justify-center flex-wrap">
           {[
@@ -162,12 +162,12 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-idbi-blue">Risk Profile Quiz</h2>
+        <h2 className="text-xl font-bold text-idbi-green">Risk Profile Quiz</h2>
         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Q {qIdx + 1} / 5</span>
       </div>
       <div className="w-full bg-gray-100 rounded-full h-1.5 mb-6">
         <div
-          className="bg-idbi-gold h-1.5 rounded-full transition-all duration-500"
+          className="bg-idbi-orange h-1.5 rounded-full transition-all duration-500"
           style={{ width: `${((qIdx + 1) / 5) * 100}%` }}
         />
       </div>
@@ -180,7 +180,7 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
               key={i}
               className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                 isSelected
-                  ? 'border-idbi-blue bg-idbi-light font-semibold text-idbi-blue'
+                  ? 'border-idbi-green bg-idbi-light font-semibold text-idbi-green'
                   : 'border-gray-200 text-gray-600'
               }`}
             >
@@ -212,9 +212,9 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
         <div className="text-4xl mb-4 animate-bounce">📂</div>
-        <h2 className="text-xl font-bold text-idbi-blue mb-2">Uploading Sample Portfolio…</h2>
+        <h2 className="text-xl font-bold text-idbi-green mb-2">Uploading Sample Portfolio…</h2>
         <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
-          <div className="bg-idbi-gold h-2 rounded-full animate-pulse w-3/4" />
+          <div className="bg-idbi-orange h-2 rounded-full animate-pulse w-3/4" />
         </div>
       </div>
     );
@@ -223,12 +223,12 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-idbi-blue">Portfolio Analysis</h2>
+        <h2 className="text-xl font-bold text-idbi-green">Portfolio Analysis</h2>
         <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">✓ Sample Loaded</span>
       </div>
       <div className="bg-idbi-light rounded-xl p-4 mb-4 flex justify-between items-center">
         <span className="text-gray-600 text-sm">Total Portfolio Value</span>
-        <span className="text-2xl font-bold text-idbi-blue">{formatINR(TOTAL_PORTFOLIO)}</span>
+        <span className="text-2xl font-bold text-idbi-green">{formatINR(TOTAL_PORTFOLIO)}</span>
       </div>
       <div className="space-y-3">
         {PORTFOLIO.map((h, i) => (
@@ -268,7 +268,7 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-idbi-blue">Retirement Goal Plan</h2>
+        <h2 className="text-xl font-bold text-idbi-green">Retirement Goal Plan</h2>
         <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full">Pre-filled</span>
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
@@ -286,7 +286,7 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
       </div>
       <div className="bg-idbi-light rounded-xl p-5">
         <p className="text-sm text-gray-600 mb-2">Recommended Monthly SIP</p>
-        <p className="text-3xl font-bold text-idbi-blue mb-1">₹5,000 / month</p>
+        <p className="text-3xl font-bold text-idbi-green mb-1">₹5,000 / month</p>
         <p className="text-xs text-gray-500 mb-3">At 12% p.a. CAGR → ≈₹50L in 20 years</p>
         {/* Compliance: fund categories only, never specific fund names */}
         <div className="bg-white rounded-lg p-3 text-xs text-gray-700 space-y-1">
@@ -318,22 +318,22 @@ function Step5HindiSIP() {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-idbi-blue to-blue-400 rounded-full flex items-center justify-center text-2xl shadow flex-shrink-0">
+        <div className="w-12 h-12 bg-gradient-to-br from-idbi-green to-idbi-teal rounded-full flex items-center justify-center text-2xl shadow flex-shrink-0">
           🤖
         </div>
         <div>
-          <h2 className="text-xl font-bold text-idbi-blue">WealthSeva AI</h2>
+          <h2 className="text-xl font-bold text-idbi-green">WealthSeva AI</h2>
           <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
             हिंदी मोड · Hindi Mode
           </span>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-idbi-light to-blue-50 rounded-xl p-6 min-h-[120px] mb-4">
+      <div className="bg-gradient-to-br from-idbi-light to-teal-50 rounded-xl p-6 min-h-[120px] mb-4">
         <p className="text-gray-800 leading-relaxed text-base font-medium">
           {displayed}
           {!done && (
-            <span className="inline-block w-0.5 h-5 bg-idbi-blue ml-0.5 align-middle animate-pulse" />
+            <span className="inline-block w-0.5 h-5 bg-idbi-green ml-0.5 align-middle animate-pulse" />
           )}
         </p>
       </div>

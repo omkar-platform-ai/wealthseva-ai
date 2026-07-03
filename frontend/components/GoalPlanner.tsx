@@ -128,7 +128,7 @@ export default function GoalPlanner() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-idbi-blue">{t('title')}</h2>
+      <h2 className="text-xl font-bold text-idbi-green">{t('title')}</h2>
 
       {/* Preset Cards */}
       {presets.length > 0 && (
@@ -141,17 +141,17 @@ export default function GoalPlanner() {
               onClick={() => selectPreset(preset)}
               className={`rounded-xl p-4 text-left border-2 transition-all ${
                 selectedPreset === preset.id
-                  ? 'border-idbi-blue bg-idbi-light'
-                  : 'border-gray-200 bg-white hover:border-idbi-blue/50'
+                  ? 'border-idbi-green bg-idbi-light'
+                  : 'border-gray-200 bg-white hover:border-idbi-green/50'
               }`}
             >
-              <div className="w-9 h-9 rounded-lg bg-idbi-blue/10 flex items-center justify-center mb-2">
-                <Icon size={18} className="text-idbi-blue" />
+              <div className="w-9 h-9 rounded-lg bg-idbi-green/10 flex items-center justify-center mb-2">
+                <Icon size={18} className="text-idbi-green" />
               </div>
               <div className="font-semibold text-sm text-gray-800">
                 {PRESET_KEY_MAP[preset.id] ? t(PRESET_KEY_MAP[preset.id]) : preset.id}
               </div>
-              <div className="text-xs text-idbi-blue font-medium mt-1">
+              <div className="text-xs text-idbi-green font-medium mt-1">
                 {formatINR(preset.target_amount, locale)}
               </div>
               <div className="text-xs text-gray-400">
@@ -171,7 +171,7 @@ export default function GoalPlanner() {
             <input
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-green/50"
               placeholder={t('preset_retirement')}
             />
           </div>
@@ -181,7 +181,7 @@ export default function GoalPlanner() {
               type="number"
               value={form.target_amount}
               onChange={e => setForm(f => ({ ...f, target_amount: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-green/50"
               placeholder="1000000"
               min="1"
             />
@@ -192,7 +192,7 @@ export default function GoalPlanner() {
               type="number"
               value={form.years}
               onChange={e => setForm(f => ({ ...f, years: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-green/50"
               placeholder="Years to goal"
               min="1"
               max="40"
@@ -204,7 +204,7 @@ export default function GoalPlanner() {
               type="number"
               value={form.current_savings}
               onChange={e => setForm(f => ({ ...f, current_savings: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
+              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-green/50"
               placeholder="0"
               min="0"
             />
@@ -214,7 +214,7 @@ export default function GoalPlanner() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="w-full bg-idbi-blue text-white rounded-xl py-3 font-semibold hover:bg-idbi-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-idbi-green text-white rounded-xl py-3 font-semibold hover:bg-idbi-green/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {submitting ? tCommon('loading') : t('calculate_button')}
         </button>
@@ -227,18 +227,18 @@ export default function GoalPlanner() {
         <FadeIn className="space-y-4">
           {(result.projections ?? []).map((proj, i) => (
             <div key={i} className="bg-white rounded-2xl shadow p-6">
-              <h3 className="font-bold text-idbi-blue text-lg mb-4">{proj.name}</h3>
+              <h3 className="font-bold text-idbi-green text-lg mb-4">{proj.name}</h3>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-idbi-light rounded-xl p-4">
                   <div className="text-xs text-gray-500 mb-1">{t('monthly_sip_label')}</div>
-                  <div className="text-xl font-bold text-idbi-blue">
+                  <div className="text-xl font-bold text-idbi-green">
                     {formatINR(proj.monthly_sip, locale)}
                   </div>
                 </div>
                 <div className="bg-amber-50 rounded-xl p-4">
                   <div className="text-xs text-gray-500 mb-1">{t('projected_value_label')}</div>
-                  <div className="text-xl font-bold text-idbi-gold">
+                  <div className="text-xl font-bold text-idbi-orange">
                     {formatINR(proj.projected_corpus, locale)}
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export default function GoalPlanner() {
                       <Line
                         type="monotone"
                         dataKey="corpus"
-                        stroke="#1e3a5f"
+                        stroke="#00594C"
                         strokeWidth={2}
                         dot={false}
                         activeDot={{ r: 4 }}
@@ -292,7 +292,7 @@ export default function GoalPlanner() {
                   <button
                     onClick={() => setOpenTrace(openTrace === i ? null : i)}
                     aria-expanded={openTrace === i}
-                    className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-blue"
+                    className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-green"
                   >
                     <Info size={16} />
                     {t('why_button')}
@@ -304,7 +304,7 @@ export default function GoalPlanner() {
                   {openTrace === i && (
                     <div className="mt-4 space-y-3 text-sm text-gray-700">
                       <div className="flex gap-3">
-                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                           {t('why_step_data')}
                         </span>
                         <p>
@@ -316,13 +316,13 @@ export default function GoalPlanner() {
                         </p>
                       </div>
                       <div className="flex gap-3">
-                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                           {t('why_step_assumption')}
                         </span>
                         <p>{t('why_assumption_text', { rate: proj.trace.annual_return_pct })}</p>
                       </div>
                       <div className="flex gap-3">
-                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                           {t('why_step_calc')}
                         </span>
                         <p>
@@ -345,14 +345,14 @@ export default function GoalPlanner() {
           <div className="bg-white rounded-2xl shadow p-6 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-gray-600">{t('total_monthly_label')}</span>
-              <span className="text-2xl font-bold text-idbi-blue">
+              <span className="text-2xl font-bold text-idbi-green">
                 {formatINR(result.total_monthly_required, locale)}
               </span>
             </div>
 
             {result.summary && (
               <div className="border-t pt-4">
-                <div className="text-sm font-semibold text-idbi-gold mb-2">{t('advice_label')}</div>
+                <div className="text-sm font-semibold text-idbi-orange mb-2">{t('advice_label')}</div>
                 <p className="text-sm text-gray-700 leading-relaxed">{result.summary}</p>
               </div>
             )}

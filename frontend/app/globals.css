@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --idbi-blue: #003087;
-  --idbi-gold: #C8A951;
+  --idbi-green: #00594C;
+  --idbi-orange: #EE6C2D;
 }
 
 body {

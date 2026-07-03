@@ -105,9 +105,9 @@ export default function RiskQuiz() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
         <div className="relative w-32 h-32 mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-idbi-blue to-idbi-darkBlue rounded-full animate-pulse opacity-50"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-idbi-green to-idbi-darkBlue rounded-full animate-pulse opacity-50"></div>
           <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-            <div className="w-20 h-20 bg-idbi-blue rounded-full flex items-center justify-center animate-pulse">
+            <div className="w-20 h-20 bg-idbi-green rounded-full flex items-center justify-center animate-pulse">
               <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
@@ -126,7 +126,7 @@ export default function RiskQuiz() {
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-idbi-blue mb-4">{t('title')}</h2>
+          <h2 className="text-2xl font-bold text-idbi-green mb-4">{t('title')}</h2>
           <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold capitalize ${result.profile === 'conservative' ? 'bg-green-100 text-green-800' : result.profile === 'moderate' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
             {t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive')}
           </div>
@@ -166,7 +166,7 @@ export default function RiskQuiz() {
             <button
               onClick={() => setShowWhy(!showWhy)}
               aria-expanded={showWhy}
-              className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-blue"
+              className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-green"
             >
               <Info size={16} />
               {t('why_button')}
@@ -178,7 +178,7 @@ export default function RiskQuiz() {
             {showWhy && (
               <div className="mt-4 space-y-3 text-sm text-gray-700">
                 <div className="flex gap-3">
-                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                     {t('why_step_data')}
                   </span>
                   <p>
@@ -190,7 +190,7 @@ export default function RiskQuiz() {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                     {t('why_step_rule')}
                   </span>
                   <p>
@@ -204,7 +204,7 @@ export default function RiskQuiz() {
                   </p>
                 </div>
                 <div className="flex gap-3">
-                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                     {t('why_step_result')}
                   </span>
                   <p>
@@ -221,7 +221,7 @@ export default function RiskQuiz() {
 
         <button
           onClick={retakeQuiz}
-          className="w-full py-3 px-4 bg-idbi-blue hover:bg-idbi-darkBlue text-white rounded-lg font-medium transition-colors min-h-[56px]"
+          className="w-full py-3 px-4 bg-idbi-green hover:bg-idbi-darkBlue text-white rounded-lg font-medium transition-colors min-h-[56px]"
         >
           {t('retake_button')}
         </button>
@@ -234,7 +234,7 @@ export default function RiskQuiz() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-idbi-blue">{t('title')}</h2>
+        <h2 className="text-xl font-bold text-idbi-green">{t('title')}</h2>
         <span className="text-sm text-gray-500">
           {t('step_label', { current: currentStep, total: 5 })}
         </span>
@@ -242,7 +242,7 @@ export default function RiskQuiz() {
 
       <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
         <div
-          className="bg-idbi-blue h-2 rounded-full transition-all duration-300"
+          className="bg-idbi-green h-2 rounded-full transition-all duration-300"
           style={{ width: `${(currentStep / 5) * 100}%` }}
         />
       </div>
@@ -258,7 +258,7 @@ export default function RiskQuiz() {
             <button
               key={option.value}
               onClick={() => handleAnswer(option.value)}
-              className="w-full text-left py-4 px-6 bg-white hover:bg-idbi-blue hover:text-white border-2 border-gray-200 hover:border-idbi-blue rounded-lg font-medium transition-all duration-200 min-h-[56px] flex items-center"
+              className="w-full text-left py-4 px-6 bg-white hover:bg-idbi-green hover:text-white border-2 border-gray-200 hover:border-idbi-green rounded-lg font-medium transition-all duration-200 min-h-[56px] flex items-center"
             >
               <span className="mr-3 font-bold">{option.value}.</span>
               {t(option.label as 'option_a' | 'option_b' | 'option_c' | 'option_d')}

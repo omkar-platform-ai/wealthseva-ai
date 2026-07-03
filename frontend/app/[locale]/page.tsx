@@ -9,7 +9,7 @@ export default function OnboardingPage() {
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-idbi-blue mb-3">{t('welcome')}</h1>
+          <h1 className="text-3xl font-bold text-idbi-green mb-3">{t('welcome')}</h1>
           <p className="text-gray-600">{t('subtitle')}</p>
         </div>
 

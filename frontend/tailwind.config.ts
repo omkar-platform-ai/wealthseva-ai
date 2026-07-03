@@ -10,9 +10,11 @@ const config: Config = {
     extend: {
       colors: {
         idbi: {
-          blue: "#003087",
-          gold: "#C8A951",
-          light: "#E8F0FE",
+          green: "#00594C",
+          dark: "#003D34",
+          teal: "#2E9C8F",
+          orange: "#EE6C2D",
+          light: "#E6F4F1",
         },
       },
       fontFamily: {

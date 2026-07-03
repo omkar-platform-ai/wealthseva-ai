@@ -145,11 +145,11 @@ export default function PortfolioCard() {
   return (
     <div className="bg-white rounded-2xl shadow p-6 col-span-2">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-idbi-blue">{t('title')}</h2>
+        <h2 className="text-lg font-semibold text-idbi-green">{t('title')}</h2>
         <button
           onClick={handleSampleUpload}
           disabled={analyzing}
-          className="px-4 py-2 bg-idbi-gold text-white rounded-lg hover:bg-idbi-gold/90 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+          className="px-4 py-2 bg-idbi-orange text-white rounded-lg hover:bg-idbi-orange/90 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
         >
           {t('sample_button')}
         </button>
@@ -158,7 +158,7 @@ export default function PortfolioCard() {
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-          isDragActive ? 'border-idbi-blue bg-idbi-light' : 'border-gray-200'
+          isDragActive ? 'border-idbi-green bg-idbi-light' : 'border-gray-200'
         }`}
       >
         <input {...getInputProps()} />
@@ -169,9 +169,9 @@ export default function PortfolioCard() {
       {analyzing && (
         <div className="mt-4 flex items-center justify-center">
           <div className="animate-pulse flex items-center space-x-2">
-            <div className="w-2 h-2 bg-idbi-blue rounded-full animate-bounce" />
-            <div className="w-2 h-2 bg-idbi-blue rounded-full animate-bounce delay-100" />
-            <div className="w-2 h-2 bg-idbi-blue rounded-full animate-bounce delay-200" />
+            <div className="w-2 h-2 bg-idbi-green rounded-full animate-bounce" />
+            <div className="w-2 h-2 bg-idbi-green rounded-full animate-bounce delay-100" />
+            <div className="w-2 h-2 bg-idbi-green rounded-full animate-bounce delay-200" />
           </div>
           <p className="ml-2 text-sm text-gray-500">{t('analyzing')}</p>
         </div>
@@ -186,14 +186,14 @@ export default function PortfolioCard() {
       {analysis && (
         <div className="mt-6 space-y-6">
           {/* Summary Card */}
-          <div className="bg-gradient-to-br from-idbi-light to-blue-50 p-4 rounded-xl border border-idbi-blue/20">
-            <h3 className="font-semibold text-idbi-blue mb-2">{t('summary_label')}</h3>
+          <div className="bg-gradient-to-br from-idbi-light to-teal-50 p-4 rounded-xl border border-idbi-green/20">
+            <h3 className="font-semibold text-idbi-green mb-2">{t('summary_label')}</h3>
             <p className="text-sm text-gray-700">{analysis.summary}</p>
           </div>
 
           {/* Recommendations */}
           <div>
-            <h3 className="font-semibold text-idbi-blue mb-3">{t('recommendations_label')}</h3>
+            <h3 className="font-semibold text-idbi-green mb-3">{t('recommendations_label')}</h3>
             <ul className="space-y-2">
               {analysis.recommendations.map((rec, idx) => (
                 <li key={idx} className="flex items-start space-x-2">
@@ -205,15 +205,15 @@ export default function PortfolioCard() {
           </div>
 
           {/* SIP Suggestion */}
-          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-xl border-2 border-idbi-gold/30">
-            <h3 className="font-semibold text-idbi-gold mb-2">{t('sip_suggestion_label')}</h3>
+          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-xl border-2 border-idbi-orange/30">
+            <h3 className="font-semibold text-idbi-orange mb-2">{t('sip_suggestion_label')}</h3>
             <p className="text-sm text-gray-700">{analysis.sip_suggestion}</p>
           </div>
 
           {/* Allocation Chart */}
           {allocationData.length > 0 && (
             <div>
-              <h3 className="font-semibold text-idbi-blue mb-3">{t('allocation_chart_label')}</h3>
+              <h3 className="font-semibold text-idbi-green mb-3">{t('allocation_chart_label')}</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={allocationData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
