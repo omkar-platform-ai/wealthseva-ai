@@ -18,10 +18,11 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${montserrat.className} antialiased`}>
+      {/* pb-28 leaves room for the floating mobile bottom nav */}
+      <body className={`${montserrat.className} antialiased bg-idbi-bg`}>
         <NextIntlClientProvider messages={messages}>
           <Navbar />
-          <main className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+          <main className="min-h-screen pb-28 md:pb-0">
             {children}
           </main>
           <MobileBottomNav />

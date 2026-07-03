@@ -1,8 +1,10 @@
 'use client';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { TrendingUp } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 
 function DemoLink({ locale }: { locale: string }) {
@@ -11,7 +13,7 @@ function DemoLink({ locale }: { locale: string }) {
   return (
     <Link
       href={`/${locale}/demo?demo=true`}
-      className="text-sm text-idbi-orange font-semibold hover:text-white transition-colors border border-idbi-orange/60 px-3 py-1 rounded-full"
+      className="text-sm text-white/90 font-semibold hover:text-white transition-colors border border-white/40 px-3 py-1 rounded-full"
     >
       Judge Demo →
     </Link>
@@ -21,6 +23,7 @@ function DemoLink({ locale }: { locale: string }) {
 export default function Navbar() {
   const t = useTranslations('nav');
   const locale = useLocale();
+  const pathname = usePathname();
 
   const links = [
     { href: `/${locale}/dashboard`, label: t('dashboard') },
@@ -30,28 +33,50 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-idbi-green text-white shadow-md">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-idbi-orange font-bold text-xl">WealthSeva</span>
-          <span className="text-xs text-emerald-200 bg-idbi-dark px-2 py-0.5 rounded-full">AI</span>
-        </div>
+    <nav className="sticky top-0 z-50 bg-idbi-green/95 backdrop-blur-md border-b border-white/10 shadow-[0_8px_30px_-18px_rgba(0,49,40,.6)]">
+      <div className="max-w-[1200px] mx-auto px-5 sm:px-7 h-[66px] flex items-center gap-6 sm:gap-9">
+        {/* Brand lockup */}
+        <Link href={`/${locale}/dashboard`} className="flex items-center gap-2.5 shrink-0">
+          <span className="w-[30px] h-[30px] rounded-[9px] bg-idbi-orange flex items-center justify-center shadow-[0_4px_12px_-3px_rgba(243,112,33,.6)]">
+            <TrendingUp size={17} strokeWidth={2.4} className="text-white" />
+          </span>
+          <span className="font-extrabold text-[19px] tracking-tight text-white">
+            Wealth<span className="text-[#FDB48A]">Seva</span>
+          </span>
+          <span className="text-[10px] font-bold tracking-wide text-[#BFE6DC] bg-white/10 px-1.5 py-0.5 rounded-md">
+            AI
+          </span>
+        </Link>
 
-        {/* Desktop nav links */}
-        <div className="hidden md:flex items-center gap-6">
-          {links.map(link => (
-            <Link key={link.href} href={link.href}
-              className="text-sm text-emerald-100 hover:text-idbi-orange transition-colors">
-              {link.label}
-            </Link>
-          ))}
+        {/* Desktop nav links with active pill */}
+        <div className="hidden md:flex items-center gap-1">
+          {links.map(link => {
+            const active = pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-semibold px-3.5 py-2 rounded-[10px] transition-all ${
+                  active
+                    ? 'text-white bg-white/[0.14]'
+                    : 'text-[#BFE6DC] hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
           <Suspense fallback={null}>
             <DemoLink locale={locale} />
           </Suspense>
         </div>
 
-        {/* Mobile navigation lives in MobileBottomNav — only the switcher up top */}
-        <LanguageSwitcher />
+        <div className="ml-auto flex items-center gap-3.5">
+          <LanguageSwitcher />
+          <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-idbi-orange to-[#F79B5E] text-white flex items-center justify-center font-bold text-sm ring-2 ring-white/25 shrink-0">
+            R
+          </div>
+        </div>
       </div>
     </nav>
   );

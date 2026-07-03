@@ -9,4 +9,32 @@
 
 body {
   font-family: 'Montserrat', 'Noto Sans Devanagari', 'Noto Sans Tamil', sans-serif;
+  background: #F4F7F6;
+  color: #122622;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: #E5F2F0;
+  color: #00836C;
+}
+
+/* Typing-dot loader used by AvatarChat */
+@keyframes ws-dot {
+  0%, 80%, 100% { opacity: .25; }
+  40% { opacity: 1; }
+}
+
+/* Language-switch toast (referenced by LanguageSwitcher) */
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Refined scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: #CBD8D4;
+  border-radius: 10px;
+  border: 2px solid #F4F7F6;
 }

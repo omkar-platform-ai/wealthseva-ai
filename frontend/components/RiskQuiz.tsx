@@ -1,10 +1,11 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { ChevronDown, Info } from 'lucide-react';
+import { ChevronDown, Info, Sparkles, Check } from 'lucide-react';
 
-const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
+// Allocation legend colours (kept on-brand: green/teal/orange family)
+const COLORS = ['#00836C', '#4FA9A7', '#F37021', '#F5C36B'];
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
@@ -26,11 +27,18 @@ interface RiskProfile {
   };
 }
 
+const PROFILE_BADGE: Record<string, string> = {
+  conservative: 'bg-[#E4F4EC] text-[#1E7A4E]',
+  moderate: 'bg-[#FFF3D6] text-[#9A6C00]',
+  aggressive: 'bg-[#FDE7DD] text-[#C25A15]',
+};
+
 export default function RiskQuiz() {
   const t = useTranslations('risk');
   const locale = useLocale();
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<RiskProfile | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -52,37 +60,40 @@ export default function RiskQuiz() {
   ];
 
   const handleAnswer = async (answerValue: string) => {
+    setSelected(answerValue);
     const newAnswers = [...answers, { question_id: currentStep, answer: answerValue }];
-    setAnswers(newAnswers);
 
-    if (currentStep < 5) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentStep(currentStep + 1);
-        setIsTransitioning(false);
-      }, 200);
-    } else {
-      await submitQuiz(newAnswers);
-    }
+    // brief highlight before advancing
+    setTimeout(async () => {
+      setAnswers(newAnswers);
+      if (currentStep < 5) {
+        setIsTransitioning(true);
+        setTimeout(() => {
+          setCurrentStep(currentStep + 1);
+          setSelected(null);
+          setIsTransitioning(false);
+        }, 200);
+      } else {
+        await submitQuiz(newAnswers);
+      }
+    }, 220);
   };
 
+  // ---- Backend wiring: POST /api/risk-profile ----
   const submitQuiz = async (quizAnswers: QuizAnswer[]) => {
     setIsAnalyzing(true);
-
     try {
       const response = await fetch(`${BACKEND_URL}/api/risk-profile`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ answers: quizAnswers, language: locale }),
       });
-
       if (!response.ok) throw new Error('Failed to submit quiz');
-
       const data = await response.json();
       setTimeout(() => {
         setResult(data);
         setIsAnalyzing(false);
-      }, 1500);
+      }, 1200);
     } catch (error) {
       console.error('Error submitting quiz:', error);
       setIsAnalyzing(false);
@@ -92,128 +103,110 @@ export default function RiskQuiz() {
   const retakeQuiz = () => {
     setCurrentStep(1);
     setAnswers([]);
+    setSelected(null);
     setResult(null);
     setIsTransitioning(false);
     setShowWhy(false);
   };
 
-  const getChartData = (allocation: { [key: string]: number }) => {
-    return Object.entries(allocation).map(([name, value]) => ({ name, value }));
-  };
+  const getChartData = (allocation: { [key: string]: number }) =>
+    Object.entries(allocation).map(([name, value]) => ({ name, value }));
 
+  // ---------- Analysing state ----------
   if (isAnalyzing) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <div className="relative w-32 h-32 mb-6">
-          <div className="absolute inset-0 bg-gradient-to-r from-idbi-green to-idbi-darkBlue rounded-full animate-pulse opacity-50"></div>
-          <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-            <div className="w-20 h-20 bg-idbi-green rounded-full flex items-center justify-center animate-pulse">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
+      <div className="flex flex-col items-center justify-center min-h-[380px]">
+        <div className="relative w-28 h-28 mb-6">
+          <span className="absolute inset-0 rounded-full bg-idbi-green/40 animate-ping2" />
+          <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center shadow-card">
+            <div className="w-16 h-16 bg-idbi-green rounded-full flex items-center justify-center">
+              <Sparkles className="w-7 h-7 text-white" />
             </div>
           </div>
         </div>
-        <p className="text-lg font-medium text-gray-600 animate-pulse">{t('analysing_label')}</p>
+        <p className="text-base font-semibold text-idbi-muted animate-pulse">{t('analysing_label')}</p>
       </div>
     );
   }
 
+  // ---------- Result state ----------
   if (result) {
     const chartData = getChartData(result.recommended_allocation);
     const profileKey = `result_${result.profile}`;
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-5 animate-rise">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-idbi-green mb-4">{t('title')}</h2>
-          <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold capitalize ${result.profile === 'conservative' ? 'bg-green-100 text-green-800' : result.profile === 'moderate' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+          <p className="text-xs font-semibold tracking-wide text-idbi-faint uppercase mb-2">
+            {t('title')}
+          </p>
+          <div
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold capitalize ${
+              PROFILE_BADGE[result.profile] ?? PROFILE_BADGE.moderate
+            }`}
+          >
             {t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive')}
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">{t('explanation_label')}</h3>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={chartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.name}: ${entry.value}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {chartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex items-center">
-              <p className="text-gray-600">{result.explanation}</p>
-            </div>
+        <div className="bg-white rounded-2xl border border-idbi-line shadow-card p-6">
+          <h3 className="text-base font-bold text-idbi-ink mb-4">{t('explanation_label')}</h3>
+          <div className="grid md:grid-cols-2 gap-6 items-center">
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={48}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  labelLine={false}
+                  label={(entry) => `${entry.name}: ${entry.value}%`}
+                  dataKey="value"
+                >
+                  {chartData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            <p className="text-sm leading-relaxed text-idbi-slate">{result.explanation}</p>
           </div>
         </div>
 
         {result.trace && (
-          <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="bg-white rounded-2xl border border-idbi-line shadow-card p-6">
             <button
               onClick={() => setShowWhy(!showWhy)}
               aria-expanded={showWhy}
-              className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-green"
+              className="w-full flex items-center gap-2 text-sm font-bold text-idbi-green"
             >
               <Info size={16} />
               {t('why_button')}
-              <ChevronDown
-                size={16}
-                className={`ml-auto transition-transform ${showWhy ? 'rotate-180' : ''}`}
-              />
+              <ChevronDown size={16} className={`ml-auto transition-transform ${showWhy ? 'rotate-180' : ''}`} />
             </button>
             {showWhy && (
-              <div className="mt-4 space-y-3 text-sm text-gray-700">
+              <div className="mt-4 space-y-3 text-sm text-idbi-slate">
                 <div className="flex gap-3">
                   <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                     {t('why_step_data')}
                   </span>
-                  <p>
-                    {t('why_data_text', {
-                      points: result.trace.answer_points.join(' + '),
-                      score: result.trace.score,
-                      max: result.trace.max_score,
-                    })}
-                  </p>
+                  <p>{t('why_data_text', { points: result.trace.answer_points.join(' + '), score: result.trace.score, max: result.trace.max_score })}</p>
                 </div>
                 <div className="flex gap-3">
                   <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                     {t('why_step_rule')}
                   </span>
-                  <p>
-                    {t('why_rule_text', {
-                      conservative: t('result_conservative'),
-                      moderate: t('result_moderate'),
-                      aggressive: t('result_aggressive'),
-                      score: result.trace.score,
-                      profile: t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive'),
-                    })}
-                  </p>
+                  <p>{t('why_rule_text', { conservative: t('result_conservative'), moderate: t('result_moderate'), aggressive: t('result_aggressive'), score: result.trace.score, profile: t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive') })}</p>
                 </div>
                 <div className="flex gap-3">
                   <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">
                     {t('why_step_result')}
                   </span>
-                  <p>
-                    {t('why_result_text', {
-                      profile: t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive'),
-                    })}
-                  </p>
+                  <p>{t('why_result_text', { profile: t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive') })}</p>
                 </div>
-                <p className="text-xs text-gray-500 border-t pt-3">{t('why_note')}</p>
+                <p className="text-xs text-idbi-faint border-t border-idbi-line pt-3">{t('why_note')}</p>
               </div>
             )}
           </div>
@@ -221,7 +214,7 @@ export default function RiskQuiz() {
 
         <button
           onClick={retakeQuiz}
-          className="w-full py-3 px-4 bg-idbi-green hover:bg-idbi-darkBlue text-white rounded-lg font-medium transition-colors min-h-[56px]"
+          className="w-full py-3.5 rounded-2xl bg-idbi-green hover:bg-idbi-dark text-white font-bold transition-colors min-h-[54px]"
         >
           {t('retake_button')}
         </button>
@@ -229,41 +222,55 @@ export default function RiskQuiz() {
     );
   }
 
+  // ---------- Question state ----------
   const currentQuestion = questions[currentStep - 1];
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-idbi-green">{t('title')}</h2>
-        <span className="text-sm text-gray-500">
+      <div className="flex justify-between items-center">
+        <span className="text-xs font-bold tracking-wide text-idbi-faint uppercase">{t('title')}</span>
+        <span className="text-sm font-semibold text-idbi-muted">
           {t('step_label', { current: currentStep, total: 5 })}
         </span>
       </div>
 
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
+      {/* Progress */}
+      <div className="w-full bg-idbi-light rounded-full h-2">
         <div
-          className="bg-idbi-green h-2 rounded-full transition-all duration-300"
+          className="bg-gradient-to-r from-idbi-green to-idbi-teal h-2 rounded-full transition-all duration-300"
           style={{ width: `${(currentStep / 5) * 100}%` }}
         />
       </div>
 
-      <div
-        className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}
-        key={currentStep}
-      >
-        <p className="text-lg text-gray-700 mb-6 font-medium">{t(currentQuestion.key as 'question1' | 'question2' | 'question3' | 'question4' | 'question5')}</p>
+      <div className={`transition-opacity duration-200 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`} key={currentStep}>
+        <p className="text-lg font-semibold text-idbi-ink mb-6 text-balance">
+          {t(currentQuestion.key as 'question1' | 'question2' | 'question3' | 'question4' | 'question5')}
+        </p>
 
         <div className="space-y-3">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => handleAnswer(option.value)}
-              className="w-full text-left py-4 px-6 bg-white hover:bg-idbi-green hover:text-white border-2 border-gray-200 hover:border-idbi-green rounded-lg font-medium transition-all duration-200 min-h-[56px] flex items-center"
-            >
-              <span className="mr-3 font-bold">{option.value}.</span>
-              {t(option.label as 'option_a' | 'option_b' | 'option_c' | 'option_d')}
-            </button>
-          ))}
+          {options.map((option) => {
+            const isSel = selected === option.value;
+            return (
+              <button
+                key={option.value}
+                onClick={() => handleAnswer(option.value)}
+                className={`group w-full text-left py-4 px-5 rounded-2xl border-2 font-medium transition-all duration-200 min-h-[56px] flex items-center gap-3 ${
+                  isSel
+                    ? 'border-idbi-green bg-idbi-light text-idbi-green'
+                    : 'border-idbi-line bg-white hover:border-idbi-green/50 hover:bg-[#FAFCFB] text-idbi-slate'
+                }`}
+              >
+                <span
+                  className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-colors ${
+                    isSel ? 'bg-idbi-green text-white' : 'bg-idbi-light text-idbi-green group-hover:bg-idbi-green group-hover:text-white'
+                  }`}
+                >
+                  {isSel ? <Check size={15} /> : option.value}
+                </span>
+                {t(option.label as 'option_a' | 'option_b' | 'option_c' | 'option_d')}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
