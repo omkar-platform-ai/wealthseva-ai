@@ -148,6 +148,7 @@ jobs:
           # The EC2 IAM Role has GetSecretValue permission; the app reads secrets on startup.
           docker run -d \
             --name ${CONTAINER_NAME} \
+            --network host \
             --restart unless-stopped \
             --publish 8000:8000 \
             --log-driver awslogs \

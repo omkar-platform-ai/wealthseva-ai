@@ -14,6 +14,10 @@ COPY . .
 
 EXPOSE 8000
 
+# Default to production so start.py pulls secrets from AWS Secrets Manager.
+# Override with `docker run -e ENVIRONMENT=development ...` for local dev.
+ENV ENVIRONMENT=production
+
 # start.py fetches secrets from AWS Secrets Manager (when ENVIRONMENT=production)
 # then starts uvicorn — boto3 is already in requirements.txt
 CMD ["python", "start.py"]

@@ -69,16 +69,21 @@ else:
 # see the correct values.
 import uvicorn  # noqa: E402
 
-WORKERS = int(os.environ.get("UVICORN_WORKERS", "2"))
-PORT    = int(os.environ.get("PORT", "8000"))
+# NOTE: uvicorn spawns worker processes via multiprocessing when workers>1.
+# Each child re-imports this module, so uvicorn.run() MUST be guarded by
+# `if __name__ == "__main__":` or the children will recursively try to
+# start their own workers and crash with a RuntimeError.
+if __name__ == "__main__":
+    WORKERS = int(os.environ.get("UVICORN_WORKERS", "2"))
+    PORT    = int(os.environ.get("PORT", "8000"))
 
-print(f"[start] Starting uvicorn on 0.0.0.0:{PORT} with {WORKERS} worker(s)", flush=True)
+    print(f"[start] Starting uvicorn on 0.0.0.0:{PORT} with {WORKERS} worker(s)", flush=True)
 
-uvicorn.run(
-    "main:app",
-    host="0.0.0.0",
-    port=PORT,
-    workers=WORKERS,
-    # Reload only in dev; workers>1 + reload together raises an error
-    reload=False,
-)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=PORT,
+        workers=WORKERS,
+        # Reload only in dev; workers>1 + reload together raises an error
+        reload=False,
+    )
