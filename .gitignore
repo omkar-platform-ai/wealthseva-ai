@@ -65,3 +65,4 @@ htmlcov/
 headroom_memory.db
 .serena
 VALIDATION_REPORT.md
+memory/

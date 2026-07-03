@@ -19,7 +19,11 @@ name: Deploy — WealthSeva AI
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
-  push:
+  # Deploy only after CI passes on main. CI (ci.yml) is the single quality gate;
+  # we no longer duplicate lint/test here.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:        # Allow manual trigger from GitHub Actions UI
 
@@ -30,40 +34,21 @@ env:
   IMAGE_PORT:     8000
 
 jobs:
-  # ── 1. Run tests before deploying ─────────────────────────────────────────
-  test:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt -q
-        working-directory: backend
-
-      - name: Run pytest
-        run: pytest tests/ -q --tb=short || true   # non-blocking for prototype; remove "|| true" pre-production
-        working-directory: backend
-        env:
-          BEDROCK_REGION: ap-south-1
-          # Tests use mock_index.json fallback — no real secrets needed in CI
-
-
-  # ── 2. Build image → push to ECR ──────────────────────────────────────────
+  # ── 1. Build image → push to ECR ──────────────────────────────────────────
   build-and-push:
     name: Build & Push to ECR
     runs-on: ubuntu-latest
-    needs: test
+    # Skip if CI failed. workflow_dispatch has no workflow_run context, so allow it through.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     outputs:
       image-uri: ${{ steps.build.outputs.image-uri }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # For workflow_run, github.sha is main's HEAD at event time; pin to the exact
+          # commit CI validated so we don't accidentally deploy a newer, untested commit.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -80,8 +65,10 @@ jobs:
         id: build
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # Tag with the commit CI validated, not necessarily main's current HEAD.
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
         run: |
-          IMAGE_URI="${REGISTRY}/${ECR_REPO}:${GITHUB_SHA}"
+          IMAGE_URI="${REGISTRY}/${ECR_REPO}:${COMMIT_SHA}"
           LATEST_URI="${REGISTRY}/${ECR_REPO}:latest"
 
           docker build \
@@ -122,6 +109,12 @@ jobs:
           EC2_HOST:  ${{ secrets.EC2_HOST }}
           EC2_USER:  ${{ secrets.EC2_USER }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          # Comma-separated list of allowed frontend origins. Configure in
+          # Repo → Settings → Secrets and variables → Actions → Variables
+          # as CORS_ORIGINS, e.g.
+          #   https://main.d123abc.amplifyapp.com,https://wealthseva.example.com
+          # Falls back to localhost only so local-dev browsers can hit prod backend.
+          CORS_ORIGINS: ${{ vars.CORS_ORIGINS || 'http://localhost:3000' }}
         run: |
           ssh -i /tmp/ec2_key.pem \
               -o StrictHostKeyChecking=no \
@@ -157,6 +150,7 @@ jobs:
             --log-opt awslogs-stream=ec2-\$(hostname) \
             --env AWS_DEFAULT_REGION=ap-south-1 \
             --env ENVIRONMENT=production \
+            --env CORS_ORIGINS='${CORS_ORIGINS}' \
             ${IMAGE_URI}
 
           # ── Health check (retry up to 30s)
@@ -187,7 +181,7 @@ jobs:
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
           echo "| **Image** | \`${{ needs.build-and-push.outputs.image-uri }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Instance** | \`${{ secrets.EC2_HOST }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Commit** | \`${{ github.event.workflow_run.head_sha || github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Triggered by** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Cleanup SSH key
