@@ -1,20 +1,21 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Send } from 'lucide-react';
+import { Mic, Send, Volume2, VolumeX } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { speak, createRecognizer, SpeakHandle, Recognizer } from '@/lib/voice';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
-
 interface HealthStatus {
   healthy: boolean;
   loading: boolean;
 }
+type AvatarState = 'idle' | 'listening' | 'speaking';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
-const ELEVENLABS_AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
 
 export default function AvatarChat() {
   const t = useTranslations('advisor');
@@ -24,7 +25,25 @@ export default function AvatarChat() {
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<HealthStatus>({ healthy: true, loading: false });
   const [showChips, setShowChips] = useState(true);
+  const [avatarState, setAvatarState] = useState<AvatarState>('idle');
+  const [voiceOn, setVoiceOn] = useState(true);
+  const [sttSupported, setSttSupported] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const voiceOnRef = useRef(true);
+  const speakRef = useRef<SpeakHandle | null>(null);
+  const recognizerRef = useRef<Recognizer | null>(null);
+
+  const stopSpeaking = () => {
+    speakRef.current?.stop();
+    speakRef.current = null;
+  };
+
+  const toggleVoice = () => {
+    const next = !voiceOnRef.current;
+    voiceOnRef.current = next;
+    setVoiceOn(next);
+    if (!next) stopSpeaking();
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -41,22 +60,38 @@ export default function AvatarChat() {
         setHealth({ healthy: false, loading: false });
       }
     };
-
     checkHealth();
     const interval = setInterval(checkHealth, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Clear chat and show welcome message on locale change
+  useEffect(() => {
+    const w = window as unknown as Record<string, unknown>;
+    setSttSupported(typeof (w.SpeechRecognition ?? w.webkitSpeechRecognition) === 'function');
+  }, []);
+
+  // Reset chat on locale change
   useEffect(() => {
     setMessages([]);
     setShowChips(true);
+    speakRef.current?.stop();
+    speakRef.current = null;
+    recognizerRef.current?.stop();
   }, [locale]);
 
+  useEffect(() => {
+    return () => {
+      speakRef.current?.stop();
+      recognizerRef.current?.stop();
+    };
+  }, []);
+
+  // ---- Backend wiring: streaming POST /api/chat ----
   const sendMessage = async (chipInput?: string) => {
     const messageToSend = chipInput || input;
     if (!messageToSend?.trim() || loading) return;
 
+    stopSpeaking();
     const userMsg: Message = { role: 'user', content: messageToSend };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
@@ -92,6 +127,11 @@ export default function AvatarChat() {
           return updated;
         });
       }
+
+      if (voiceOnRef.current && reply) {
+        setAvatarState('speaking');
+        speakRef.current = await speak(reply, locale, () => setAvatarState('idle'));
+      }
     } catch (err) {
       setMessages(prev => [...prev, { role: 'assistant', content: t('error' as never) }]);
     } finally {
@@ -99,42 +139,83 @@ export default function AvatarChat() {
     }
   };
 
+  const toggleMic = () => {
+    if (avatarState === 'listening') {
+      recognizerRef.current?.stop();
+      return;
+    }
+    stopSpeaking();
+    const recognizer = createRecognizer(
+      locale,
+      (transcript, isFinal) => {
+        setInput(transcript);
+        if (isFinal) sendMessage(transcript);
+      },
+      () => setAvatarState('idle'),
+    );
+    if (!recognizer) return;
+    recognizerRef.current = recognizer;
+    setAvatarState('listening');
+    recognizer.start();
+  };
+
+  const statusLabel =
+    avatarState === 'listening' ? t('listening' as never)
+    : avatarState === 'speaking' ? t('speaking' as never)
+    : loading ? 'Typing…'
+    : (
+      <>IDBI Wealth Advisor · {locale.toUpperCase()} · {
+        locale === 'en' ? 'English' :
+        locale === 'hi' ? 'हिंदी' :
+        locale === 'mr' ? 'मराठी' :
+        locale === 'ta' ? 'தமிழ்' :
+        locale === 'bn' ? 'বাংলা' : locale.toUpperCase()
+      }</>
+    );
+
   return (
-    <div className="flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden h-[600px]">
+    <div className="flex flex-col bg-white rounded-[22px] border border-idbi-line shadow-pop overflow-hidden h-[600px]">
       {/* Avatar header */}
-      <div className="bg-idbi-blue p-4 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-idbi-gold flex items-center justify-center text-white font-bold text-lg">
-          S
+      <div className="bg-gradient-to-br from-idbi-green to-idbi-deep px-5 py-4 flex items-center gap-3.5">
+        <div className="relative w-[46px] h-[46px] shrink-0">
+          {avatarState !== 'idle' && (
+            <motion.span
+              className={`absolute inset-0 rounded-full ${avatarState === 'speaking' ? 'bg-idbi-orange' : 'bg-emerald-400'}`}
+              animate={{ scale: [1, 1.6], opacity: [0.6, 0] }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
+            />
+          )}
+          <div className="relative w-[46px] h-[46px] rounded-full bg-gradient-to-br from-idbi-orange to-[#F79B5E] flex items-center justify-center text-white font-bold text-lg">
+            S
+          </div>
         </div>
         <div>
-          <p className="text-white font-semibold">Shreya</p>
-          <p className="text-blue-200 text-xs">IDBI Wealth Advisor · {locale.toUpperCase()} · {
-            locale === 'en' ? 'English' :
-            locale === 'hi' ? 'हिंदी' :
-            locale === 'mr' ? 'मराठी' :
-            locale === 'ta' ? 'தமிழ்' :
-            locale === 'bn' ? 'বাংলা' : locale.toUpperCase()
-          }</p>
+          <p className="text-white font-bold text-base leading-tight">Shreya</p>
+          <p className="text-[#BFE6DC] text-xs font-medium mt-0.5">{statusLabel}</p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          <span className={`w-2 h-2 rounded-full ${health.healthy ? 'bg-green-400' : 'bg-red-500'}`} />
-          {health.loading && <span className="text-xs text-blue-200">...</span>}
-          {!health.healthy && <span className="text-xs text-red-200">{t('reconnecting' as never)}</span>}
+        <div className="ml-auto flex items-center gap-3">
+          <button
+            onClick={toggleVoice}
+            className="text-[#BFE6DC] hover:text-white transition-colors"
+            aria-label={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
+            title={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
+          >
+            {voiceOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
+          <span className={`w-2 h-2 rounded-full ${health.healthy ? 'bg-emerald-400 shadow-[0_0_0_3px_rgba(93,217,168,.25)]' : 'bg-red-500'}`} />
+          {!health.healthy && <span className="text-[11px] text-red-100">{t('reconnecting' as never)}</span>}
         </div>
       </div>
 
       {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-3.5">
         {messages.length === 0 && (
-          <div className="text-center mt-8">
-            <p className="text-gray-600 text-lg mb-2">{t('welcomeMessage' as never)}</p>
-            {!ELEVENLABS_AGENT_ID && (
-              <p className="text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-full inline-block">
-                Voice preview — add ElevenLabs agent ID to enable avatar
-              </p>
-            )}
+          <div className="text-center pt-6">
+            <p className="text-idbi-slate text-lg font-semibold max-w-md mx-auto mb-5 leading-snug text-balance">
+              {t('welcomeMessage' as never)}
+            </p>
             {showChips && (
-              <div className="flex flex-wrap gap-2 justify-center mt-4">
+              <div className="flex flex-wrap gap-2.5 justify-center">
                 {[
                   { key: 'chip1', text: t('chip1' as never) },
                   { key: 'chip2', text: t('chip2' as never) },
@@ -143,7 +224,7 @@ export default function AvatarChat() {
                   <button
                     key={chip.key}
                     onClick={() => sendMessage(chip.text)}
-                    className="text-xs bg-idbi-light text-idbi-blue px-4 py-2 rounded-full hover:bg-idbi-blue hover:text-white transition-colors"
+                    className="text-[13px] font-semibold bg-idbi-light text-idbi-green px-4 py-2.5 rounded-full hover:bg-idbi-green hover:text-white transition-colors"
                   >
                     {chip.text}
                   </button>
@@ -154,12 +235,18 @@ export default function AvatarChat() {
         )}
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+            <div className={`max-w-[76%] px-4 py-3 rounded-[18px] text-sm leading-relaxed ${
               msg.role === 'user'
-                ? 'bg-idbi-blue text-white rounded-br-sm'
-                : 'bg-gray-100 text-gray-800 rounded-bl-sm'
+                ? 'bg-idbi-green text-white rounded-br-[5px]'
+                : 'bg-[#F1F5F3] text-idbi-slate rounded-bl-[5px]'
             }`}>
-              {msg.content || <span className="animate-pulse">●●●</span>}
+              {msg.content || (
+                <span className="inline-flex gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite .2s' }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite .4s' }} />
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -167,21 +254,36 @@ export default function AvatarChat() {
       </div>
 
       {/* Input */}
-      <div className="border-t p-3 flex gap-2">
+      <div className="border-t border-idbi-line p-3.5 flex gap-2.5 items-center bg-white">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder={t('placeholder')}
-          className="flex-1 min-w-0 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue"
+          className="flex-1 min-w-0 border-[1.5px] border-idbi-line rounded-[14px] px-4 py-3 text-sm bg-[#FAFCFB] focus:outline-none focus:border-idbi-green focus:bg-white transition-colors"
           disabled={loading}
         />
+        {sttSupported && (
+          <button
+            onClick={toggleMic}
+            disabled={loading}
+            className={`shrink-0 w-11 h-11 rounded-[13px] flex items-center justify-center transition-colors disabled:opacity-50 ${
+              avatarState === 'listening'
+                ? 'bg-red-500 text-white animate-pulse'
+                : 'border-[1.5px] border-idbi-line text-idbi-green hover:bg-idbi-light'
+            }`}
+            aria-label={t('mic_label' as never)}
+            title={t('mic_label' as never)}
+          >
+            <Mic size={18} />
+          </button>
+        )}
         <button
           onClick={() => sendMessage()}
           disabled={loading || !input.trim() || !health.healthy}
-          className="flex-shrink-0 bg-idbi-blue text-white p-2 rounded-xl hover:bg-blue-900 disabled:opacity-50 transition-colors"
+          className="shrink-0 w-11 h-11 rounded-[13px] bg-idbi-green text-white flex items-center justify-center hover:bg-idbi-dark disabled:opacity-50 transition-colors shadow-[0_8px_16px_-8px_rgba(0,131,108,.8)]"
         >
-          <Send size={16} />
+          <Send size={18} />
         </button>
       </div>
     </div>

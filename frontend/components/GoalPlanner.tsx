@@ -1,8 +1,10 @@
 'use client';
 import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { ChevronDown, Info, Palmtree, Home, GraduationCap, Gem, Target, LucideIcon } from 'lucide-react';
 import { formatINR } from '@/lib/format';
+import FadeIn from '@/components/FadeIn';
 
 interface Preset {
   id: string;
@@ -11,15 +13,22 @@ interface Preset {
   years: number;
   icon: string;
 }
-
 interface Projection {
   name: string;
   target_amount: number;
   monthly_sip: number;
   projected_corpus: number;
   yearly_data: { year: number; corpus: number }[];
+  trace?: {
+    target_amount: number;
+    current_savings: number;
+    months: number;
+    annual_return_pct: number;
+    fv_savings: number;
+    gap: number;
+    monthly_sip: number;
+  } | null;
 }
-
 interface GoalResult {
   projections: Projection[];
   summary: string;
@@ -33,7 +42,18 @@ const PRESET_KEY_MAP: Record<string, 'preset_retirement' | 'preset_house' | 'pre
   wedding: 'preset_wedding',
 };
 
+const PRESET_ICONS: Record<string, LucideIcon> = {
+  retirement: Palmtree,
+  house: Home,
+  education: GraduationCap,
+  wedding: Gem,
+};
+
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+const inputCls =
+  'w-full border-[1.5px] border-idbi-line rounded-[12px] px-3.5 py-3 text-sm bg-[#FAFCFB] text-idbi-ink focus:outline-none focus:border-idbi-green focus:bg-white transition-colors';
+const labelCls = 'block text-[12.5px] font-semibold text-idbi-muted mb-1.5';
 
 export default function GoalPlanner() {
   const t = useTranslations('goals');
@@ -46,7 +66,9 @@ export default function GoalPlanner() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<GoalResult | null>(null);
   const [error, setError] = useState('');
+  const [openTrace, setOpenTrace] = useState<number | null>(null);
 
+  // ---- Backend wiring: GET /api/goals/presets ----
   useEffect(() => {
     fetch(`${BACKEND}/api/goals/presets`)
       .then(r => r.json())
@@ -65,6 +87,7 @@ export default function GoalPlanner() {
     }));
   };
 
+  // ---- Backend wiring: POST /api/goals ----
   const handleSubmit = async () => {
     const years = parseInt(form.years);
     if (!form.name || !form.target_amount || !years) return;
@@ -76,6 +99,7 @@ export default function GoalPlanner() {
     setSubmitting(true);
     setError('');
     setResult(null);
+    setOpenTrace(null);
 
     try {
       const res = await fetch(`${BACKEND}/api/goals`, {
@@ -92,7 +116,6 @@ export default function GoalPlanner() {
           language: locale,
         }),
       });
-
       if (!res.ok) throw new Error('failed');
       const data = await res.json();
       setResult(data);
@@ -106,89 +129,70 @@ export default function GoalPlanner() {
   const canSubmit = !submitting && !!form.name && !!form.target_amount && !!form.years;
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold text-idbi-blue">{t('title')}</h2>
-
-      {/* Preset Cards */}
+    <div className="space-y-5">
+      {/* Preset cards */}
       {presets.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {presets.map(preset => (
-            <button
-              key={preset.id}
-              onClick={() => selectPreset(preset)}
-              className={`rounded-xl p-4 text-left border-2 transition-all ${
-                selectedPreset === preset.id
-                  ? 'border-idbi-blue bg-idbi-light'
-                  : 'border-gray-200 bg-white hover:border-idbi-blue/50'
-              }`}
-            >
-              <div className="text-2xl mb-1">{preset.icon}</div>
-              <div className="font-semibold text-sm text-gray-800">
-                {PRESET_KEY_MAP[preset.id] ? t(PRESET_KEY_MAP[preset.id]) : preset.id}
-              </div>
-              <div className="text-xs text-idbi-blue font-medium mt-1">
-                {formatINR(preset.target_amount, locale)}
-              </div>
-              <div className="text-xs text-gray-400">
-                {preset.years} {t('years_away')}
-              </div>
-            </button>
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+          {presets.map(preset => {
+            const Icon = PRESET_ICONS[preset.id] ?? Target;
+            const active = selectedPreset === preset.id;
+            return (
+              <button
+                key={preset.id}
+                onClick={() => selectPreset(preset)}
+                className={`text-left rounded-2xl p-4 border-2 transition-all ${
+                  active
+                    ? 'border-idbi-green bg-[#EFF8F5] shadow-card'
+                    : 'border-idbi-line bg-white hover:border-idbi-green/50'
+                }`}
+              >
+                <div className="w-[38px] h-[38px] rounded-[11px] bg-idbi-light flex items-center justify-center mb-3">
+                  <Icon size={19} className="text-idbi-green" />
+                </div>
+                <div className="font-bold text-sm text-idbi-ink">
+                  {PRESET_KEY_MAP[preset.id] ? t(PRESET_KEY_MAP[preset.id]) : preset.id}
+                </div>
+                <div className="text-[13px] text-idbi-green font-bold mt-0.5">
+                  {formatINR(preset.target_amount, locale)}
+                </div>
+                <div className="text-[11.5px] text-idbi-faint font-medium">
+                  {preset.years} {t('years_away')}
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
 
       {/* Form */}
-      <div className="bg-white rounded-2xl shadow p-6 space-y-4">
+      <div className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-gray-600 mb-1 block">{t('goal_name_label')}</label>
-            <input
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
-              placeholder={t('preset_retirement')}
-            />
+            <label className={labelCls}>{t('goal_name_label')}</label>
+            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} placeholder={t('preset_retirement')} />
           </div>
           <div>
-            <label className="text-sm text-gray-600 mb-1 block">{t('target_amount')}</label>
-            <input
-              type="number"
-              value={form.target_amount}
-              onChange={e => setForm(f => ({ ...f, target_amount: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
-              placeholder="1000000"
-              min="1"
-            />
+            <label className={labelCls}>{t('target_amount')}</label>
+            <input type="number" value={form.target_amount} onChange={e => setForm(f => ({ ...f, target_amount: e.target.value }))} className={inputCls} placeholder="1000000" min="1" />
           </div>
           <div>
-            <label className="text-sm text-gray-600 mb-1 block">{t('target_date')}</label>
-            <input
-              type="number"
-              value={form.years}
-              onChange={e => setForm(f => ({ ...f, years: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
-              placeholder="Years to goal"
-              min="1"
-              max="40"
-            />
+            <label className={labelCls}>{t('target_date')}</label>
+            <input type="number" value={form.years} onChange={e => setForm(f => ({ ...f, years: e.target.value }))} className={inputCls} placeholder="Years to goal" min="1" max="40" />
           </div>
           <div>
-            <label className="text-sm text-gray-600 mb-1 block">{t('current_savings')}</label>
-            <input
-              type="number"
-              value={form.current_savings}
-              onChange={e => setForm(f => ({ ...f, current_savings: e.target.value }))}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue/50"
-              placeholder="0"
-              min="0"
-            />
+            <label className={labelCls}>{t('current_savings')}</label>
+            <input type="number" value={form.current_savings} onChange={e => setForm(f => ({ ...f, current_savings: e.target.value }))} className={inputCls} placeholder="0" min="0" />
           </div>
         </div>
 
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className="w-full bg-idbi-blue text-white rounded-xl py-3 font-semibold hover:bg-idbi-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className={`w-full rounded-[14px] py-3.5 font-bold text-[15px] text-white transition-all ${
+            canSubmit
+              ? 'bg-gradient-to-r from-idbi-green to-idbi-dark shadow-[0_12px_24px_-12px_rgba(0,131,108,.7)] hover:brightness-95'
+              : 'bg-[#A9C7BF] cursor-not-allowed'
+          }`}
         >
           {submitting ? tCommon('loading') : t('calculate_button')}
         </button>
@@ -198,21 +202,21 @@ export default function GoalPlanner() {
 
       {/* Results */}
       {result && (
-        <div className="space-y-4">
+        <FadeIn className="space-y-4">
           {(result.projections ?? []).map((proj, i) => (
-            <div key={i} className="bg-white rounded-2xl shadow p-6">
-              <h3 className="font-bold text-idbi-blue text-lg mb-4">{proj.name}</h3>
+            <div key={i} className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6">
+              <h3 className="font-extrabold text-idbi-ink text-lg mb-4">{proj.name}</h3>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-idbi-light rounded-xl p-4">
-                  <div className="text-xs text-gray-500 mb-1">{t('monthly_sip_label')}</div>
-                  <div className="text-xl font-bold text-idbi-blue">
+              <div className="grid grid-cols-2 gap-3.5 mb-6">
+                <div className="bg-idbi-light rounded-[15px] p-[18px]">
+                  <div className="text-[12px] font-semibold text-idbi-muted mb-1.5">{t('monthly_sip_label')}</div>
+                  <div className="text-[22px] font-extrabold text-idbi-green tracking-tight">
                     {formatINR(proj.monthly_sip, locale)}
                   </div>
                 </div>
-                <div className="bg-amber-50 rounded-xl p-4">
-                  <div className="text-xs text-gray-500 mb-1">{t('projected_value_label')}</div>
-                  <div className="text-xl font-bold text-idbi-gold">
+                <div className="bg-[#FFF3E6] rounded-[15px] p-[18px]">
+                  <div className="text-[12px] font-semibold text-idbi-muted mb-1.5">{t('projected_value_label')}</div>
+                  <div className="text-[22px] font-extrabold text-idbi-orange tracking-tight">
                     {formatINR(proj.projected_corpus, locale)}
                   </div>
                 </div>
@@ -220,66 +224,85 @@ export default function GoalPlanner() {
 
               {proj.yearly_data.length > 0 && (
                 <div>
-                  <div className="text-sm font-semibold text-gray-700 mb-3">
-                    {t('corpus_chart_label')}
+                  <div className="text-[13px] font-bold text-idbi-slate mb-3">{t('corpus_chart_label')}</div>
+                  <div className="bg-[#FBFDFC] border border-idbi-line rounded-[15px] p-3">
+                    <ResponsiveContainer width="100%" height={200}>
+                      <AreaChart data={proj.yearly_data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="corpusGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#00836C" stopOpacity={0.18} />
+                            <stop offset="100%" stopColor="#00836C" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#EEF3F1" vertical={false} />
+                        <XAxis dataKey="year" tick={{ fill: '#9AAAA5', fontSize: 11 }} stroke="#E1EAE7" />
+                        <YAxis tick={{ fill: '#9AAAA5', fontSize: 10 }} stroke="#E1EAE7" width={72} tickFormatter={(v: number) => formatINR(v, locale)} />
+                        <Tooltip
+                          contentStyle={{ backgroundColor: '#122622', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '12px' }}
+                          formatter={(v: number) => [formatINR(v, locale), t('projected_value_label')]}
+                          labelFormatter={(l: number) => `Year ${l}`}
+                        />
+                        <Area type="monotone" dataKey="corpus" stroke="#00836C" strokeWidth={2.6} fill="url(#corpusGrad)" dot={false} activeDot={{ r: 4 }} />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <LineChart data={proj.yearly_data}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                      <XAxis
-                        dataKey="year"
-                        tick={{ fill: '#6B7280', fontSize: 11 }}
-                        stroke="#9CA3AF"
-                      />
-                      <YAxis
-                        tick={{ fill: '#6B7280', fontSize: 10 }}
-                        stroke="#9CA3AF"
-                        width={72}
-                        tickFormatter={(v: number) => formatINR(v, locale)}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#1F2937',
-                          border: 'none',
-                          borderRadius: '8px',
-                          color: '#fff',
-                          fontSize: '12px',
-                        }}
-                        formatter={(v: number) => [formatINR(v, locale), t('projected_value_label')]}
-                        labelFormatter={(l: number) => `Year ${l}`}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="corpus"
-                        stroke="#1e3a5f"
-                        strokeWidth={2}
-                        dot={false}
-                        activeDot={{ r: 4 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                </div>
+              )}
+
+              {proj.trace && (
+                <div className="mt-4 border-t border-idbi-line pt-4">
+                  <button
+                    onClick={() => setOpenTrace(openTrace === i ? null : i)}
+                    aria-expanded={openTrace === i}
+                    className="w-full flex items-center gap-2 text-sm font-bold text-idbi-green"
+                  >
+                    <Info size={16} />
+                    {t('why_button')}
+                    <ChevronDown size={16} className={`ml-auto transition-transform ${openTrace === i ? 'rotate-180' : ''}`} />
+                  </button>
+                  {openTrace === i && (
+                    <div className="mt-4 space-y-3 text-sm text-idbi-slate">
+                      <div className="flex gap-3">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">{t('why_step_data')}</span>
+                        <p>{t('why_data_text', { target: formatINR(proj.trace.target_amount, locale), months: proj.trace.months, savings: formatINR(proj.trace.current_savings, locale) })}</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">{t('why_step_assumption')}</span>
+                        <p>{t('why_assumption_text', { rate: proj.trace.annual_return_pct })}</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-green text-xs font-semibold">{t('why_step_calc')}</span>
+                        <p>{t('why_calc_text', { fv: formatINR(proj.trace.fv_savings, locale), gap: formatINR(proj.trace.gap, locale), sip: formatINR(proj.trace.monthly_sip, locale) })}</p>
+                      </div>
+                      <p className="text-xs text-idbi-faint border-t border-idbi-line pt-3">{t('why_note')}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           ))}
 
-          {/* Total + Shreya's Advice */}
-          <div className="bg-white rounded-2xl shadow p-6 space-y-4">
+          {/* Total + advice */}
+          <div className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-gray-600">{t('total_monthly_label')}</span>
-              <span className="text-2xl font-bold text-idbi-blue">
+              <span className="text-idbi-muted font-medium">{t('total_monthly_label')}</span>
+              <span className="text-[26px] font-extrabold text-idbi-green tracking-tight">
                 {formatINR(result.total_monthly_required, locale)}
               </span>
             </div>
-
             {result.summary && (
-              <div className="border-t pt-4">
-                <div className="text-sm font-semibold text-idbi-gold mb-2">{t('advice_label')}</div>
-                <p className="text-sm text-gray-700 leading-relaxed">{result.summary}</p>
+              <div className="border-t border-idbi-line pt-4 flex gap-3">
+                <div className="w-8 h-8 shrink-0 rounded-[10px] bg-idbi-orange flex items-center justify-center">
+                  <Info size={16} className="text-white" />
+                </div>
+                <div>
+                  <div className="text-[12.5px] font-bold text-idbi-orange mb-1">{t('advice_label')}</div>
+                  <p className="text-sm text-idbi-slate leading-relaxed">{result.summary}</p>
+                </div>
               </div>
             )}
           </div>
-        </div>
+        </FadeIn>
       )}
     </div>
   );

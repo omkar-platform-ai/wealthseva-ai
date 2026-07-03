@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, List
 from enum import Enum
 
@@ -35,6 +35,12 @@ class ChatResponse(BaseModel):
     detected_language: Optional[Language] = None
 
 
+class TTSRequest(BaseModel):
+    # max_length caps ElevenLabs character spend per request
+    text: str = Field(min_length=1, max_length=2000)
+    language: Language = Language.EN
+
+
 class RiskQuizAnswer(BaseModel):
     question_id: int
     answer: str
@@ -51,11 +57,21 @@ class RiskProfileRequest(BaseModel):
         return self
 
 
+class RiskTrace(BaseModel):
+    # Deterministic scoring trace — rendered by the frontend in the user's
+    # language; no AI is involved in producing these numbers.
+    answer_points: List[int]
+    score: int
+    max_score: int
+    bands: dict  # profile value -> [min_score, max_score]
+
+
 class RiskProfileResponse(BaseModel):
     profile: RiskProfile
     score: int
     explanation: str
     recommended_allocation: dict
+    trace: Optional[RiskTrace] = None
 
 
 class Goal(BaseModel):

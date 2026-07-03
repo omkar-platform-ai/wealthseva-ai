@@ -10,7 +10,7 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
         <p className="text-gray-700 text-lg mb-6">{t('shreya_break')}</p>
         <button
           onClick={reset}
-          className="px-4 py-2 bg-idbi-blue text-white rounded-lg hover:bg-blue-900 transition-colors text-sm"
+          className="px-4 py-2 bg-idbi-green text-white rounded-lg hover:bg-idbi-dark transition-colors text-sm"
         >
           Refresh
         </button>

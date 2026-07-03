@@ -23,7 +23,7 @@ export default function AdvisorPage() {
         <ConsentGate onAccept={() => setHasConsent(true)} />
       )}
 
-      <h1 className="text-2xl font-bold text-idbi-blue mb-6">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-idbi-green mb-6">{t('title')}</h1>
       <AvatarChat />
 
       <p className="text-xs text-gray-500 text-center mt-1">
@@ -33,7 +33,7 @@ export default function AdvisorPage() {
       <div className="mt-4 flex justify-center">
         <button
           onClick={() => setEscalateOpen(true)}
-          className="text-idbi-blue border border-idbi-blue px-4 py-2 rounded-lg text-sm hover:bg-idbi-light transition-colors"
+          className="text-idbi-green border border-idbi-green px-4 py-2 rounded-lg text-sm hover:bg-idbi-light transition-colors"
         >
           {t('escalate_cta')}
         </button>

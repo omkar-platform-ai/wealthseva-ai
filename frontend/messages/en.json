@@ -24,7 +24,15 @@
     "result_aggressive": "Aggressive Investor",
     "explanation_label": "Your risk profile",
     "retake_button": "Retake Quiz",
-    "analysing_label": "Shreya is analysing your profile..."
+    "analysing_label": "Shreya is analysing your profile...",
+    "why_button": "Why this result?",
+    "why_step_data": "Data",
+    "why_step_rule": "Rule",
+    "why_step_result": "Result",
+    "why_data_text": "Your 5 answers scored {points}, giving {score} of {max} points.",
+    "why_rule_text": "Fixed score bands: 5–8 = {conservative}, 9–14 = {moderate}, 15–20 = {aggressive}. Your score {score} falls in the {profile} band.",
+    "why_result_text": "The {profile} profile maps to the fixed model allocation shown in the chart.",
+    "why_note": "Calculated with fixed rules — AI is not used for this result."
   },
   "advisor": {
     "title": "Your Wealth Advisor",
@@ -44,7 +52,12 @@
     "escalate_phone_hours": "Mon–Sat, 9 AM – 6 PM IST",
     "escalate_branch_label": "Visit Your Nearest Branch",
     "escalate_branch_desc": "Find your nearest IDBI Bank branch for in-person wealth advisory.",
-    "escalate_close": "Close"
+    "escalate_close": "Close",
+    "listening": "Listening…",
+    "speaking": "Speaking…",
+    "voice_on": "Turn voice on",
+    "voice_off": "Turn voice off",
+    "mic_label": "Speak your question"
   },
   "consent": {
     "title": "Data Consent",
@@ -84,7 +97,15 @@
     "calculate_button": "Calculate My Plan",
     "years_away": "years away",
     "total_monthly_label": "Total Monthly Commitment",
-    "corpus_chart_label": "Corpus Growth"
+    "corpus_chart_label": "Corpus Growth",
+    "why_button": "Why this number?",
+    "why_step_data": "Data",
+    "why_step_assumption": "Assumption",
+    "why_step_calc": "Calculation",
+    "why_data_text": "Target {target} in {months} months, starting from {savings} saved today.",
+    "why_assumption_text": "{rate}% expected annual return (illustrative, not guaranteed).",
+    "why_calc_text": "Your savings grow to {fv}, leaving a gap of {gap}. The standard SIP formula turns that gap into {sip} per month.",
+    "why_note": "Calculated with a fixed formula — AI is not used for this number."
   },
   "portfolio": {
     "title": "Portfolio Analysis",
@@ -99,6 +120,14 @@
     "file_too_large": "File size exceeds 2MB limit. Please upload a smaller file.",
     "invalid_format": "Only CSV files are allowed.",
     "sample_upload_error": "Failed to load sample portfolio. Please try again."
+  },
+  "insights": {
+    "title": "Today's Market Insights",
+    "subtitle": "AI-generated market context in your language",
+    "empty": "No insights available right now — please check back soon.",
+    "error": "Couldn't load insights. Please try again.",
+    "retry": "Retry",
+    "disclaimer": "AI-generated for information only — not investment advice."
   },
   "nav": {
     "dashboard": "Dashboard",

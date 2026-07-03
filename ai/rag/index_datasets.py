@@ -66,7 +66,9 @@ def index_to_pinecone(dataset_dir: str = "./data", languages: str = "en,hi"):
     NAMESPACES = {"en": "idbi-data-en", "hi": "idbi-data-hi", "mr": "idbi-data-mr", "ta": "idbi-data-ta", "bn": "idbi-data-bn"}
 
     if INDEX_NAME not in [i.name for i in pc.list_indexes()]:
-        pc.create_index(INDEX_NAME, dimension=1536, metric="cosine",
+        # 1024 = Amazon Titan Text Embeddings V2 output dimension —
+        # must match the embedding model used in backend/services/rag_service.py
+        pc.create_index(INDEX_NAME, dimension=1024, metric="cosine",
                         spec=ServerlessSpec(cloud="aws", region="ap-southeast-1"))
         print(f"Created Pinecone index: {INDEX_NAME}")
 

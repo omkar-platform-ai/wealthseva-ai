@@ -4,21 +4,13 @@ import { useDropzone } from 'react-dropzone';
 import { useState } from 'react';
 import * as Papa from 'papaparse';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { UploadCloud, Zap, Check } from 'lucide-react';
 
-interface PortfolioData {
-  Ticker: string;
-  Category: string;
-  Value: number;
-  Units: number;
-}
+interface PortfolioData { Ticker: string; Category: string; Value: number; Units: number; }
+interface AnalysisResult { summary: string; recommendations: string[]; sip_suggestion: string; }
 
-interface AnalysisResult {
-  summary: string;
-  recommendations: string[];
-  sip_suggestion: string;
-}
-
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+// On-brand chart palette (green / teal / orange family).
+const COLORS = ['#00836C', '#4FA9A7', '#F37021', '#F5C36B', '#307360'];
 
 export default function PortfolioCard() {
   const t = useTranslations('portfolio');
@@ -37,61 +29,46 @@ export default function PortfolioCard() {
       skipEmptyLines: true,
       complete: (results) => {
         const data = results.data as PortfolioData[];
-
-        // Group by category and sum values
         const categoryMap = new Map<string, number>();
         data.forEach((row) => {
           const category = row.Category;
           const value = row.Value || 0;
           categoryMap.set(category, (categoryMap.get(category) || 0) + value);
         });
-
-        // Convert to array and sort by value
         const chartData = Array.from(categoryMap.entries())
           .map(([category, value]) => ({ category, value }))
           .sort((a, b) => b.value - a.value);
-
         setAllocationData(chartData);
       },
-      error: (err) => {
-        console.error('CSV parsing error:', err);
-      }
+      error: (err) => console.error('CSV parsing error:', err),
     });
   };
 
+  // ---- Backend wiring: POST /api/portfolio ----
   const handleFileUpload = async (file: File) => {
-    // Reset state
     setError('');
     setAnalysis(null);
     setAllocationData([]);
 
-    // Validate file size
     if (file.size > MAX_FILE_SIZE) {
       setError(t('file_too_large'));
       return;
     }
 
-    // Parse CSV for chart
     parseCSVForChart(file);
 
-    // Upload to backend for analysis
     setAnalyzing(true);
     const form = new FormData();
     form.append('file', file);
     form.append('language', locale);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio`, {
-        method: 'POST',
-        body: form
-      });
-
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio`, { method: 'POST', body: form });
       if (!res.ok) {
         const errorData = await res.json();
         setError(errorData.detail || t('sample_upload_error'));
         return;
       }
-
       const data = await res.json();
       setAnalysis(data);
     } catch (err) {
@@ -101,22 +78,17 @@ export default function PortfolioCard() {
     }
   };
 
+  // ---- Backend wiring: GET /api/portfolio/sample ----
   const handleSampleUpload = async () => {
     setError('');
     setAnalyzing(true);
     setAnalysis(null);
     setAllocationData([]);
-
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio/sample`);
-      if (!res.ok) {
-        throw new Error('Failed to fetch sample portfolio');
-      }
-
+      if (!res.ok) throw new Error('Failed to fetch sample portfolio');
       const blob = await res.blob();
       const file = new File([blob], 'sample_portfolio.csv', { type: 'text/csv' });
-
-      // Trigger analysis with sample file
       await handleFileUpload(file);
     } catch (err) {
       setError(t('sample_upload_error'));
@@ -127,121 +99,110 @@ export default function PortfolioCard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'text/csv': ['.csv'] },
     maxSize: MAX_FILE_SIZE,
-    onDrop: (files) => {
-      if (files.length > 0) {
-        handleFileUpload(files[0]);
-      }
-    },
+    onDrop: (files) => { if (files.length > 0) handleFileUpload(files[0]); },
     onDropRejected: (rejections) => {
       const rejection = rejections[0];
-      if (rejection.errors.some(e => e.code === 'file-too-large')) {
-        setError(t('file_too_large'));
-      } else if (rejection.errors.some(e => e.code === 'file-invalid-type')) {
-        setError(t('invalid_format'));
-      }
-    }
+      if (rejection.errors.some(e => e.code === 'file-too-large')) setError(t('file_too_large'));
+      else if (rejection.errors.some(e => e.code === 'file-invalid-type')) setError(t('invalid_format'));
+    },
   });
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6 col-span-2">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-idbi-blue">{t('title')}</h2>
+    <div className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6">
+      <div className="flex justify-between items-center mb-[18px] gap-4 flex-wrap">
+        <div>
+          <h2 className="text-lg font-bold text-idbi-ink">{t('title')}</h2>
+          <p className="mt-1 text-[12.5px] text-idbi-muted">Upload holdings for an AI breakdown</p>
+        </div>
         <button
           onClick={handleSampleUpload}
           disabled={analyzing}
-          className="px-4 py-2 bg-idbi-gold text-white rounded-lg hover:bg-idbi-gold/90 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-idbi-orange text-white rounded-[11px] hover:bg-idbi-orangeDark disabled:opacity-50 disabled:cursor-not-allowed text-[13px] font-bold transition-colors shadow-[0_8px_18px_-8px_rgba(243,112,33,.7)]"
         >
+          <Zap size={15} strokeWidth={2.2} />
           {t('sample_button')}
         </button>
       </div>
 
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-          isDragActive ? 'border-idbi-blue bg-idbi-light' : 'border-gray-200'
+        className={`border-[1.8px] border-dashed rounded-[16px] px-5 py-10 text-center cursor-pointer transition-all ${
+          isDragActive ? 'border-idbi-green bg-idbi-light' : 'border-idbi-line bg-[#FAFCFB] hover:border-idbi-green/60 hover:bg-[#F2F9F7]'
         }`}
       >
         <input {...getInputProps()} />
-        <p className="text-gray-500 text-sm">{t('upload_prompt')}</p>
-        <p className="text-gray-400 text-xs mt-2">Max 2MB • CSV only</p>
+        <div className="w-12 h-12 mx-auto mb-3.5 rounded-[14px] bg-idbi-light flex items-center justify-center">
+          <UploadCloud size={22} className="text-idbi-green" strokeWidth={2} />
+        </div>
+        <p className="text-[14.5px] font-semibold text-idbi-slate">{t('upload_prompt')}</p>
+        <p className="mt-1.5 text-[12px] text-idbi-faint font-medium">Max 2MB · CSV only</p>
       </div>
 
       {analyzing && (
-        <div className="mt-4 flex items-center justify-center">
-          <div className="animate-pulse flex items-center space-x-2">
-            <div className="w-2 h-2 bg-idbi-blue rounded-full animate-bounce" />
-            <div className="w-2 h-2 bg-idbi-blue rounded-full animate-bounce delay-100" />
-            <div className="w-2 h-2 bg-idbi-blue rounded-full animate-bounce delay-200" />
-          </div>
-          <p className="ml-2 text-sm text-gray-500">{t('analyzing')}</p>
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <span className="w-2 h-2 bg-idbi-green rounded-full animate-bounce" />
+          <span className="w-2 h-2 bg-idbi-green rounded-full animate-bounce delay-100" />
+          <span className="w-2 h-2 bg-idbi-green rounded-full animate-bounce delay-200" />
+          <p className="ml-1 text-sm text-idbi-muted">{t('analyzing')}</p>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 
       {analysis && (
-        <div className="mt-6 space-y-6">
-          {/* Summary Card */}
-          <div className="bg-gradient-to-br from-idbi-light to-blue-50 p-4 rounded-xl border border-idbi-blue/20">
-            <h3 className="font-semibold text-idbi-blue mb-2">{t('summary_label')}</h3>
-            <p className="text-sm text-gray-700">{analysis.summary}</p>
+        <div className="mt-6 space-y-6 animate-rise">
+          {/* Summary */}
+          <div className="p-5 rounded-[16px] bg-gradient-to-br from-idbi-light to-[#EFF8F4] border border-idbi-green/15">
+            <h3 className="font-bold text-idbi-green mb-1.5">{t('summary_label')}</h3>
+            <p className="text-sm leading-relaxed text-idbi-slate">{analysis.summary}</p>
           </div>
 
           {/* Recommendations */}
           <div>
-            <h3 className="font-semibold text-idbi-blue mb-3">{t('recommendations_label')}</h3>
-            <ul className="space-y-2">
+            <h3 className="font-bold text-idbi-ink mb-3">{t('recommendations_label')}</h3>
+            <ul className="space-y-2.5">
               {analysis.recommendations.map((rec, idx) => (
-                <li key={idx} className="flex items-start space-x-2">
-                  <span className="text-green-500 mt-0.5">✓</span>
-                  <span className="text-sm text-gray-700">{rec}</span>
+                <li key={idx} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 text-idbi-green shrink-0"><Check size={16} strokeWidth={2.6} /></span>
+                  <span className="text-sm text-idbi-slate leading-relaxed">{rec}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* SIP Suggestion */}
-          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 p-4 rounded-xl border-2 border-idbi-gold/30">
-            <h3 className="font-semibold text-idbi-gold mb-2">{t('sip_suggestion_label')}</h3>
-            <p className="text-sm text-gray-700">{analysis.sip_suggestion}</p>
+          {/* SIP suggestion */}
+          <div className="p-5 rounded-[16px] bg-gradient-to-br from-[#FFF7EE] to-[#FFF3E6] border border-idbi-orange/20">
+            <h3 className="font-bold text-idbi-orange mb-1.5">{t('sip_suggestion_label')}</h3>
+            <p className="text-sm leading-relaxed text-idbi-slate">{analysis.sip_suggestion}</p>
           </div>
 
-          {/* Allocation Chart */}
+          {/* Allocation chart */}
           {allocationData.length > 0 && (
             <div>
-              <h3 className="font-semibold text-idbi-blue mb-3">{t('allocation_chart_label')}</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={allocationData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="category"
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                    stroke="#9CA3AF"
-                  />
-                  <YAxis
-                    tick={{ fill: '#6B7280', fontSize: 12 }}
-                    stroke="#9CA3AF"
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1F2937',
-                      border: 'none',
-                      borderRadius: '8px',
-                      color: '#fff'
-                    }}
-                    formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Value']}
-                  />
-                  <Bar dataKey="value" radius={[8, 8, 0, 0]}>
-                    {allocationData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <h3 className="font-bold text-idbi-ink mb-3">{t('allocation_chart_label')}</h3>
+              <div className="bg-[#FBFDFC] border border-idbi-line rounded-[15px] p-3">
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={allocationData} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#EEF3F1" vertical={false} />
+                    <XAxis dataKey="category" tick={{ fill: '#9AAAA5', fontSize: 12 }} stroke="#E1EAE7" />
+                    <YAxis tick={{ fill: '#9AAAA5', fontSize: 12 }} stroke="#E1EAE7" />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: '#122622', border: 'none', borderRadius: '10px', color: '#fff' }}
+                      formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Value']}
+                      cursor={{ fill: 'rgba(0,131,108,.06)' }}
+                    />
+                    <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                      {allocationData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
         </div>

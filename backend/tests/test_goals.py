@@ -52,12 +52,27 @@ class TestComputeProjection:
         # current_savings already exceeds target_amount → no SIP needed
         result = _compute_projection(500_000, 1_000_000, target_date)
         assert result["monthly_sip"] == 0
+        assert result["trace"]["gap"] == 0
 
     def test_invalid_date_returns_safe_fallback(self):
         result = _compute_projection(500_000, 0, "not-a-date")
         assert result["monthly_sip"] == 0
         assert result["projected_corpus"] == 500_000
         assert result["yearly_data"] == []
+        assert result["trace"] is None
+
+    def test_projection_includes_deterministic_trace(self):
+        target_date = (date.today().replace(year=date.today().year + 10)).isoformat()
+        result = _compute_projection(5_000_000, 100_000, target_date)
+        trace = result["trace"]
+        assert trace["target_amount"] == 5_000_000
+        assert trace["current_savings"] == 100_000
+        assert trace["months"] == 120
+        assert trace["annual_return_pct"] == 12
+        # Trace numbers must be internally consistent with the projection
+        # (±1 tolerance: gap and fv_savings are rounded independently)
+        assert trace["monthly_sip"] == result["monthly_sip"]
+        assert abs(trace["gap"] - (5_000_000 - trace["fv_savings"])) <= 1
 
 
 class TestGoalsEndpoint:

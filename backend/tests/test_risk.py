@@ -77,6 +77,38 @@ def test_four_answers_validation_error():
     assert response.status_code == 422
 
 
+def test_risk_profile_response_includes_trace():
+    """Endpoint returns a deterministic trace: per-answer points, score, bands."""
+    from unittest.mock import patch
+    from fastapi.testclient import TestClient
+    from main import app
+
+    client = TestClient(app)
+
+    with patch('services.claude_service.client', None):
+        response = client.post("/api/risk-profile", json={
+            "answers": [
+                {"question_id": 1, "answer": "B"},
+                {"question_id": 2, "answer": "C"},
+                {"question_id": 3, "answer": "B"},
+                {"question_id": 4, "answer": "C"},
+                {"question_id": 5, "answer": "B"},
+            ],
+            "language": "en"
+        })
+
+    assert response.status_code == 200
+    trace = response.json()["trace"]
+    assert trace["answer_points"] == [2, 3, 2, 3, 2]
+    assert trace["score"] == sum(trace["answer_points"]) == 12
+    assert trace["max_score"] == 20
+    assert trace["bands"] == {
+        "conservative": [5, 8],
+        "moderate": [9, 14],
+        "aggressive": [15, 20],
+    }
+
+
 @pytest.mark.asyncio
 async def test_generate_risk_explanation_without_credentials():
     """Test that generate_risk_explanation falls back gracefully when client is None."""

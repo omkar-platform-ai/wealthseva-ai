@@ -36,6 +36,24 @@ else:
 _insights_cache = {}
 _INSIGHTS_CACHE_TTL = 60  # seconds
 
+# Graceful-degradation copy: shown when live AI is unreachable (missing/expired
+# AWS credentials, network failure). Never 500 — see CLAUDE.md Architecture Notes.
+_DEMO_FALLBACK: dict[Language, str] = {
+    Language.EN: "Namaste! I'm Shreya. I'm in demo mode right now, so live AI responses are unavailable — but the risk profiler, goal planner, and dashboard all work fully. Please try again in a moment.",
+    Language.HI: "नमस्ते! मैं श्रेया हूँ। अभी मैं demo mode में हूँ, इसलिए live AI उत्तर उपलब्ध नहीं हैं — लेकिन risk profiler, goal planner और dashboard पूरी तरह काम कर रहे हैं। कृपया थोड़ी देर में पुनः प्रयास करें।",
+    Language.MR: "नमस्कार! मी श्रेया आहे. सध्या मी demo mode मध्ये आहे, त्यामुळे live AI उत्तरे उपलब्ध नाहीत — पण risk profiler, goal planner आणि dashboard पूर्णपणे काम करत आहेत. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.",
+    Language.TA: "வணக்கம்! நான் ஷ்ரேயா. இப்போது நான் demo mode-ல் இருக்கிறேன், எனவே live AI பதில்கள் கிடைக்கவில்லை — ஆனால் risk profiler, goal planner மற்றும் dashboard முழுமையாக வேலை செய்கின்றன. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.",
+    Language.BN: "নমস্কার! আমি শ্রেয়া। এখন আমি demo mode-এ আছি, তাই live AI উত্তর পাওয়া যাচ্ছে না — কিন্তু risk profiler, goal planner এবং dashboard সম্পূর্ণ কাজ করছে। অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন।",
+}
+
+_STREAM_INTERRUPTED: dict[Language, str] = {
+    Language.EN: "\n\n⚠️ The connection was interrupted — please try again.",
+    Language.HI: "\n\n⚠️ कनेक्शन बाधित हो गया — कृपया पुनः प्रयास करें।",
+    Language.MR: "\n\n⚠️ कनेक्शनमध्ये व्यत्यय आला — कृपया पुन्हा प्रयत्न करा.",
+    Language.TA: "\n\n⚠️ இணைப்பு துண்டிக்கப்பட்டது — மீண்டும் முயற்சிக்கவும்.",
+    Language.BN: "\n\n⚠️ সংযোগ বিঘ্নিত হয়েছে — আবার চেষ্টা করুন।",
+}
+
 
 async def stream_chat(
     message: str,
@@ -45,8 +63,8 @@ async def stream_chat(
 ) -> AsyncIterator[str]:
     """Stream a Claude response for the wealth advisor chat."""
     if client is None:
-        # Graceful fallback: return mock response if AWS credentials not configured
-        yield "Mock response — add ANTHROPIC_API_KEY to .env"
+        # Graceful fallback: demo-mode response if AWS credentials not configured
+        yield _DEMO_FALLBACK.get(language, _DEMO_FALLBACK[Language.EN])
         return
 
     system_prompt = get_system_prompt(language)
@@ -58,25 +76,42 @@ async def stream_chat(
     messages = [{"role": m.role, "content": m.content} for m in trimmed_history]
     messages.append({"role": "user", "content": message})
 
-    async with client.messages.stream(
-        model=BEDROCK_MODEL_ID,
-        max_tokens=1024,
-        system=system_prompt,
-        messages=messages,
-        timeout=TIMEOUT_SECONDS,
-    ) as stream:
-        async for text in stream.text_stream:
-            yield text
+    streamed_any = False
+    try:
+        async with client.messages.stream(
+            model=BEDROCK_MODEL_ID,
+            max_tokens=1024,
+            system=system_prompt,
+            messages=messages,
+            timeout=TIMEOUT_SECONDS,
+        ) as stream:
+            async for text in stream.text_stream:
+                streamed_any = True
+                yield text
+    except Exception:
+        # Credentials missing/expired or network failure — degrade, never die mid-demo
+        if streamed_any:
+            yield _STREAM_INTERRUPTED.get(language, _STREAM_INTERRUPTED[Language.EN])
+        else:
+            yield _DEMO_FALLBACK.get(language, _DEMO_FALLBACK[Language.EN])
+
+
+# Structured fallback when live analysis is unavailable — matches the response schema
+_PORTFOLIO_FALLBACK = {
+    "summary": "Your portfolio shows a mix of equity and debt holdings — a detailed AI analysis is temporarily unavailable.",
+    "recommendations": [
+        "Review your equity/debt split against your risk profile",
+        "Avoid letting large amounts sit idle in liquid funds",
+        "Rebalance once a year to stay aligned with your goals",
+    ],
+    "sip_suggestion": "Consider a monthly SIP in a diversified equity fund category suited to your risk profile."
+}
 
 
 async def analyze_portfolio(portfolio_data: dict, language: Language) -> dict:
     """Analyze a portfolio and return structured recommendations as JSON."""
     if client is None:
-        return {
-            "summary": "Service temporarily unavailable. Please ensure AWS credentials are properly configured.",
-            "recommendations": ["Check AWS credentials", "Verify Bedrock access", "Contact support"],
-            "sip_suggestion": "N/A - Service unavailable"
-        }
+        return dict(_PORTFOLIO_FALLBACK)
 
     system_prompt = get_system_prompt(language)
     
@@ -101,25 +136,29 @@ Portfolio Data:
 
 {json_instruction}"""
 
-    response = await client.messages.create(
-        model=BEDROCK_MODEL_ID,
-        max_tokens=1024,
-        system=system_prompt + json_instruction,
-        messages=[{
-            "role": "user",
-            "content": enhanced_prompt
-        }],
-    )
-    
-    import json
+    try:
+        response = await client.messages.create(
+            model=BEDROCK_MODEL_ID,
+            max_tokens=1024,
+            system=system_prompt + json_instruction,
+            messages=[{
+                "role": "user",
+                "content": enhanced_prompt
+            }],
+            timeout=TIMEOUT_SECONDS,
+        )
+    except Exception:
+        # Bedrock unreachable (bad credentials, network) — degrade, never 500
+        return dict(_PORTFOLIO_FALLBACK)
+
     response_text = response.content[0].text.strip()
-    
+
     # Remove markdown code blocks if present
     if response_text.startswith("```json"):
         response_text = response_text.replace("```json", "").replace("```", "").strip()
     elif response_text.startswith("```"):
         response_text = response_text.replace("```", "").strip()
-    
+
     try:
         return json.loads(response_text)
     except json.JSONDecodeError:
@@ -154,6 +193,36 @@ async def generate_goal_plan(goals: list[dict], language: Language) -> str:
         return "I'm unable to generate your goal plan right now. Please try again in a moment."
 
 
+# Mock insights per language — used when live AI is unavailable
+_MOCK_INSIGHTS: dict[Language, list[str]] = {
+    Language.EN: [
+        "Market volatility continues amid global economic uncertainty",
+        "Banking sector shows resilience with NPA levels improving",
+        "IT sector facing headwinds due to global slowdown concerns"
+    ],
+    Language.HI: [
+        "वैश्विक आर्थिक अनिश्चितता के बीच बाजार की अस्थिरता जारी है",
+        "एनपीए स्तर में सुधार के साथ बैंकिंग क्षेत्र मजबूत दिख रहा है",
+        "वैश्विक मंदी की चिंताओं से आईटी क्षेत्र पर दबाव"
+    ],
+    Language.MR: [
+        "वैश्विक आर्थिक अनिश्चितता आणि सर्व्हलेला बाजार अस्थिर",
+        "बँक क्षेत्र एनपीए पातळीत सुधार करत आहे",
+        "आयटी क्षेत्रावर ग्लोबल स्लोडाउनचा परिणाम"
+    ],
+    Language.TA: [
+        "உலகளாவிய பொருளாதார நிச்சயமற்ற தன்மையின் போது சந்தை ஏற்ற இறக்கம் தொடர்கிறது",
+        "என்பிஏ அளவுகள் மேம்படுவதால் வங்கி துறை எதிர்காலம் காண்கிறது",
+        "உலகளாவிய மெதுவான செயல்பாடு காரணமாக ஐடி துறை அழுத்தம் எதிர்கொள்கிறது"
+    ],
+    Language.BN: [
+        "বিশ্বব্যাপী অর্থনৈতিক অনিশ্চয়তার মধ্যে বাজারের অস্থিরতা অব্যাহত",
+        "এনপিএ স্তরের উন্নতির সাথে ব্যাংকিং খাত স্থিতিস্থাপক দেখাচ্ছে",
+        "বিশ্বব্যাপী মন্থরতার কারণে আইটি খাতের মন্থর গতি"
+    ],
+}
+
+
 async def generate_market_insights(language: Language) -> list:
     """Generate daily personalized market insights as a JSON array of strings."""
     cache_key = f"insights_{language.value}"
@@ -166,48 +235,24 @@ async def generate_market_insights(language: Language) -> list:
             return cached_data
 
     if client is None:
-        # Return mock insights in the requested language
-        mock_insights = {
-            Language.EN: [
-                "Market volatility continues amid global economic uncertainty",
-                "Banking sector shows resilience with NPA levels improving",
-                "IT sector facing headwinds due to global slowdown concerns"
-            ],
-            Language.HI: [
-                "वैश्विक आर्थिक अनिश्चितता के बीच बाजार की अस्थिरता जारी है",
-                "एनपीए स्तर में सुधार के साथ बैंकिंग क्षेत्र मजबूत दिख रहा है",
-                "वैश्विक मंदी की चिंताओं से आईटी क्षेत्र पर दबाव"
-            ],
-            Language.MR: [
-                "वैश्विक आर्थिक अनिश्चितता आणि सर्व्हलेला बाजार अस्थिर",
-                "बँक क्षेत्र एनपीए पातळीत सुधार करत आहे",
-                "आयटी क्षेत्रावर ग्लोबल स्लोडाउनचा परिणाम"
-            ],
-            Language.TA: [
-                "உலகளாவிய பொருளாதார நிச்சயமற்ற தன்மையின் போது சந்தை ஏற்ற இறக்கம் தொடர்கிறது",
-                "என்பிஏ அளவுகள் மேம்படுவதால் வங்கி துறை எதிர்காலம் காண்கிறது",
-                "உலகளாவிய மெதுவான செயல்பாடு காரணமாக ஐடி துறை அழுத்தம் எதிர்கொள்கிறது"
-            ],
-            Language.BN: [
-                "বিশ্বব্যাপী অর্থনৈতিক অনিশ্চয়তার মধ্যে বাজারের অস্থিরতা অব্যাহত",
-                "এনপিএ স্তরের উন্নতির সাথে ব্যাংকিং খাত স্থিতিস্থাপক দেখাচ্ছে",
-                "বিশ্বব্যাপী মন্থরতার কারণে আইটি খাতের মন্থর গতি"
-            ],
-        }
-        return mock_insights.get(language, mock_insights[Language.EN])
+        return _MOCK_INSIGHTS.get(language, _MOCK_INSIGHTS[Language.EN])
 
     system_prompt = get_system_prompt(language)
 
-    response = await client.messages.create(
-        model=BEDROCK_MODEL_ID,
-        max_tokens=512,
-        system=system_prompt,
-        messages=[{
-            "role": "user",
-            "content": f"Give me 3 brief market insights for Indian retail investors today. Respond in {language.value}. Return as a JSON array of strings only, no markdown."
-        }],
-        timeout=TIMEOUT_SECONDS,
-    )
+    try:
+        response = await client.messages.create(
+            model=BEDROCK_MODEL_ID,
+            max_tokens=512,
+            system=system_prompt,
+            messages=[{
+                "role": "user",
+                "content": f"Give me 3 brief market insights for Indian retail investors today. Respond in {language.value}. Return as a JSON array of strings only, no markdown."
+            }],
+            timeout=TIMEOUT_SECONDS,
+        )
+    except Exception:
+        # Bedrock unreachable — serve mock insights, never 500
+        return _MOCK_INSIGHTS.get(language, _MOCK_INSIGHTS[Language.EN])
 
     response_text = response.content[0].text.strip()
 
@@ -236,19 +281,25 @@ async def generate_market_insights(language: Language) -> list:
 
 async def generate_risk_explanation(profile: str, score: int, allocation: dict, language: Language) -> str:
     """Generate a personalized explanation for the risk profile."""
+    fallback = f"Your risk profile is {profile} with a score of {score}. We recommend an allocation of {allocation}."
     if client is None:
-        return f"Your risk profile is {profile} with a score of {score}. We recommend an allocation of {allocation}."
+        return fallback
 
     system_prompt = get_system_prompt(language)
 
-    response = await client.messages.create(
-        model=BEDROCK_MODEL_ID,
-        max_tokens=256,
-        system=system_prompt,
-        messages=[{
-            "role": "user",
-            "content": f"Explain in one sentence why a {profile} investor with score {score} should use this allocation: {allocation}"
-        }],
-    )
-    return response.content[0].text
+    try:
+        response = await client.messages.create(
+            model=BEDROCK_MODEL_ID,
+            max_tokens=256,
+            system=system_prompt,
+            messages=[{
+                "role": "user",
+                "content": f"Explain in one sentence why a {profile} investor with score {score} should use this allocation: {allocation}"
+            }],
+            timeout=TIMEOUT_SECONDS,
+        )
+        return response.content[0].text
+    except Exception:
+        # Bedrock unreachable — quiz result must still render, never 500
+        return fallback
 

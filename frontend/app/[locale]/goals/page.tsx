@@ -7,7 +7,7 @@ export default function GoalsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-idbi-blue mb-6">{t('title')}</h1>
+      <h1 className="text-2xl font-bold text-idbi-green mb-6">{t('title')}</h1>
       <GoalPlanner />
     </div>
   );

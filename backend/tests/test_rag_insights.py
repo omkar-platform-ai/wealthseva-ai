@@ -31,15 +31,57 @@ class TestRetrieveContext:
             assert isinstance(result, str), "Must return str, not raise"
 
     @pytest.mark.asyncio
-    async def test_missing_mock_index_returns_empty_string_not_500(self):
-        """retrieve_context() when mock_index.json is absent → returns '' not exception."""
+    async def test_missing_knowledge_base_returns_empty_string_not_500(self):
+        """retrieve_context() when knowledge_base.json is absent → returns '' not exception."""
         with patch("services.rag_service._PINECONE_API_KEY", None):
-            # Point the mock index path to a non-existent file
-            with patch("services.rag_service._MOCK_INDEX_PATH", "/tmp/nonexistent_mock_index_xyz.json"):
+            # Point the knowledge base path to a non-existent file
+            with patch("services.rag_service._LOCAL_KB_PATH", "/tmp/nonexistent_kb_xyz.json"):
                 from services.rag_service import retrieve_context
                 result = await retrieve_context("Tell me about ELSS", Language.HI)
 
         assert result == "", f"Expected empty string, got: {result!r}"
+
+    @pytest.mark.asyncio
+    async def test_sip_query_retrieves_sip_chunks_from_local_kb(self):
+        """Without Pinecone, a SIP question retrieves SIP content from the curated KB."""
+        with patch("services.rag_service._PINECONE_API_KEY", None):
+            from services.rag_service import retrieve_context
+            result = await retrieve_context("How much should I invest monthly through SIP?", Language.EN)
+
+        assert result != "", "Expected non-empty context from local knowledge base"
+        assert "SIP" in result or "sip" in result.lower()
+
+
+class TestKnowledgeBase:
+    """Integrity checks for the curated local knowledge base."""
+
+    def _load_kb(self):
+        from services.rag_service import _LOCAL_KB_PATH
+        with open(_LOCAL_KB_PATH) as f:
+            return json.load(f)
+
+    def test_kb_exists_with_at_least_100_chunks(self):
+        chunks = self._load_kb()
+        assert len(chunks) >= 100, f"Expected >=100 chunks, got {len(chunks)}"
+
+    def test_kb_chunks_have_unique_ids_and_required_fields(self):
+        chunks = self._load_kb()
+        ids = [c["id"] for c in chunks]
+        assert len(ids) == len(set(ids)), "Chunk ids must be unique"
+        for c in chunks:
+            assert c.get("text"), f"Chunk {c.get('id')} missing text"
+            assert c.get("keywords"), f"Chunk {c.get('id')} missing keywords"
+            assert c.get("topic"), f"Chunk {c.get('id')} missing topic"
+
+    def test_keyword_field_outranks_text_only_match(self):
+        """A chunk whose curated keywords match must beat a text-only match."""
+        from services.rag_service import _keyword_matching
+        chunks = [
+            {"text": "Generic sentence mentioning retirement once.", "keywords": []},
+            {"text": "Focused chunk about corpus planning.", "keywords": ["retirement", "corpus"]},
+        ]
+        result = _keyword_matching("retirement corpus", chunks, top_k=1)
+        assert result == "Focused chunk about corpus planning."
 
 
 class TestInsightsEndpoint:

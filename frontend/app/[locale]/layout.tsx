@@ -1,10 +1,11 @@
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
-import { Inter } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import '../globals.css';
 import Navbar from '@/components/Navbar';
+import MobileBottomNav from '@/components/MobileBottomNav';
 
-const inter = Inter({ subsets: ['latin'] });
+const montserrat = Montserrat({ subsets: ['latin'] });
 
 export default async function LocaleLayout({
   children,
@@ -17,12 +18,14 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={inter.className}>
+      {/* pb-28 leaves room for the floating mobile bottom nav */}
+      <body className={`${montserrat.className} antialiased bg-idbi-bg`}>
         <NextIntlClientProvider messages={messages}>
           <Navbar />
-          <main className="min-h-screen bg-gray-50">
+          <main className="min-h-screen pb-28 md:pb-0">
             {children}
           </main>
+          <MobileBottomNav />
         </NextIntlClientProvider>
       </body>
     </html>
