@@ -24,7 +24,15 @@
     "result_aggressive": "उच्च-विकास निवेशक",
     "explanation_label": "आपकी जोखिम प्रोफाइल",
     "retake_button": "फिर से लें",
-    "analysing_label": "श्रेया आपकी प्रोफ़ाइल का विश्लेषण कर रही है..."
+    "analysing_label": "श्रेया आपकी प्रोफ़ाइल का विश्लेषण कर रही है...",
+    "why_button": "यह परिणाम क्यों?",
+    "why_step_data": "डेटा",
+    "why_step_rule": "नियम",
+    "why_step_result": "परिणाम",
+    "why_data_text": "आपके 5 उत्तरों के अंक {points} रहे, कुल {score} / {max} अंक।",
+    "why_rule_text": "निश्चित स्कोर बैंड: 5–8 = {conservative}, 9–14 = {moderate}, 15–20 = {aggressive}। आपका स्कोर {score} {profile} बैंड में आता है।",
+    "why_result_text": "{profile} प्रोफाइल चार्ट में दिखाए गए निश्चित मॉडल आवंटन से जुड़ी है।",
+    "why_note": "यह परिणाम निश्चित नियमों से निकाला गया है — इसमें AI का उपयोग नहीं होता।"
   },
   "advisor": {
     "title": "आपकी वेल्थ एडवाइज़र",
@@ -89,7 +97,15 @@
     "calculate_button": "मेरी योजना की गणना करें",
     "years_away": "साल बाकी",
     "total_monthly_label": "कुल मासिक प्रतिबद्धता",
-    "corpus_chart_label": "कॉर्पस वृद्धि"
+    "corpus_chart_label": "कॉर्पस वृद्धि",
+    "why_button": "यह संख्या क्यों?",
+    "why_step_data": "डेटा",
+    "why_step_assumption": "मान्यता",
+    "why_step_calc": "गणना",
+    "why_data_text": "{months} महीनों में {target} का लक्ष्य, आज की {savings} बचत से शुरुआत।",
+    "why_assumption_text": "{rate}% अनुमानित वार्षिक रिटर्न (केवल उदाहरण हेतु, गारंटीड नहीं)।",
+    "why_calc_text": "आपकी बचत बढ़कर {fv} हो जाती है, शेष अंतर {gap} रहता है। मानक SIP फॉर्मूला इस अंतर को {sip} प्रति माह में बदलता है।",
+    "why_note": "यह संख्या निश्चित फॉर्मूले से निकाली गई है — इसमें AI का उपयोग नहीं होता।"
   },
   "portfolio": {
     "title": "पोर्टफोलियो विश्लेषण",

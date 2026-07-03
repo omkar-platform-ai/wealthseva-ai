@@ -67,12 +67,24 @@ ALLOCATIONS = {
 }
 
 
+ANSWER_POINTS = {"A": 1, "B": 2, "C": 3, "D": 4}
+
+# Score bands must stay in sync with score_quiz() thresholds below.
+SCORE_BANDS = {
+    RiskProfile.CONSERVATIVE: (5, 8),
+    RiskProfile.MODERATE: (9, 14),
+    RiskProfile.AGGRESSIVE: (15, 20),
+}
+
+
+def answer_points(answers: list[RiskQuizAnswer]) -> list[int]:
+    """Per-answer points (A=1 … D=4), unknown answers default to 1."""
+    return [ANSWER_POINTS.get(a.answer, 1) for a in answers]
+
+
 def score_quiz(answers: list[RiskQuizAnswer]) -> tuple[RiskProfile, int]:
     """Score quiz answers and return a risk profile + numeric score."""
-    total = sum(answer.answer == "D" and 4 or
-                answer.answer == "C" and 3 or
-                answer.answer == "B" and 2 or 1
-                for answer in answers)
+    total = sum(answer_points(answers))
 
     if total <= 8:
         return RiskProfile.CONSERVATIVE, total

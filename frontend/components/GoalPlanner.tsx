@@ -2,6 +2,7 @@
 import { useTranslations, useLocale } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ChevronDown, Info } from 'lucide-react';
 import { formatINR } from '@/lib/format';
 
 interface Preset {
@@ -18,6 +19,15 @@ interface Projection {
   monthly_sip: number;
   projected_corpus: number;
   yearly_data: { year: number; corpus: number }[];
+  trace?: {
+    target_amount: number;
+    current_savings: number;
+    months: number;
+    annual_return_pct: number;
+    fv_savings: number;
+    gap: number;
+    monthly_sip: number;
+  } | null;
 }
 
 interface GoalResult {
@@ -46,6 +56,7 @@ export default function GoalPlanner() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<GoalResult | null>(null);
   const [error, setError] = useState('');
+  const [openTrace, setOpenTrace] = useState<number | null>(null);
 
   useEffect(() => {
     fetch(`${BACKEND}/api/goals/presets`)
@@ -76,6 +87,7 @@ export default function GoalPlanner() {
     setSubmitting(true);
     setError('');
     setResult(null);
+    setOpenTrace(null);
 
     try {
       const res = await fetch(`${BACKEND}/api/goals`, {
@@ -258,6 +270,58 @@ export default function GoalPlanner() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
+                </div>
+              )}
+
+              {proj.trace && (
+                <div className="mt-4 border-t pt-4">
+                  <button
+                    onClick={() => setOpenTrace(openTrace === i ? null : i)}
+                    aria-expanded={openTrace === i}
+                    className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-blue"
+                  >
+                    <Info size={16} />
+                    {t('why_button')}
+                    <ChevronDown
+                      size={16}
+                      className={`ml-auto transition-transform ${openTrace === i ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+                  {openTrace === i && (
+                    <div className="mt-4 space-y-3 text-sm text-gray-700">
+                      <div className="flex gap-3">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                          {t('why_step_data')}
+                        </span>
+                        <p>
+                          {t('why_data_text', {
+                            target: formatINR(proj.trace.target_amount, locale),
+                            months: proj.trace.months,
+                            savings: formatINR(proj.trace.current_savings, locale),
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex gap-3">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                          {t('why_step_assumption')}
+                        </span>
+                        <p>{t('why_assumption_text', { rate: proj.trace.annual_return_pct })}</p>
+                      </div>
+                      <div className="flex gap-3">
+                        <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                          {t('why_step_calc')}
+                        </span>
+                        <p>
+                          {t('why_calc_text', {
+                            fv: formatINR(proj.trace.fv_savings, locale),
+                            gap: formatINR(proj.trace.gap, locale),
+                            sip: formatINR(proj.trace.monthly_sip, locale),
+                          })}
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-500 border-t pt-3">{t('why_note')}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

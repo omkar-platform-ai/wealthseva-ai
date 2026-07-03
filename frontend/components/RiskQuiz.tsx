@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { ChevronDown, Info } from 'lucide-react';
 
 const COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'];
 
@@ -17,6 +18,12 @@ interface RiskProfile {
   score: number;
   explanation: string;
   recommended_allocation: { [key: string]: number };
+  trace?: {
+    answer_points: number[];
+    score: number;
+    max_score: number;
+    bands: { [key: string]: number[] };
+  };
 }
 
 export default function RiskQuiz() {
@@ -27,6 +34,7 @@ export default function RiskQuiz() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<RiskProfile | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showWhy, setShowWhy] = useState(false);
 
   const questions = [
     { id: 1, key: 'question1' },
@@ -86,6 +94,7 @@ export default function RiskQuiz() {
     setAnswers([]);
     setResult(null);
     setIsTransitioning(false);
+    setShowWhy(false);
   };
 
   const getChartData = (allocation: { [key: string]: number }) => {
@@ -151,6 +160,64 @@ export default function RiskQuiz() {
             </div>
           </div>
         </div>
+
+        {result.trace && (
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <button
+              onClick={() => setShowWhy(!showWhy)}
+              aria-expanded={showWhy}
+              className="w-full flex items-center gap-2 text-sm font-semibold text-idbi-blue"
+            >
+              <Info size={16} />
+              {t('why_button')}
+              <ChevronDown
+                size={16}
+                className={`ml-auto transition-transform ${showWhy ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {showWhy && (
+              <div className="mt-4 space-y-3 text-sm text-gray-700">
+                <div className="flex gap-3">
+                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                    {t('why_step_data')}
+                  </span>
+                  <p>
+                    {t('why_data_text', {
+                      points: result.trace.answer_points.join(' + '),
+                      score: result.trace.score,
+                      max: result.trace.max_score,
+                    })}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                    {t('why_step_rule')}
+                  </span>
+                  <p>
+                    {t('why_rule_text', {
+                      conservative: t('result_conservative'),
+                      moderate: t('result_moderate'),
+                      aggressive: t('result_aggressive'),
+                      score: result.trace.score,
+                      profile: t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive'),
+                    })}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <span className="shrink-0 h-fit px-2 py-0.5 rounded-full bg-idbi-light text-idbi-blue text-xs font-semibold">
+                    {t('why_step_result')}
+                  </span>
+                  <p>
+                    {t('why_result_text', {
+                      profile: t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive'),
+                    })}
+                  </p>
+                </div>
+                <p className="text-xs text-gray-500 border-t pt-3">{t('why_note')}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         <button
           onClick={retakeQuiz}

@@ -24,7 +24,15 @@
     "result_aggressive": "উচ্চ-প্রবৃদ্ধি বিনিয়োগকারী",
     "explanation_label": "আপনার ঝুঁকি প্রোফাইল",
     "retake_button": "আবার দিন",
-    "analysing_label": "আপনার উত্তর বিশ্লেষণ করা হচ্ছে..."
+    "analysing_label": "আপনার উত্তর বিশ্লেষণ করা হচ্ছে...",
+    "why_button": "এই ফলাফল কেন?",
+    "why_step_data": "ডেটা",
+    "why_step_rule": "নিয়ম",
+    "why_step_result": "ফলাফল",
+    "why_data_text": "আপনার ৫টি উত্তরের পয়েন্ট {points}; মোট {score} / {max} পয়েন্ট।",
+    "why_rule_text": "নির্দিষ্ট স্কোর ব্যান্ড: 5–8 = {conservative}, 9–14 = {moderate}, 15–20 = {aggressive}। আপনার স্কোর {score} {profile} ব্যান্ডে পড়ে।",
+    "why_result_text": "{profile} প্রোফাইল চার্টে দেখানো নির্দিষ্ট মডেল বরাদ্দের সাথে যুক্ত।",
+    "why_note": "এই ফলাফল নির্দিষ্ট নিয়মে গণনা করা হয়েছে — এতে AI ব্যবহার করা হয় না।"
   },
   "advisor": {
     "title": "আপনার ওয়েলথ অ্যাডভাইজার",
@@ -89,7 +97,15 @@
     "calculate_button": "আমার পরিকল্পনা গণনা করুন",
     "years_away": "বছর বাকি",
     "total_monthly_label": "মোট মাসিক প্রতিশ্রুতি",
-    "corpus_chart_label": "কর্পাস বৃদ্ধি"
+    "corpus_chart_label": "কর্পাস বৃদ্ধি",
+    "why_button": "এই সংখ্যা কেন?",
+    "why_step_data": "ডেটা",
+    "why_step_assumption": "অনুমান",
+    "why_step_calc": "গণনা",
+    "why_data_text": "{months} মাসে {target} লক্ষ্য; আজকের সঞ্চয় {savings} থেকে শুরু।",
+    "why_assumption_text": "{rate}% প্রত্যাশিত বার্ষিক রিটার্ন (শুধুমাত্র উদাহরণস্বরূপ, নিশ্চিত নয়)।",
+    "why_calc_text": "আপনার সঞ্চয় বেড়ে {fv} হয়; বাকি ঘাটতি {gap}। প্রমিত SIP সূত্র সেটিকে মাসে {sip}-এ রূপান্তর করে।",
+    "why_note": "এই সংখ্যা নির্দিষ্ট সূত্রে গণনা করা হয়েছে — এতে AI ব্যবহার করা হয় না।"
   },
   "portfolio": {
     "title": "পোর্টফোলিও বিশ্লেষণ",

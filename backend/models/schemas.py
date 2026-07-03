@@ -57,11 +57,21 @@ class RiskProfileRequest(BaseModel):
         return self
 
 
+class RiskTrace(BaseModel):
+    # Deterministic scoring trace — rendered by the frontend in the user's
+    # language; no AI is involved in producing these numbers.
+    answer_points: List[int]
+    score: int
+    max_score: int
+    bands: dict  # profile value -> [min_score, max_score]
+
+
 class RiskProfileResponse(BaseModel):
     profile: RiskProfile
     score: int
     explanation: str
     recommended_allocation: dict
+    trace: Optional[RiskTrace] = None
 
 
 class Goal(BaseModel):

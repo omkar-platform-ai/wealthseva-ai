@@ -23,7 +23,7 @@ def _compute_projection(target_amount: float, current_savings: float, target_dat
     try:
         target = date.fromisoformat(target_date)
     except ValueError:
-        return {"monthly_sip": 0, "projected_corpus": int(target_amount), "yearly_data": []}
+        return {"monthly_sip": 0, "projected_corpus": int(target_amount), "yearly_data": [], "trace": None}
 
     months = max(1, (target.year - today.year) * 12 + (target.month - today.month))
     r = 0.01  # 1% per month → 12% p.a.
@@ -45,6 +45,17 @@ def _compute_projection(target_amount: float, current_savings: float, target_dat
         "monthly_sip": round(sip),
         "projected_corpus": round(projected),
         "yearly_data": yearly_data,
+        # Deterministic calculation trace — rendered by the frontend in the
+        # user's language for the "Why this number?" explainer.
+        "trace": {
+            "target_amount": round(target_amount),
+            "current_savings": round(current_savings),
+            "months": months,
+            "annual_return_pct": 12,
+            "fv_savings": round(fv_savings),
+            "gap": round(max(remaining, 0)),
+            "monthly_sip": round(sip),
+        },
     }
 
 

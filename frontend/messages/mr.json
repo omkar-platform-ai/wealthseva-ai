@@ -24,7 +24,15 @@
     "result_aggressive": "उच्च-वाढ गुंतवणूकदार",
     "explanation_label": "तुमची जोखीम प्रोफाइल",
     "retake_button": "पुन्हा घ्या",
-    "analysing_label": "तुमची उत्तरे विश्लेषित होत आहेत..."
+    "analysing_label": "तुमची उत्तरे विश्लेषित होत आहेत...",
+    "why_button": "हा निकाल का?",
+    "why_step_data": "डेटा",
+    "why_step_rule": "नियम",
+    "why_step_result": "निकाल",
+    "why_data_text": "तुमच्या 5 उत्तरांचे गुण {points} होते, एकूण {score} / {max} गुण.",
+    "why_rule_text": "निश्चित स्कोअर बँड: 5–8 = {conservative}, 9–14 = {moderate}, 15–20 = {aggressive}. तुमचा स्कोअर {score} {profile} बँडमध्ये येतो.",
+    "why_result_text": "{profile} प्रोफाइल चार्टमध्ये दाखवलेल्या निश्चित मॉडेल वाटपाशी जोडलेली आहे.",
+    "why_note": "हा निकाल निश्चित नियमांनी काढला आहे — यात AI वापरले जात नाही."
   },
   "advisor": {
     "title": "तुमची वेल्थ अॅडव्हायझर",
@@ -89,7 +97,15 @@
     "calculate_button": "माझी योजना मोजा",
     "years_away": "वर्षे शिल्लक",
     "total_monthly_label": "एकूण मासिक वचनबद्धता",
-    "corpus_chart_label": "कॉर्पस वाढ"
+    "corpus_chart_label": "कॉर्पस वाढ",
+    "why_button": "ही रक्कम का?",
+    "why_step_data": "डेटा",
+    "why_step_assumption": "गृहीतक",
+    "why_step_calc": "गणना",
+    "why_data_text": "{months} महिन्यांत {target} चे लक्ष्य, आजच्या {savings} बचतीपासून सुरुवात.",
+    "why_assumption_text": "{rate}% अपेक्षित वार्षिक परतावा (केवळ उदाहरणासाठी, हमी नाही).",
+    "why_calc_text": "तुमची बचत वाढून {fv} होते, उरलेली तफावत {gap} राहते. प्रमाणित SIP सूत्र ही तफावत दरमहा {sip} मध्ये बदलते.",
+    "why_note": "ही रक्कम निश्चित सूत्राने काढली आहे — यात AI वापरले जात नाही."
   },
   "portfolio": {
     "title": "पोर्टफोलिओ विश्लेषण",
