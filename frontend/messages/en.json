@@ -9,6 +9,7 @@
   },
   "risk": {
     "title": "Risk Profile Assessment",
+    "step_label": "Step {current} of {total}",
     "question1": "I am comfortable with short-term losses in exchange for higher long-term returns.",
     "question2": "I understand the risks of investing in equity and mutual funds.",
     "question3": "I can stay invested for 5 or more years without needing this money.",
@@ -23,7 +24,7 @@
     "result_aggressive": "Aggressive Investor",
     "explanation_label": "Your risk profile",
     "retake_button": "Retake Quiz",
-    "analysing_label": "Analysing your answers..."
+    "analysing_label": "Shreya is analysing your profile..."
   },
   "advisor": {
     "title": "Your Wealth Advisor",
@@ -35,7 +36,21 @@
     "welcomeMessage": "Hello! I'm Shreya, your IDBI wealth advisor. How can I help you today?",
     "reconnecting": "Reconnecting...",
     "placeholder": "Ask me anything about your finances...",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "ai_disclaimer": "Responses are AI-generated and for informational purposes only. Consult a licensed financial advisor before making investment decisions.",
+    "escalate_cta": "Talk to an IDBI Advisor",
+    "escalate_subtitle": "Connect with a human advisor for personalised support.",
+    "escalate_phone_label": "Call Us (Toll-Free)",
+    "escalate_phone_hours": "Mon–Sat, 9 AM – 6 PM IST",
+    "escalate_branch_label": "Visit Your Nearest Branch",
+    "escalate_branch_desc": "Find your nearest IDBI Bank branch for in-person wealth advisory.",
+    "escalate_close": "Close"
+  },
+  "consent": {
+    "title": "Data Consent",
+    "body": "I consent to WealthSeva processing my financial information (portfolio holdings, risk profile, financial goals, and conversation history) to provide personalised wealth guidance. Data is used solely for this purpose and is not shared with third parties.",
+    "checkbox_label": "I agree to the above terms.",
+    "continue": "Continue"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -64,7 +79,12 @@
     "retirement": "Retirement",
     "targetAmount": "Target Amount (₹)",
     "monthly": "Monthly Contribution (₹)",
-    "addGoal": "Add Goal"
+    "addGoal": "Add Goal",
+    "goal_name_label": "Goal Name",
+    "calculate_button": "Calculate My Plan",
+    "years_away": "years away",
+    "total_monthly_label": "Total Monthly Commitment",
+    "corpus_chart_label": "Corpus Growth"
   },
   "portfolio": {
     "title": "Portfolio Analysis",
@@ -73,7 +93,12 @@
     "summary_label": "Summary",
     "recommendations_label": "Recommendations",
     "sip_suggestion_label": "SIP Suggestion",
-    "upload_prompt": "Drag & drop your portfolio CSV here, or click to select"
+    "upload_prompt": "Drag & drop your portfolio CSV here, or click to select",
+    "analyzing": "Analyzing your portfolio...",
+    "allocation_chart_label": "Current Allocation",
+    "file_too_large": "File size exceeds 2MB limit. Please upload a smaller file.",
+    "invalid_format": "Only CSV files are allowed.",
+    "sample_upload_error": "Failed to load sample portfolio. Please try again."
   },
   "nav": {
     "dashboard": "Dashboard",

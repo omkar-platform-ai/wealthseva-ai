@@ -1,6 +1,12 @@
-from fastapi import FastAPI
+import os
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from routers import chat, portfolio, risk, insights, goals, idbi
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
 
 app = FastAPI(
     title="WealthSeva AI",
@@ -8,9 +14,12 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://your-domain.com"],
+    allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -25,5 +34,6 @@ app.include_router(idbi.router, prefix="/api", tags=["IDBI Sandbox"])
 
 
 @app.get("/health")
-async def health():
+@limiter.exempt
+async def health(request: Request):
     return {"status": "ok", "service": "wealthseva-ai-backend"}

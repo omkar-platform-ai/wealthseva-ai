@@ -73,6 +73,7 @@ class GoalRequest(BaseModel):
 
 class GoalResponse(BaseModel):
     goals: List[dict]
+    projections: List[dict] = []
     summary: str
     total_monthly_required: float
 

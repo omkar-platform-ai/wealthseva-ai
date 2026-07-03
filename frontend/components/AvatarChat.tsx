@@ -167,19 +167,19 @@ export default function AvatarChat() {
       </div>
 
       {/* Input */}
-      <div className="border-t p-4 flex gap-3">
+      <div className="border-t p-3 flex gap-2">
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder={t('placeholder')}
-          className="flex-1 border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue"
+          className="flex-1 min-w-0 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue"
           disabled={loading}
         />
         <button
           onClick={() => sendMessage()}
           disabled={loading || !input.trim() || !health.healthy}
-          className="bg-idbi-blue text-white px-4 py-2 rounded-xl hover:bg-blue-900 disabled:opacity-50 transition-colors"
+          className="flex-shrink-0 bg-idbi-blue text-white p-2 rounded-xl hover:bg-blue-900 disabled:opacity-50 transition-colors"
         >
           <Send size={16} />
         </button>

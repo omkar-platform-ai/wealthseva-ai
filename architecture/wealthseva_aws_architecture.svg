@@ -1,0 +1,452 @@
+<svg viewBox="0 0 1100 1460" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <title>WealthSeva AI — AWS Target Architecture</title>
+  <desc>AWS Well-Architected deployment for WealthSeva AI in ap-south-1 (Mumbai).
+  Covers Edge/Security, Frontend (Amplify), Backend (ECS Fargate), AI (Bedrock), Data (Aurora+OpenSearch), and Platform services.</desc>
+
+  <!-- Background -->
+  <rect width="1100" height="1460" fill="#0F1117" rx="12"/>
+
+  <!-- ── TITLE BLOCK ── -->
+  <rect x="20" y="16" width="1060" height="72" fill="#232F3E" rx="8"/>
+  <text x="550" y="46" text-anchor="middle" font-size="20" font-weight="bold" fill="#FF9900">WealthSeva AI — AWS Target Architecture</text>
+  <text x="550" y="66" text-anchor="middle" font-size="12" fill="#AAB8C2">AWS Well-Architected Framework · ap-south-1 (Mumbai) · RBI / DPDP Data Residency Compliant · IDBI Innovate 2026</text>
+  <text x="550" y="82" text-anchor="middle" font-size="10" fill="#64748B">July 2026</text>
+
+  <!-- ── LEGEND ── -->
+  <rect x="20" y="98" width="1060" height="28" fill="#1A2332" rx="6"/>
+  <!-- EXISTS -->
+  <rect x="140" y="106" width="12" height="12" fill="#14532D" rx="2"/>
+  <text x="158" y="116" font-size="10" fill="#94A3B8">Already in codebase (keep)</text>
+  <!-- REPLACE -->
+  <rect x="320" y="106" width="12" height="12" fill="#7C2D12" rx="2"/>
+  <text x="338" y="116" font-size="10" fill="#94A3B8">Replace non-AWS service</text>
+  <!-- NEW -->
+  <rect x="490" y="106" width="12" height="12" fill="#1E1B4B" rx="2"/>
+  <text x="508" y="116" font-size="10" fill="#94A3B8">New AWS service to add</text>
+  <!-- WARN -->
+  <rect x="650" y="106" width="12" height="12" fill="#78350F" rx="2"/>
+  <text x="668" y="116" font-size="10" fill="#94A3B8">Review / production gap</text>
+
+  <!-- ================================================================= -->
+  <!-- ROW 0: USERS -->
+  <!-- ================================================================= -->
+  <rect x="20" y="136" width="1060" height="72" fill="#1E293B" rx="8" stroke="#334155" stroke-width="1"/>
+  <text x="36" y="156" font-size="9" font-weight="bold" fill="#64748B" letter-spacing="1">USERS</text>
+
+  <!-- Mobile -->
+  <rect x="100" y="145" width="170" height="54" fill="#0F172A" rx="6" stroke="#475569" stroke-width="1"/>
+  <text x="150" y="162" text-anchor="middle" font-size="18" fill="#60A5FA">📱</text>
+  <text x="185" y="162" font-size="11" font-weight="bold" fill="#E2E8F0">Mobile Browser</text>
+  <text x="185" y="178" font-size="9" fill="#94A3B8">5 languages (EN/HI/MR/TA/BN)</text>
+  <text x="185" y="190" font-size="9" fill="#94A3B8">Next.js PWA-ready frontend</text>
+
+  <!-- Desktop -->
+  <rect x="290" y="145" width="170" height="54" fill="#0F172A" rx="6" stroke="#475569" stroke-width="1"/>
+  <text x="340" y="162" text-anchor="middle" font-size="18" fill="#60A5FA">💻</text>
+  <text x="375" y="162" font-size="11" font-weight="bold" fill="#E2E8F0">Desktop Browser</text>
+  <text x="375" y="178" font-size="9" fill="#94A3B8">Avatar-based chat UI</text>
+  <text x="375" y="190" font-size="9" fill="#94A3B8">React / Tailwind CSS</text>
+
+  <!-- ElevenLabs -->
+  <rect x="480" y="145" width="230" height="54" fill="#1C1408" rx="6" stroke="#78350F" stroke-width="1"/>
+  <text x="530" y="162" text-anchor="middle" font-size="18" fill="#F59E0B">🔊</text>
+  <text x="565" y="162" font-size="11" font-weight="bold" fill="#FDE68A">ElevenLabs Avatar Voice</text>
+  <text x="565" y="178" font-size="9" fill="#FCA5A5">⚠ US-hosted — demo acceptable</text>
+  <text x="565" y="190" font-size="9" fill="#94A3B8">Production: evaluate Amazon Polly</text>
+
+  <!-- ================================================================= -->
+  <!-- ARROW 0→1 -->
+  <!-- ================================================================= -->
+  <line x1="550" y1="208" x2="550" y2="228" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ================================================================= -->
+  <!-- ROW 1: EDGE & SECURITY -->
+  <!-- ================================================================= -->
+  <rect x="20" y="228" width="1060" height="88" fill="#0C1A2E" rx="8" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="36" y="250" font-size="9" font-weight="bold" fill="#60A5FA" letter-spacing="1">EDGE &amp; SECURITY</text>
+
+  <!-- CloudFront -->
+  <rect x="50" y="257" width="180" height="50" fill="#0D2137" rx="6" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="80" y="275" font-size="10" font-weight="bold" fill="#60A5FA">🌐 CloudFront</text>
+  <text x="80" y="290" font-size="8.5" fill="#CBD5E1">CDN + Origin Shield</text>
+  <text x="80" y="302" font-size="8.5" fill="#CBD5E1">ap-south-1 origin</text>
+  <rect x="52" y="258" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="68" y="268" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- WAF -->
+  <rect x="250" y="257" width="180" height="50" fill="#0D2137" rx="6" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="280" y="275" font-size="10" font-weight="bold" fill="#60A5FA">🛡️ AWS WAF</text>
+  <text x="280" y="290" font-size="8.5" fill="#CBD5E1">OWASP Top 10 rules</text>
+  <text x="280" y="302" font-size="8.5" fill="#CBD5E1">Rate limit: 30 req/min/IP</text>
+  <rect x="252" y="258" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="268" y="268" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- Shield -->
+  <rect x="450" y="257" width="180" height="50" fill="#0D2137" rx="6" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="480" y="275" font-size="10" font-weight="bold" fill="#60A5FA">🔒 Shield Standard</text>
+  <text x="480" y="290" font-size="8.5" fill="#CBD5E1">DDoS protection L3/L4</text>
+  <text x="480" y="302" font-size="8.5" fill="#CBD5E1">Included with CloudFront</text>
+  <rect x="452" y="258" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="468" y="268" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- ACM -->
+  <rect x="650" y="257" width="180" height="50" fill="#0D2137" rx="6" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="680" y="275" font-size="10" font-weight="bold" fill="#60A5FA">🔐 ACM (TLS certs)</text>
+  <text x="680" y="290" font-size="8.5" fill="#CBD5E1">Replaces self-signed certs</text>
+  <text x="680" y="302" font-size="8.5" fill="#CBD5E1">Free managed TLS</text>
+  <rect x="652" y="258" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="668" y="268" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- Route 53 -->
+  <rect x="850" y="257" width="180" height="50" fill="#0D2137" rx="6" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="880" y="275" font-size="10" font-weight="bold" fill="#60A5FA">🌍 Route 53</text>
+  <text x="880" y="290" font-size="8.5" fill="#CBD5E1">DNS management</text>
+  <text x="880" y="302" font-size="8.5" fill="#CBD5E1">Health-check routing</text>
+  <rect x="852" y="258" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="868" y="268" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- ================================================================= -->
+  <!-- ARROW 1→2 -->
+  <!-- ================================================================= -->
+  <line x1="550" y1="316" x2="550" y2="336" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ================================================================= -->
+  <!-- ROW 2: VPC + APP TIER -->
+  <!-- ================================================================= -->
+  <!-- VPC dashed border -->
+  <rect x="20" y="336" width="1060" height="220" fill="none" rx="8" stroke="#334155" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="36" y="354" font-size="9" font-weight="bold" fill="#64748B" letter-spacing="1">VPC — ap-south-1  |  AZ-a + AZ-b</text>
+
+  <!-- Public Subnet -->
+  <rect x="30" y="362" width="500" height="184" fill="#0B1520" rx="6" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="46" y="380" font-size="9" font-weight="bold" fill="#60A5FA" letter-spacing="0.5">🔵 PUBLIC SUBNETS (AZ-a &amp; AZ-b)</text>
+
+  <!-- ALB -->
+  <rect x="44" y="388" width="200" height="54" fill="#0D2137" rx="5" stroke="#2563EB" stroke-width="1"/>
+  <text x="74" y="407" font-size="10" font-weight="bold" fill="#93C5FD">⚖️ Application Load Balancer</text>
+  <text x="74" y="422" font-size="8.5" fill="#CBD5E1">HTTPS:443 → ECS tasks:8000</text>
+  <text x="74" y="434" font-size="8.5" fill="#CBD5E1">Health check: GET /health</text>
+  <rect x="46" y="389" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="62" y="399" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- NAT Gateway -->
+  <rect x="260" y="388" width="180" height="54" fill="#0D2137" rx="5" stroke="#2563EB" stroke-width="1"/>
+  <text x="290" y="407" font-size="10" font-weight="bold" fill="#93C5FD">🔀 NAT Gateway</text>
+  <text x="290" y="422" font-size="8.5" fill="#CBD5E1">Outbound for private subnets</text>
+  <text x="290" y="434" font-size="8.5" fill="#CBD5E1">1 per AZ (HA config)</text>
+  <rect x="262" y="389" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="278" y="399" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- Amplify -->
+  <rect x="44" y="456" width="396" height="80" fill="#0D2137" rx="5" stroke="#2563EB" stroke-width="1"/>
+  <text x="74" y="475" font-size="10" font-weight="bold" fill="#93C5FD">🚀 AWS Amplify Hosting (Next.js 14)</text>
+  <text x="74" y="490" font-size="8.5" fill="#4ADE80">✓ Next.js App Router SSR / ISR / Middleware</text>
+  <text x="74" y="504" font-size="8.5" fill="#4ADE80">✓ Auto-deploy on GitHub push (replaces Vercel)</text>
+  <text x="74" y="518" font-size="8.5" fill="#4ADE80">✓ i18n: EN / HI / MR / TA / BN (next-intl)</text>
+  <rect x="46" y="457" width="76" height="14" fill="#7C2D12" rx="2"/>
+  <text x="84" y="467" text-anchor="middle" font-size="7" font-weight="bold" fill="#FB923C">REPLACE VERCEL</text>
+
+  <!-- Private Subnet -->
+  <rect x="545" y="362" width="524" height="184" fill="#0B1A0B" rx="6" stroke="#15803D" stroke-width="1"/>
+  <text x="561" y="380" font-size="9" font-weight="bold" fill="#4ADE80" letter-spacing="0.5">🟢 PRIVATE SUBNETS (AZ-a &amp; AZ-b)</text>
+
+  <!-- ECS Fargate -->
+  <rect x="559" y="388" width="240" height="80" fill="#0F2010" rx="5" stroke="#16A34A" stroke-width="1"/>
+  <text x="589" y="407" font-size="10" font-weight="bold" fill="#86EFAC">🐳 ECS Fargate (FastAPI)</text>
+  <text x="589" y="422" font-size="8.5" fill="#4ADE80">✓ Python 3.12, uvicorn (HTTP internal)</text>
+  <text x="589" y="436" font-size="8.5" fill="#4ADE80">✓ Auto-scale: 2–10 tasks across 2 AZs</text>
+  <text x="589" y="450" font-size="8.5" fill="#4ADE80">✓ Task IAM Role (no static credentials)</text>
+  <rect x="561" y="389" width="76" height="14" fill="#7C2D12" rx="2"/>
+  <text x="599" y="399" text-anchor="middle" font-size="7" font-weight="bold" fill="#FB923C">REPLACE EC2</text>
+
+  <!-- ECR -->
+  <rect x="815" y="388" width="240" height="36" fill="#0F2010" rx="5" stroke="#16A34A" stroke-width="1"/>
+  <text x="845" y="407" font-size="10" font-weight="bold" fill="#86EFAC">📦 Amazon ECR</text>
+  <text x="845" y="420" font-size="8.5" fill="#4ADE80">Container registry · Image scanning on push</text>
+  <rect x="817" y="389" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="833" y="399" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- RDS Proxy -->
+  <rect x="815" y="434" width="240" height="36" fill="#0F2010" rx="5" stroke="#16A34A" stroke-width="1"/>
+  <text x="845" y="453" font-size="10" font-weight="bold" fill="#86EFAC">🔗 RDS Proxy</text>
+  <text x="845" y="466" font-size="8.5" fill="#4ADE80">Connection pooling for Aurora</text>
+  <rect x="817" y="435" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="833" y="445" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- ================================================================= -->
+  <!-- ARROW 2→3 -->
+  <!-- ================================================================= -->
+  <line x1="550" y1="556" x2="550" y2="576" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ================================================================= -->
+  <!-- ROW 3: AI / BEDROCK -->
+  <!-- ================================================================= -->
+  <rect x="20" y="576" width="1060" height="130" fill="#150E2A" rx="8" stroke="#3730A3" stroke-width="1.5"/>
+  <text x="36" y="596" font-size="9" font-weight="bold" fill="#A78BFA" letter-spacing="1">AI / ML — AMAZON BEDROCK (ap-south-1)</text>
+
+  <!-- Claude -->
+  <rect x="40" y="604" width="230" height="88" fill="#1A1035" rx="6" stroke="#5B21B6" stroke-width="1"/>
+  <text x="70" y="622" font-size="10" font-weight="bold" fill="#C4B5FD">🤖 Claude Sonnet</text>
+  <text x="70" y="637" font-size="8.5" fill="#A78BFA">claude-sonnet-4-6 via Bedrock</text>
+  <text x="70" y="651" font-size="8.5" fill="#4ADE80">✓ Already configured</text>
+  <text x="70" y="665" font-size="8.5" fill="#4ADE80">✓ claude_service.py</text>
+  <text x="70" y="679" font-size="8.5" fill="#A78BFA">5 language system prompts</text>
+  <rect x="42" y="605" width="56" height="14" fill="#14532D" rx="2"/>
+  <text x="70" y="615" text-anchor="middle" font-size="7" font-weight="bold" fill="#4ADE80">EXISTS ✓</text>
+
+  <!-- Titan Embeddings -->
+  <rect x="290" y="604" width="210" height="88" fill="#1A1035" rx="6" stroke="#5B21B6" stroke-width="1"/>
+  <text x="320" y="622" font-size="10" font-weight="bold" fill="#C4B5FD">🔢 Titan Embeddings v2</text>
+  <text x="320" y="637" font-size="8.5" fill="#A78BFA">Vector generation for RAG</text>
+  <text x="320" y="651" font-size="8.5" fill="#4ADE80">✓ Already wired in rag_service.py</text>
+  <text x="320" y="665" font-size="8.5" fill="#4ADE80">✓ BEDROCK_REGION=ap-south-1</text>
+  <text x="320" y="679" font-size="8.5" fill="#A78BFA">langchain-aws integration</text>
+  <rect x="292" y="605" width="56" height="14" fill="#14532D" rx="2"/>
+  <text x="320" y="615" text-anchor="middle" font-size="7" font-weight="bold" fill="#4ADE80">EXISTS ✓</text>
+
+  <!-- Bedrock KB -->
+  <rect x="520" y="604" width="230" height="88" fill="#1A1035" rx="6" stroke="#5B21B6" stroke-width="1"/>
+  <text x="550" y="622" font-size="10" font-weight="bold" fill="#C4B5FD">📚 Bedrock Knowledge Bases</text>
+  <text x="550" y="637" font-size="8.5" fill="#A78BFA">Managed RAG pipeline</text>
+  <text x="550" y="651" font-size="8.5" fill="#CBD5E1">Replaces custom rag_service.py</text>
+  <text x="550" y="665" font-size="8.5" fill="#CBD5E1">Auto chunking + embedding</text>
+  <text x="550" y="679" font-size="8.5" fill="#CBD5E1">Backed by OpenSearch Serverless</text>
+  <rect x="522" y="605" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="538" y="615" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- Bedrock Guardrails -->
+  <rect x="770" y="604" width="290" height="88" fill="#1A1035" rx="6" stroke="#5B21B6" stroke-width="1"/>
+  <text x="800" y="622" font-size="10" font-weight="bold" fill="#C4B5FD">🛡️ Bedrock Guardrails</text>
+  <text x="800" y="637" font-size="8.5" fill="#A78BFA">RBI FREE-AI compliance layer</text>
+  <text x="800" y="651" font-size="8.5" fill="#CBD5E1">Content filters (financial advice scope)</text>
+  <text x="800" y="665" font-size="8.5" fill="#CBD5E1">PII masking (DPDP Act)</text>
+  <text x="800" y="679" font-size="8.5" fill="#CBD5E1">Invocation audit log → CloudTrail</text>
+  <rect x="772" y="605" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="788" y="615" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- ================================================================= -->
+  <!-- ARROW 3→4 -->
+  <!-- ================================================================= -->
+  <line x1="550" y1="706" x2="550" y2="726" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ================================================================= -->
+  <!-- ROW 4: DATA LAYER -->
+  <!-- ================================================================= -->
+  <rect x="20" y="726" width="1060" height="200" fill="#1A0B0B" rx="8" stroke="#7C2D12" stroke-width="1.5"/>
+  <text x="36" y="746" font-size="9" font-weight="bold" fill="#FB923C" letter-spacing="1">DATA LAYER (ALL IN ap-south-1 — RBI DATA RESIDENCY)</text>
+
+  <!-- Aurora -->
+  <rect x="40" y="756" width="270" height="152" fill="#280F0F" rx="6" stroke="#DC2626" stroke-width="1"/>
+  <text x="70" y="775" font-size="10" font-weight="bold" fill="#FCA5A5">🗄️ Aurora Serverless v2</text>
+  <text x="70" y="791" font-size="9" fill="#FB923C">PostgreSQL-compatible</text>
+  <text x="70" y="807" font-size="8.5" fill="#FED7D7">• Replaces Supabase (data stays in India)</text>
+  <text x="70" y="821" font-size="8.5" fill="#FED7D7">• Scales 0.5–128 ACU automatically</text>
+  <text x="70" y="835" font-size="8.5" fill="#FED7D7">• Multi-AZ writer + reader replica</text>
+  <text x="70" y="849" font-size="8.5" fill="#FED7D7">• Encrypted at rest (KMS) + TLS</text>
+  <text x="70" y="863" font-size="8.5" fill="#FED7D7">• Automated backups (7-day retention)</text>
+  <text x="70" y="877" font-size="8.5" fill="#FED7D7">• RDS Proxy for connection pooling</text>
+  <text x="70" y="895" font-size="8" fill="#94A3B8">Stores: user profiles, goals, risk scores,</text>
+  <text x="70" y="907" font-size="8" fill="#94A3B8">consent records, session history</text>
+  <rect x="42" y="757" width="76" height="14" fill="#7C2D12" rx="2"/>
+  <text x="80" y="767" text-anchor="middle" font-size="7" font-weight="bold" fill="#FB923C">REPLACE SUPABASE</text>
+
+  <!-- OpenSearch -->
+  <rect x="330" y="756" width="270" height="152" fill="#280F0F" rx="6" stroke="#DC2626" stroke-width="1"/>
+  <text x="360" y="775" font-size="10" font-weight="bold" fill="#FCA5A5">🔍 OpenSearch Serverless</text>
+  <text x="360" y="791" font-size="9" fill="#FB923C">k-NN Vector Engine</text>
+  <text x="360" y="807" font-size="8.5" fill="#FED7D7">• Replaces Pinecone (data in ap-south-1)</text>
+  <text x="360" y="821" font-size="8.5" fill="#FED7D7">• Cosine similarity search (same API shape)</text>
+  <text x="360" y="835" font-size="8.5" fill="#FED7D7">• Per-language namespaces (EN/HI/MR/TA/BN)</text>
+  <text x="360" y="849" font-size="8.5" fill="#FED7D7">• langchain-aws: AmazonOpenSearch class</text>
+  <text x="360" y="863" font-size="8.5" fill="#FED7D7">• Zero infra management (serverless)</text>
+  <text x="360" y="877" font-size="8.5" fill="#FED7D7">• OR: Bedrock Knowledge Bases (managed)</text>
+  <text x="360" y="895" font-size="8" fill="#94A3B8">Stores: IDBI dataset vectors, RAG context</text>
+  <text x="360" y="907" font-size="8" fill="#94A3B8">chunks indexed per language</text>
+  <rect x="332" y="757" width="76" height="14" fill="#7C2D12" rx="2"/>
+  <text x="370" y="767" text-anchor="middle" font-size="7" font-weight="bold" fill="#FB923C">REPLACE PINECONE</text>
+
+  <!-- S3 -->
+  <rect x="620" y="756" width="210" height="68" fill="#280F0F" rx="6" stroke="#B45309" stroke-width="1"/>
+  <text x="650" y="775" font-size="10" font-weight="bold" fill="#FCD34D">🪣 Amazon S3</text>
+  <text x="650" y="791" font-size="9" fill="#FDE68A">wealthseva-ai-assets</text>
+  <text x="650" y="807" font-size="8.5" fill="#FED7D7">Docs, audio, static assets</text>
+  <text x="650" y="821" font-size="8.5" fill="#FED7D7">SSE-KMS + block public access</text>
+  <rect x="622" y="757" width="56" height="14" fill="#14532D" rx="2"/>
+  <text x="650" y="767" text-anchor="middle" font-size="7" font-weight="bold" fill="#4ADE80">EXISTS ✓</text>
+
+  <!-- ElastiCache -->
+  <rect x="840" y="756" width="220" height="68" fill="#280F0F" rx="6" stroke="#B45309" stroke-width="1"/>
+  <text x="870" y="775" font-size="10" font-weight="bold" fill="#FCD34D">⚡ ElastiCache Redis</text>
+  <text x="870" y="791" font-size="9" fill="#FDE68A">Session context cache</text>
+  <text x="870" y="807" font-size="8.5" fill="#FED7D7">Cache last N conversation turns</text>
+  <text x="870" y="821" font-size="8.5" fill="#FED7D7">Reduce Bedrock token costs</text>
+  <rect x="842" y="757" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="858" y="767" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- Secrets Manager -->
+  <rect x="620" y="836" width="210" height="68" fill="#280F0F" rx="6" stroke="#B45309" stroke-width="1"/>
+  <text x="650" y="855" font-size="10" font-weight="bold" fill="#FCD34D">🔑 Secrets Manager</text>
+  <text x="650" y="871" font-size="9" fill="#FDE68A">All API keys &amp; credentials</text>
+  <text x="650" y="887" font-size="8.5" fill="#FED7D7">ElevenLabs, IDBI Sandbox keys</text>
+  <text x="650" y="901" font-size="8.5" fill="#FED7D7">Injected at ECS container start</text>
+  <rect x="622" y="837" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="638" y="847" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- Cognito -->
+  <rect x="840" y="836" width="220" height="68" fill="#280F0F" rx="6" stroke="#B45309" stroke-width="1"/>
+  <text x="870" y="855" font-size="10" font-weight="bold" fill="#FCD34D">👤 Amazon Cognito</text>
+  <text x="870" y="871" font-size="9" fill="#FDE68A">User Pools + App Client</text>
+  <text x="870" y="887" font-size="8.5" fill="#FED7D7">Replaces Supabase Auth</text>
+  <text x="870" y="901" font-size="8.5" fill="#FED7D7">JWT tokens, MFA, OIDC</text>
+  <rect x="842" y="837" width="76" height="14" fill="#7C2D12" rx="2"/>
+  <text x="880" y="847" text-anchor="middle" font-size="7" font-weight="bold" fill="#FB923C">REPLACE SUP AUTH</text>
+
+  <!-- ================================================================= -->
+  <!-- ARROW 4→5 -->
+  <!-- ================================================================= -->
+  <line x1="550" y1="926" x2="550" y2="946" stroke="#334155" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ================================================================= -->
+  <!-- ROW 5: PLATFORM / CI-CD / OBSERVABILITY -->
+  <!-- ================================================================= -->
+  <rect x="20" y="946" width="1060" height="190" fill="#111827" rx="8" stroke="#374151" stroke-width="1"/>
+  <text x="36" y="966" font-size="9" font-weight="bold" fill="#94A3B8" letter-spacing="1">PLATFORM SERVICES — CI/CD · OBSERVABILITY · IaC</text>
+
+  <!-- CI/CD -->
+  <rect x="40" y="975" width="320" height="148" fill="#0F172A" rx="6" stroke="#4B5563" stroke-width="1"/>
+  <text x="70" y="994" font-size="10" font-weight="bold" fill="#CBD5E1">🔄 CI/CD Pipeline</text>
+  <text x="70" y="1010" font-size="9" fill="#9CA3AF">GitHub Actions (existing)</text>
+  <text x="70" y="1026" font-size="8.5" fill="#CBD5E1">1. pytest + lint (existing ci.yml)</text>
+  <text x="70" y="1041" font-size="8.5" fill="#CBD5E1">2. docker build → push to ECR</text>
+  <text x="70" y="1056" font-size="8.5" fill="#CBD5E1">3. ecs update-service (rolling deploy)</text>
+  <text x="70" y="1071" font-size="8.5" fill="#CBD5E1">4. Amplify auto-deploy on push</text>
+  <text x="70" y="1086" font-size="8.5" fill="#4ADE80">✓ Rollback: redeploy prior task def</text>
+  <text x="70" y="1101" font-size="8.5" fill="#A78BFA">→ Add OIDC (replace static AWS keys)</text>
+  <rect x="42" y="976" width="80" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="82" y="986" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">IMPROVE</text>
+
+  <!-- Observability -->
+  <rect x="380" y="975" width="320" height="148" fill="#0F172A" rx="6" stroke="#4B5563" stroke-width="1"/>
+  <text x="410" y="994" font-size="10" font-weight="bold" fill="#CBD5E1">📊 Observability</text>
+  <text x="410" y="1010" font-size="9" fill="#9CA3AF">CloudWatch + X-Ray + Container Insights</text>
+  <text x="410" y="1026" font-size="8.5" fill="#CBD5E1">• Container Insights: CPU / mem / network</text>
+  <text x="410" y="1041" font-size="8.5" fill="#CBD5E1">• X-Ray: ALB → FastAPI → Bedrock tracing</text>
+  <text x="410" y="1056" font-size="8.5" fill="#CBD5E1">• CW Logs: Fargate stdout, ALB, WAF, VPC</text>
+  <text x="410" y="1071" font-size="8.5" fill="#CBD5E1">• Custom metrics: tokens/req, lang dist</text>
+  <text x="410" y="1086" font-size="8.5" fill="#FCA5A5">• CW Alarms → SNS: 5xx &gt; 1%, task fail</text>
+  <text x="410" y="1101" font-size="8.5" fill="#CBD5E1">• CloudTrail: Bedrock + Cognito audit log</text>
+  <rect x="382" y="976" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="398" y="986" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- IaC -->
+  <rect x="720" y="975" width="340" height="148" fill="#0F172A" rx="6" stroke="#4B5563" stroke-width="1"/>
+  <text x="750" y="994" font-size="10" font-weight="bold" fill="#CBD5E1">🏗️ Infrastructure as Code</text>
+  <text x="750" y="1010" font-size="9" fill="#9CA3AF">AWS CDK (TypeScript) recommended</text>
+  <text x="750" y="1026" font-size="8.5" fill="#CBD5E1">• VPC, subnets, security groups</text>
+  <text x="750" y="1041" font-size="8.5" fill="#CBD5E1">• ECS cluster, task definition, service</text>
+  <text x="750" y="1056" font-size="8.5" fill="#CBD5E1">• Aurora + RDS Proxy + OpenSearch</text>
+  <text x="750" y="1071" font-size="8.5" fill="#CBD5E1">• ALB, CloudFront, WAF rules</text>
+  <text x="750" y="1086" font-size="8.5" fill="#CBD5E1">• Cognito User Pool + App Client</text>
+  <text x="750" y="1101" font-size="8.5" fill="#CBD5E1">• Reproducible dev / staging / prod envs</text>
+  <rect x="722" y="976" width="32" height="14" fill="#1E1B4B" rx="2"/>
+  <text x="738" y="986" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
+
+  <!-- ================================================================= -->
+  <!-- ROW 6: RBI COMPLIANCE FOOTER -->
+  <!-- ================================================================= -->
+  <rect x="20" y="1148" width="1060" height="140" fill="#0B1A10" rx="8" stroke="#166534" stroke-width="1.5"/>
+  <text x="36" y="1168" font-size="9" font-weight="bold" fill="#4ADE80" letter-spacing="1">🇮🇳  RBI / DPDP COMPLIANCE SUMMARY</text>
+
+  <!-- Gap 1 -->
+  <rect x="40" y="1178" width="316" height="96" fill="#0F2010" rx="5" stroke="#15803D" stroke-width="1"/>
+  <text x="198" y="1196" text-anchor="middle" font-size="9" font-weight="bold" fill="#86EFAC">Data Residency</text>
+  <text x="60" y="1212" font-size="8.5" fill="#4ADE80">✓ Aurora (Mumbai) replaces Supabase</text>
+  <text x="60" y="1226" font-size="8.5" fill="#4ADE80">✓ OpenSearch (Mumbai) replaces Pinecone</text>
+  <text x="60" y="1240" font-size="8.5" fill="#4ADE80">✓ Amplify + CloudFront Indian origin</text>
+  <text x="60" y="1254" font-size="8.5" fill="#FCA5A5">⚠ ElevenLabs (US) — documented gap</text>
+  <text x="60" y="1265" font-size="8" fill="#64748B">All financial data stays in India</text>
+
+  <!-- Gap 2 -->
+  <rect x="376" y="1178" width="316" height="96" fill="#0F2010" rx="5" stroke="#15803D" stroke-width="1"/>
+  <text x="534" y="1196" text-anchor="middle" font-size="9" font-weight="bold" fill="#86EFAC">FREE-AI Principles</text>
+  <text x="396" y="1212" font-size="8.5" fill="#4ADE80">✓ Guardrails enforce explainability</text>
+  <text x="396" y="1226" font-size="8.5" fill="#4ADE80">✓ ConsentGate component in frontend</text>
+  <text x="396" y="1240" font-size="8.5" fill="#4ADE80">✓ CloudTrail audit trail for all AI calls</text>
+  <text x="396" y="1254" font-size="8.5" fill="#FCD34D">→ Production: evaluate Sarvam AI / Krutrim</text>
+  <text x="396" y="1265" font-size="8" fill="#64748B">Anthropic Claude via AWS-managed Bedrock</text>
+
+  <!-- Gap 3 -->
+  <rect x="712" y="1178" width="348" height="96" fill="#0F2010" rx="5" stroke="#15803D" stroke-width="1"/>
+  <text x="886" y="1196" text-anchor="middle" font-size="9" font-weight="bold" fill="#86EFAC">Model Risk (DPMRG 2026)</text>
+  <text x="732" y="1212" font-size="8.5" fill="#4ADE80">✓ Bedrock model versioning + rollback</text>
+  <text x="732" y="1226" font-size="8.5" fill="#4ADE80">✓ Guardrails: content + PII filters</text>
+  <text x="732" y="1240" font-size="8.5" fill="#4ADE80">✓ EscalateAdvisorModal (human override)</text>
+  <text x="732" y="1254" font-size="8.5" fill="#4ADE80">✓ Risk quiz + consent before AI advice</text>
+  <text x="732" y="1265" font-size="8" fill="#64748B">People-first design (FREE-AI sutra 2)</text>
+
+  <!-- ================================================================= -->
+  <!-- WELL-ARCHITECTED PILLARS BAR -->
+  <!-- ================================================================= -->
+  <rect x="20" y="1298" width="1060" height="142" fill="#111827" rx="8" stroke="#374151" stroke-width="1"/>
+  <text x="36" y="1318" font-size="9" font-weight="bold" fill="#94A3B8" letter-spacing="1">AWS WELL-ARCHITECTED FRAMEWORK — 6 PILLARS</text>
+
+  <!-- Pillar boxes -->
+  <rect x="30" y="1326" width="160" height="100" fill="#0D1B2A" rx="5" stroke="#1D4ED8" stroke-width="1"/>
+  <text x="110" y="1342" text-anchor="middle" font-size="8" font-weight="bold" fill="#60A5FA">Operational</text>
+  <text x="110" y="1354" text-anchor="middle" font-size="8" font-weight="bold" fill="#60A5FA">Excellence</text>
+  <text x="40" y="1369" font-size="7.5" fill="#CBD5E1">ECS rolling deploys</text>
+  <text x="40" y="1381" font-size="7.5" fill="#CBD5E1">CW dashboards</text>
+  <text x="40" y="1393" font-size="7.5" fill="#CBD5E1">GitHub Actions CI</text>
+  <text x="40" y="1405" font-size="7.5" fill="#CBD5E1">CDK IaC</text>
+  <text x="40" y="1417" font-size="7.5" fill="#CBD5E1">Automated rollback</text>
+
+  <rect x="205" y="1326" width="160" height="100" fill="#1A0A0A" rx="5" stroke="#DC2626" stroke-width="1"/>
+  <text x="285" y="1342" text-anchor="middle" font-size="8" font-weight="bold" fill="#FCA5A5">Security</text>
+  <text x="215" y="1362" font-size="7.5" fill="#CBD5E1">WAF + Shield</text>
+  <text x="215" y="1374" font-size="7.5" fill="#CBD5E1">IAM least-privilege</text>
+  <text x="215" y="1386" font-size="7.5" fill="#CBD5E1">KMS at-rest encrypt</text>
+  <text x="215" y="1398" font-size="7.5" fill="#CBD5E1">Secrets Manager</text>
+  <text x="215" y="1410" font-size="7.5" fill="#CBD5E1">Cognito MFA</text>
+  <text x="215" y="1422" font-size="7.5" fill="#CBD5E1">Bedrock Guardrails</text>
+
+  <rect x="380" y="1326" width="160" height="100" fill="#0A1A0A" rx="5" stroke="#15803D" stroke-width="1"/>
+  <text x="460" y="1342" text-anchor="middle" font-size="8" font-weight="bold" fill="#86EFAC">Reliability</text>
+  <text x="390" y="1362" font-size="7.5" fill="#CBD5E1">Multi-AZ ECS + Aurora</text>
+  <text x="390" y="1374" font-size="7.5" fill="#CBD5E1">ALB health checks</text>
+  <text x="390" y="1386" font-size="7.5" fill="#CBD5E1">RDS Proxy</text>
+  <text x="390" y="1398" font-size="7.5" fill="#CBD5E1">CloudFront caching</text>
+  <text x="390" y="1410" font-size="7.5" fill="#CBD5E1">Circuit breakers</text>
+  <text x="390" y="1422" font-size="7.5" fill="#CBD5E1">Auto-scaling (2–10)</text>
+
+  <rect x="555" y="1326" width="160" height="100" fill="#1A1208" rx="5" stroke="#B45309" stroke-width="1"/>
+  <text x="635" y="1342" text-anchor="middle" font-size="8" font-weight="bold" fill="#FCD34D">Performance</text>
+  <text x="565" y="1362" font-size="7.5" fill="#CBD5E1">Fargate auto-scale</text>
+  <text x="565" y="1374" font-size="7.5" fill="#CBD5E1">Aurora Serverless v2</text>
+  <text x="565" y="1386" font-size="7.5" fill="#CBD5E1">CloudFront CDN</text>
+  <text x="565" y="1398" font-size="7.5" fill="#CBD5E1">Redis session cache</text>
+  <text x="565" y="1410" font-size="7.5" fill="#CBD5E1">OpenSearch &lt;50ms k-NN</text>
+
+  <rect x="730" y="1326" width="160" height="100" fill="#151A08" rx="5" stroke="#4D7C0F" stroke-width="1"/>
+  <text x="810" y="1342" text-anchor="middle" font-size="8" font-weight="bold" fill="#BEF264">Cost Optimisation</text>
+  <text x="740" y="1362" font-size="7.5" fill="#CBD5E1">Fargate: pay/vCPU-sec</text>
+  <text x="740" y="1374" font-size="7.5" fill="#CBD5E1">Aurora: near-zero idle</text>
+  <text x="740" y="1386" font-size="7.5" fill="#CBD5E1">Amplify free tier</text>
+  <text x="740" y="1398" font-size="7.5" fill="#CBD5E1">~USD 75–120/mo demo</text>
+  <text x="740" y="1410" font-size="7.5" fill="#CBD5E1">S3 Intelligent-Tiering</text>
+
+  <rect x="905" y="1326" width="155" height="100" fill="#130E1A" rx="5" stroke="#6D28D9" stroke-width="1"/>
+  <text x="982" y="1342" text-anchor="middle" font-size="8" font-weight="bold" fill="#C4B5FD">Sustainability</text>
+  <text x="915" y="1362" font-size="7.5" fill="#CBD5E1">No idle EC2 servers</text>
+  <text x="915" y="1374" font-size="7.5" fill="#CBD5E1">Scale-to-zero services</text>
+  <text x="915" y="1386" font-size="7.5" fill="#CBD5E1">Mumbai efficient region</text>
+  <text x="915" y="1398" font-size="7.5" fill="#CBD5E1">Cache = fewer LLM calls</text>
+
+  <!-- ================================================================= -->
+  <!-- ARROW MARKER DEF -->
+  <!-- ================================================================= -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L8,4 z" fill="#475569"/>
+    </marker>
+  </defs>
+</svg>

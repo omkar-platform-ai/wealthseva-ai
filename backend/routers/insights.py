@@ -9,4 +9,4 @@ router = APIRouter()
 async def get_insights(language: Language = Query(default=Language.EN)):
     """Get daily AI-generated market insights in the user's language."""
     insights = await generate_market_insights(language)
-    return {"insights": insights, "language": language}
+    return {"insights": insights, "language": language.value}

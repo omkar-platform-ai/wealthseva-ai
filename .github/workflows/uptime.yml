@@ -1,0 +1,20 @@
+name: Uptime Check
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping /health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check
+        run: |
+          STATUS=$(curl -sk -o /dev/null -w "%{http_code}" --max-time 10 "${{ secrets.BACKEND_URL }}/health")
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed with HTTP $STATUS"
+            exit 1
+          fi
+          echo "Health check passed (HTTP $STATUS)"

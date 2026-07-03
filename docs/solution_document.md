@@ -1,0 +1,35 @@
+## Problem Statement
+
+India's banking system serves over 500 million customers through IDBI Bank and its peers, yet the gap between financial inclusion and meaningful financial guidance has never been wider. While mobile banking adoption has surged, most customers — particularly those in tier-2 and tier-3 cities — receive generic, templated financial advice that ignores their unique goals, risk tolerance, and language preferences. Studies consistently show that 70% of Indian bank customers prefer to engage with financial services in their vernacular language, yet virtually every wealth advisory tool forces them into English. The result is advice that is technically available but practically inaccessible: customers nod along, disengage, and make uninformed financial decisions. The consequence is a missed opportunity of historic proportions — a nation of savers who lack the personalized guidance needed to become investors.
+
+## Our Solution: WealthSeva AI
+
+WealthSeva AI is an avatar-based conversational wealth management assistant designed to close this guidance gap at scale. Built for integration into IDBI Bank's existing mobile banking platform, WealthSeva deploys Shreya — a multilingual AI advisor who speaks fluently in English, Hindi, Marathi, Tamil, and Bengali. Customers interact with Shreya using natural language in their preferred language, and she responds with personalized financial guidance grounded in their actual transaction history, portfolio composition, and declared financial goals. The system moves wealth advisory from a branch-visit luxury into an always-on, always-available feature embedded inside the app every IDBI customer already uses every day.
+
+## Key Innovation
+
+What distinguishes WealthSeva from generic chatbots is the combination of three capabilities that have never before been delivered together in an Indian banking context. First, real-time voice synthesis through ElevenLabs gives Shreya a consistent, professional, human-like voice in each of the five supported languages — the avatar does not merely translate text but speaks it naturally. Second, retrieval-augmented generation grounds every response in real IDBI dataset context: before answering any question, the system retrieves the most relevant passages from IDBI's transaction datasets, regulatory documents, and financial product descriptions, ensuring that Shreya's advice is factual and hallucination-resistant rather than speculative. Third, the system's language detection is automatic and session-aware — a customer who writes in Hindi receives the full advisory experience in Hindi without any configuration, and can switch languages mid-conversation without losing context.
+
+## Architecture
+
+WealthSeva is built as a decoupled two-tier system. The backend is a FastAPI application running on Python 3.12, exposing a REST API that orchestrates all AI services and IDBI sandbox data. The frontend is a Next.js 14 application serving a responsive single-page app with server-side rendering for fast initial loads. The two tiers communicate through a well-defined API contract, making it straightforward to deploy the backend on AWS EC2 and the frontend on Vercel — or to embed the frontend within IDBI's existing mobile shell through a WebView.
+
+The AI pipeline processes every user query through three sequential stages: language detection and prompt construction, retrieval-augmented context injection from the Pinecone vector store, and response generation through Amazon Bedrock's Claude model with a language-specific system prompt. Audio synthesis runs asynchronously through ElevenLabs and is returned alongside the text response so the avatar can speak while the UI renders.
+
+## Technology Stack
+
+The backend relies on FastAPI for the API layer, Amazon Bedrock for Claude inference, ElevenLabs for voice synthesis, Pinecone for vector search, and Supabase for user session and profile persistence. Rate limiting is enforced at the application layer using slowapi, and all environment configuration is externalized so that the application can be promoted from local development to production without code changes. The frontend uses Next.js 14 with the App Router, Recharts for portfolio visualizations, and i18n routing for per-locale page rendering. All five language variants share a single codebase with locale-keyed string tables — adding a sixth language requires only a new translation file, not a code change.
+
+## AI/ML Innovation
+
+WealthSeva's AI innovation is practical rather than theoretical: it applies state-of-the-art language models to a domain — vernacular financial advisory — where they have been underutilized because of the engineering complexity involved. The RAG pipeline indexes IDBI's hackathon datasets into Pinecone at startup and retrieves the top-k relevant chunks before every Claude call. This means Shreya can cite actual IDBI product features, real regulatory thresholds, and observed transaction patterns rather than generating plausible-sounding but unverifiable assertions. The system also implements RBI-compliant AI disclosure: every response includes a statutory disclaimer identifying Shreya as an AI assistant, and a human escalation CTA is surfaced automatically when the system detects financial distress signals such as loan defaults or credit limit breaches. The consent gate presented on first use captures the DPDP-compliant data processing acknowledgement required under India's Digital Personal Data Protection Act.
+
+## Business Impact
+
+WealthSeva's impact thesis is straightforward: personalized wealth advisory at zero incremental headcount. Each interaction with Shreya replaces a branch visit or relationship manager call that IDBI would otherwise have needed to staff. Across 500 million customers, even a modest increase in financial product adoption — SIP registrations, goal-linked deposits, insurance top-ups — compounds into substantial balance sheet growth. The system's vernacular capability is the unlock: customers who previously could not access guidance because it was available only in English can now receive the same quality of advice in the language they think in. The hackathon prototype demonstrates the full advisory loop from risk profiling through goal planning to portfolio analysis, with every feature functional in all five languages.
+
+## Demo Link
+
+A scripted demonstration of WealthSeva AI is available at the repository. To run the demo locally, clone the repository, configure the required API keys in `backend/.env`, and start both servers. Navigate to `http://localhost:3000/en/advisor` to interact with Shreya in English, or substitute the locale prefix for Hindi (`/hi/advisor`), Marathi (`/mr/advisor`), Tamil (`/ta/advisor`), or Bengali (`/bn/advisor`). The demo mode at `/en/demo?demo=true` walks through all five core advisory steps automatically.
+
+Repository: [https://github.com/omkar-platform-ai/wealthseva-ai](https://github.com/omkar-platform-ai/wealthseva-ai)
