@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, List
 from enum import Enum
 
@@ -33,6 +33,12 @@ class ChatResponse(BaseModel):
     reply: str
     language: Language
     detected_language: Optional[Language] = None
+
+
+class TTSRequest(BaseModel):
+    # max_length caps ElevenLabs character spend per request
+    text: str = Field(min_length=1, max_length=2000)
+    language: Language = Language.EN
 
 
 class RiskQuizAnswer(BaseModel):

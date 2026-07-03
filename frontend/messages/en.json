@@ -44,7 +44,12 @@
     "escalate_phone_hours": "Mon–Sat, 9 AM – 6 PM IST",
     "escalate_branch_label": "Visit Your Nearest Branch",
     "escalate_branch_desc": "Find your nearest IDBI Bank branch for in-person wealth advisory.",
-    "escalate_close": "Close"
+    "escalate_close": "Close",
+    "listening": "Listening…",
+    "speaking": "Speaking…",
+    "voice_on": "Turn voice on",
+    "voice_off": "Turn voice off",
+    "mic_label": "Speak your question"
   },
   "consent": {
     "title": "Data Consent",

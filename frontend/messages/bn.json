@@ -44,7 +44,12 @@
     "escalate_phone_hours": "সোম–শনি, সকাল ৯ – সন্ধ্যা ৬ IST",
     "escalate_branch_label": "নিকটতম শাখায় যান",
     "escalate_branch_desc": "সরাসরি ওয়েলথ পরামর্শের জন্য নিকটতম IDBI ব্যাংক শাখা খুঁজুন।",
-    "escalate_close": "বন্ধ করুন"
+    "escalate_close": "বন্ধ করুন",
+    "listening": "শুনছি…",
+    "speaking": "বলছি…",
+    "voice_on": "ভয়েস চালু করুন",
+    "voice_off": "ভয়েস বন্ধ করুন",
+    "mic_label": "আপনার প্রশ্ন বলুন"
   },
   "consent": {
     "title": "ডেটা সম্মতি",

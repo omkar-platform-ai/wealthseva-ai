@@ -44,7 +44,12 @@
     "escalate_phone_hours": "सोम–शनि, सकाळी 9 – संध्याकाळी 6 IST",
     "escalate_branch_label": "जवळच्या शाखेला भेट द्या",
     "escalate_branch_desc": "वैयक्तिक वेल्थ सल्ल्यासाठी जवळची IDBI बँक शाखा शोधा.",
-    "escalate_close": "बंद करा"
+    "escalate_close": "बंद करा",
+    "listening": "ऐकत आहे…",
+    "speaking": "बोलत आहे…",
+    "voice_on": "आवाज सुरू करा",
+    "voice_off": "आवाज बंद करा",
+    "mic_label": "तुमचा प्रश्न बोला"
   },
   "consent": {
     "title": "डेटा संमती",

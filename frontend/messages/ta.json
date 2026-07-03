@@ -44,7 +44,12 @@
     "escalate_phone_hours": "திங்கள்–சனி, காலை 9 – மாலை 6 IST",
     "escalate_branch_label": "அருகிலுள்ள கிளையை பார்வையிடுங்கள்",
     "escalate_branch_desc": "நேரில் செல்வ ஆலோசனைக்கு அருகிலுள்ள IDBI வங்கி கிளையை தேடுங்கள்.",
-    "escalate_close": "மூடு"
+    "escalate_close": "மூடு",
+    "listening": "கேட்கிறேன்…",
+    "speaking": "பேசுகிறேன்…",
+    "voice_on": "குரலை இயக்கு",
+    "voice_off": "குரலை நிறுத்து",
+    "mic_label": "உங்கள் கேள்வியைப் பேசுங்கள்"
   },
   "consent": {
     "title": "தரவு சம்மதம்",

@@ -1,7 +1,9 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Send } from 'lucide-react';
+import { Mic, Send, Volume2, VolumeX } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { speak, createRecognizer, SpeakHandle, Recognizer } from '@/lib/voice';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -13,8 +15,9 @@ interface HealthStatus {
   loading: boolean;
 }
 
+type AvatarState = 'idle' | 'listening' | 'speaking';
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
-const ELEVENLABS_AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
 
 export default function AvatarChat() {
   const t = useTranslations('advisor');
@@ -24,7 +27,26 @@ export default function AvatarChat() {
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<HealthStatus>({ healthy: true, loading: false });
   const [showChips, setShowChips] = useState(true);
+  const [avatarState, setAvatarState] = useState<AvatarState>('idle');
+  const [voiceOn, setVoiceOn] = useState(true);
+  const [sttSupported, setSttSupported] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  // Ref mirror so an in-flight reply respects a mid-stream mute
+  const voiceOnRef = useRef(true);
+  const speakRef = useRef<SpeakHandle | null>(null);
+  const recognizerRef = useRef<Recognizer | null>(null);
+
+  const stopSpeaking = () => {
+    speakRef.current?.stop();
+    speakRef.current = null;
+  };
+
+  const toggleVoice = () => {
+    const next = !voiceOnRef.current;
+    voiceOnRef.current = next;
+    setVoiceOn(next);
+    if (!next) stopSpeaking();
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -47,16 +69,34 @@ export default function AvatarChat() {
     return () => clearInterval(interval);
   }, []);
 
-  // Clear chat and show welcome message on locale change
+  // Web Speech API availability is only knowable client-side
+  useEffect(() => {
+    const w = window as unknown as Record<string, unknown>;
+    setSttSupported(typeof (w.SpeechRecognition ?? w.webkitSpeechRecognition) === 'function');
+  }, []);
+
+  // Clear chat, silence voice, and show welcome message on locale change
   useEffect(() => {
     setMessages([]);
     setShowChips(true);
+    speakRef.current?.stop();
+    speakRef.current = null;
+    recognizerRef.current?.stop();
   }, [locale]);
+
+  // Silence voice + mic on unmount
+  useEffect(() => {
+    return () => {
+      speakRef.current?.stop();
+      recognizerRef.current?.stop();
+    };
+  }, []);
 
   const sendMessage = async (chipInput?: string) => {
     const messageToSend = chipInput || input;
     if (!messageToSend?.trim() || loading) return;
 
+    stopSpeaking();
     const userMsg: Message = { role: 'user', content: messageToSend };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
@@ -92,6 +132,11 @@ export default function AvatarChat() {
           return updated;
         });
       }
+
+      if (voiceOnRef.current && reply) {
+        setAvatarState('speaking');
+        speakRef.current = await speak(reply, locale, () => setAvatarState('idle'));
+      }
     } catch (err) {
       setMessages(prev => [...prev, { role: 'assistant', content: t('error' as never) }]);
     } finally {
@@ -99,24 +144,67 @@ export default function AvatarChat() {
     }
   };
 
+  const toggleMic = () => {
+    if (avatarState === 'listening') {
+      recognizerRef.current?.stop();
+      return;
+    }
+    stopSpeaking();
+    const recognizer = createRecognizer(
+      locale,
+      (transcript, isFinal) => {
+        setInput(transcript);
+        if (isFinal) sendMessage(transcript);
+      },
+      () => setAvatarState('idle'),
+    );
+    if (!recognizer) return;
+    recognizerRef.current = recognizer;
+    setAvatarState('listening');
+    recognizer.start();
+  };
+
   return (
     <div className="flex flex-col bg-white rounded-2xl shadow-lg overflow-hidden h-[600px]">
       {/* Avatar header */}
       <div className="bg-idbi-blue p-4 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-idbi-gold flex items-center justify-center text-white font-bold text-lg">
-          S
+        <div className="relative w-12 h-12 flex-shrink-0">
+          {avatarState !== 'idle' && (
+            <motion.span
+              className={`absolute inset-0 rounded-full ${
+                avatarState === 'speaking' ? 'bg-idbi-gold' : 'bg-green-400'
+              }`}
+              animate={{ scale: [1, 1.5], opacity: [0.7, 0] }}
+              transition={{ duration: 1.1, repeat: Infinity, ease: 'easeOut' }}
+            />
+          )}
+          <div className="relative w-12 h-12 rounded-full bg-idbi-gold flex items-center justify-center text-white font-bold text-lg">
+            S
+          </div>
         </div>
         <div>
           <p className="text-white font-semibold">Shreya</p>
-          <p className="text-blue-200 text-xs">IDBI Wealth Advisor · {locale.toUpperCase()} · {
-            locale === 'en' ? 'English' :
-            locale === 'hi' ? 'हिंदी' :
-            locale === 'mr' ? 'मराठी' :
-            locale === 'ta' ? 'தமிழ்' :
-            locale === 'bn' ? 'বাংলা' : locale.toUpperCase()
-          }</p>
+          <p className="text-blue-200 text-xs">
+            {avatarState === 'listening' ? t('listening' as never)
+              : avatarState === 'speaking' ? t('speaking' as never)
+              : <>IDBI Wealth Advisor · {locale.toUpperCase()} · {
+                  locale === 'en' ? 'English' :
+                  locale === 'hi' ? 'हिंदी' :
+                  locale === 'mr' ? 'मराठी' :
+                  locale === 'ta' ? 'தமிழ்' :
+                  locale === 'bn' ? 'বাংলা' : locale.toUpperCase()
+                }</>}
+          </p>
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-3">
+          <button
+            onClick={toggleVoice}
+            className="text-blue-200 hover:text-white transition-colors"
+            aria-label={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
+            title={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
+          >
+            {voiceOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
           <span className={`w-2 h-2 rounded-full ${health.healthy ? 'bg-green-400' : 'bg-red-500'}`} />
           {health.loading && <span className="text-xs text-blue-200">...</span>}
           {!health.healthy && <span className="text-xs text-red-200">{t('reconnecting' as never)}</span>}
@@ -128,11 +216,6 @@ export default function AvatarChat() {
         {messages.length === 0 && (
           <div className="text-center mt-8">
             <p className="text-gray-600 text-lg mb-2">{t('welcomeMessage' as never)}</p>
-            {!ELEVENLABS_AGENT_ID && (
-              <p className="text-xs text-amber-600 bg-amber-50 px-3 py-1 rounded-full inline-block">
-                Voice preview — add ElevenLabs agent ID to enable avatar
-              </p>
-            )}
             {showChips && (
               <div className="flex flex-wrap gap-2 justify-center mt-4">
                 {[
@@ -176,6 +259,21 @@ export default function AvatarChat() {
           className="flex-1 min-w-0 border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-idbi-blue"
           disabled={loading}
         />
+        {sttSupported && (
+          <button
+            onClick={toggleMic}
+            disabled={loading}
+            className={`flex-shrink-0 p-2 rounded-xl transition-colors disabled:opacity-50 ${
+              avatarState === 'listening'
+                ? 'bg-red-500 text-white animate-pulse'
+                : 'border border-idbi-blue text-idbi-blue hover:bg-idbi-light'
+            }`}
+            aria-label={t('mic_label' as never)}
+            title={t('mic_label' as never)}
+          >
+            <Mic size={16} />
+          </button>
+        )}
         <button
           onClick={() => sendMessage()}
           disabled={loading || !input.trim() || !health.healthy}
