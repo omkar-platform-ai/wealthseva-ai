@@ -109,6 +109,12 @@ jobs:
           EC2_HOST:  ${{ secrets.EC2_HOST }}
           EC2_USER:  ${{ secrets.EC2_USER }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          # Comma-separated list of allowed frontend origins. Configure in
+          # Repo → Settings → Secrets and variables → Actions → Variables
+          # as CORS_ORIGINS, e.g.
+          #   https://main.d123abc.amplifyapp.com,https://wealthseva.example.com
+          # Falls back to localhost only so local-dev browsers can hit prod backend.
+          CORS_ORIGINS: ${{ vars.CORS_ORIGINS || 'http://localhost:3000' }}
         run: |
           ssh -i /tmp/ec2_key.pem \
               -o StrictHostKeyChecking=no \
@@ -144,6 +150,7 @@ jobs:
             --log-opt awslogs-stream=ec2-\$(hostname) \
             --env AWS_DEFAULT_REGION=ap-south-1 \
             --env ENVIRONMENT=production \
+            --env CORS_ORIGINS='${CORS_ORIGINS}' \
             ${IMAGE_URI}
 
           # ── Health check (retry up to 30s)
