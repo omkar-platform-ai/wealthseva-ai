@@ -1,6 +1,6 @@
 'use client';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { useRouter, usePathname } from '../navigation';
 import { useState } from 'react';
 import { Globe } from 'lucide-react';
 
@@ -20,8 +20,7 @@ export default function LanguageSwitcher() {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
 
   const switchLanguage = (newLocale: string) => {
-    const newPath = pathname.replace(`/${locale}`, `/${newLocale}`);
-    router.push(newPath);
+    router.push(pathname, { locale: newLocale });
     setOpen(false);
     
     // Show toast after switch
