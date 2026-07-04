@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 // Keep identical to _DEMO_SIP_HINDI in backend/routers/chat.py.
@@ -113,12 +113,10 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
   const [qIdx, setQIdx] = useState(0);
   const [highlighted, setHighlighted] = useState<number | null>(null);
   const [done, setDone] = useState(false);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     if (done) return;
-    const t1 = setTimeout(() => setHighlighted(1), 700);
+    const t1 = setTimeout(() => setHighlighted(1), 1500);
     const t2 = setTimeout(() => {
       if (qIdx < QUIZ.length - 1) {
         setQIdx(q => q + 1);
@@ -126,15 +124,9 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
       } else {
         setDone(true);
       }
-    }, 1900);
+    }, 4000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [qIdx, done]);
-
-  useEffect(() => {
-    if (!done) return;
-    const t = setTimeout(() => onCompleteRef.current(), 2500);
-    return () => clearTimeout(t);
-  }, [done]);
 
   if (done) {
     return (
@@ -142,7 +134,7 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
         <div className="text-6xl mb-4">✅</div>
         <h2 className="text-2xl font-bold text-idbi-green mb-2">Risk Profile: Moderate</h2>
         <p className="text-gray-600 mb-6">Ramesh has a balanced, growth-oriented investment approach.</p>
-        <div className="flex gap-3 justify-center flex-wrap">
+        <div className="flex gap-3 justify-center flex-wrap mb-8">
           {[
             ['Equity', '60%', 'bg-emerald-100 text-emerald-800'],
             ['Debt', '30%', 'bg-blue-100 text-blue-800'],
@@ -153,7 +145,12 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
             </div>
           ))}
         </div>
-        <p className="text-xs text-gray-400 animate-pulse mt-6">Loading portfolio analysis…</p>
+        <button
+          onClick={onComplete}
+          className="bg-idbi-green text-white px-8 py-3 rounded-xl font-bold text-base hover:bg-idbi-dark transition-colors shadow-md"
+        >
+          Next Step →
+        </button>
       </div>
     );
   }
@@ -199,13 +196,10 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
 
 function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
   const [uploading, setUploading] = useState(true);
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const t1 = setTimeout(() => setUploading(false), 1200);
-    const t2 = setTimeout(() => onCompleteRef.current(), 4000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    return () => clearTimeout(t1);
   }, []);
 
   if (uploading) {
@@ -249,7 +243,14 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
           </div>
         ))}
       </div>
-      <p className="text-xs text-gray-400 text-center mt-4 animate-pulse">Advancing to Goal Planner…</p>
+      <div className="mt-6 text-center">
+        <button
+          onClick={onComplete}
+          className="bg-idbi-green text-white px-8 py-3 rounded-xl font-bold text-base hover:bg-idbi-dark transition-colors shadow-md"
+        >
+          Next Step →
+        </button>
+      </div>
     </div>
   );
 }
@@ -257,14 +258,6 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
 // ── Step 4: Goal Plan ──────────────────────────────────────────────────────────
 
 function Step4Goals({ onComplete }: { onComplete: () => void }) {
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
-
-  useEffect(() => {
-    const t = setTimeout(() => onCompleteRef.current(), 4000);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
       <div className="flex items-center justify-between mb-6">
@@ -295,7 +288,14 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
           <p>🔒 Short-duration debt fund — 20% (cushion)</p>
         </div>
       </div>
-      <p className="text-xs text-gray-400 text-center mt-4 animate-pulse">Switching to Hindi for SIP advice…</p>
+      <div className="mt-6 text-center">
+        <button
+          onClick={onComplete}
+          className="bg-idbi-green text-white px-8 py-3 rounded-xl font-bold text-base hover:bg-idbi-dark transition-colors shadow-md"
+        >
+          Next Step →
+        </button>
+      </div>
     </div>
   );
 }
@@ -308,7 +308,7 @@ function Step5HindiSIP() {
 
   useEffect(() => {
     if (count >= words.length) return;
-    const t = setTimeout(() => setCount(c => c + 1), 110);
+    const t = setTimeout(() => setCount(c => c + 1), 160);
     return () => clearTimeout(t);
   }, [count, words.length]);
 
