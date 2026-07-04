@@ -214,8 +214,8 @@ day1() {
           "Effect": "Allow",
           "Action": ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
           "Resource": [
-            "arn:aws:bedrock:\($region)::\($account):foundation-model/*",
-            "arn:aws:bedrock:\($region)::foundation-model/*"
+            "arn:aws:bedrock:*::foundation-model/*",
+            "arn:aws:bedrock:*:\($account):inference-profile/*"
           ]
         },
         {
