@@ -10,6 +10,7 @@ Graceful degradation contract: if ELEVENLABS_API_KEY or a voice ID is not
 configured, or the ElevenLabs call fails, return {"fallback": "browser"} so
 the frontend uses browser speechSynthesis — never a 500.
 """
+import logging
 import os
 
 import httpx
@@ -17,6 +18,8 @@ from fastapi import APIRouter, Response
 
 from models.schemas import TTSRequest
 from services.language_service import get_voice_id
+
+logger = logging.getLogger("wealthseva.tts")
 
 router = APIRouter()
 
@@ -32,6 +35,11 @@ async def text_to_speech(request: TTSRequest):
     voice_id = get_voice_id(request.language)
 
     if not api_key or not voice_id:
+        # Log booleans only — never the key or voice ID values.
+        logger.warning(
+            "tts path=browser-fallback reason=missing-config lang=%s api_key_set=%s voice_id_set=%s",
+            request.language.value, bool(api_key), bool(voice_id),
+        )
         return BROWSER_FALLBACK
 
     try:
@@ -47,5 +55,13 @@ async def text_to_speech(request: TTSRequest):
             )
             response.raise_for_status()
             return Response(content=response.content, media_type="audio/mpeg")
-    except Exception:
+    except Exception as exc:
+        # Surface the ElevenLabs reason (e.g. ip_not_allowed, quota_exceeded) so this
+        # doesn't silently masquerade as "voices don't work". response.text carries
+        # the actionable detail on HTTP errors; the API key never appears in it.
+        detail = getattr(getattr(exc, "response", None), "text", "")
+        logger.warning(
+            "tts path=browser-fallback lang=%s elevenlabs failed: %s %s",
+            request.language.value, exc, detail[:200],
+        )
         return BROWSER_FALLBACK
