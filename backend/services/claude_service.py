@@ -133,14 +133,15 @@ async def stream_chat(
                     yield text
             logger.info("stream_chat path=%s", path)
             return
-        except Exception:
+        except Exception as exc:
             if streamed_any:
                 # Partial output already sent — retrying another provider would
                 # duplicate text, so surface an interruption instead.
                 logger.info("stream_chat path=%s interrupted mid-stream", path)
                 yield _STREAM_INTERRUPTED.get(language, _STREAM_INTERRUPTED[Language.EN])
                 return
-            # Failed before any text streamed — try the next candidate.
+            # Failed before any text streamed — log and try the next candidate.
+            logger.warning("stream_chat path=%s failed before streaming: %s", path, exc)
             continue
 
     # Every live path failed before producing output — degrade, never die mid-demo.
@@ -310,8 +311,9 @@ async def generate_market_insights(language: Language) -> list:
             )
             logger.info("generate_market_insights path=%s", path)
             break
-        except Exception:
-            # Provider unreachable — try the next candidate.
+        except Exception as exc:
+            # Provider unreachable — log and try the next candidate.
+            logger.warning("generate_market_insights path=%s failed: %s", path, exc)
             continue
 
     if response is None:
