@@ -58,17 +58,17 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-44 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-lg border z-50">
+        <div className="absolute right-0 mt-2 w-44 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 z-50">
           {LANGUAGES.map((lang) => (
             <button
               key={lang.code}
               onClick={() => switchLanguage(lang.code)}
-              className={`w-full text-left px-4 py-3 hover:bg-idbi-light transition-colors first:rounded-t-xl last:rounded-b-xl flex justify-between items-center ${
-                lang.code === locale ? 'bg-idbi-light text-idbi-green font-semibold' : 'text-gray-700'
+              className={`w-full text-left px-4 py-3 hover:bg-idbi-light hover:text-idbi-green transition-colors first:rounded-t-xl last:rounded-b-xl flex justify-between items-center ${
+                lang.code === locale ? 'bg-idbi-light text-idbi-green font-semibold' : 'text-gray-900'
               }`}
             >
               <span>{lang.native}</span>
-              <span className="text-xs text-gray-400">{lang.label}</span>
+              <span className="text-xs text-gray-500">{lang.label}</span>
             </button>
           ))}
         </div>
