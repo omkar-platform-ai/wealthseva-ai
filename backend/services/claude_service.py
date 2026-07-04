@@ -20,7 +20,7 @@ logger = logging.getLogger("wealthseva.claude")
 
 # Bedrock configuration (primary path)
 BEDROCK_REGION = os.getenv("BEDROCK_REGION", "ap-south-1")
-BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "global.anthropic.claude-sonnet-4-6")
+BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "apac.anthropic.claude-sonnet-4-5-20250929-v1:0")
 
 # Anthropic direct-API configuration (fallback path). Absence of the key
 # disables the fallback entirely — behaviour is then unchanged from before.

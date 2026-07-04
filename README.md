@@ -115,7 +115,7 @@ Open `.env` and set the values below. Everything else can stay at its default.
 ```bash
 # Amazon Bedrock — Claude (ap-south-1)
 BEDROCK_REGION=ap-south-1
-BEDROCK_MODEL_ID=global.anthropic.claude-sonnet-4-6
+BEDROCK_MODEL_ID=apac.anthropic.claude-sonnet-4-5-20250929-v1:0
 
 # ElevenLabs — paste voice IDs from your ElevenLabs project
 ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
@@ -323,7 +323,7 @@ wealthseva-ai/
 
 | Layer | Technology |
 |---|---|
-| AI/LLM | Amazon Bedrock — `claude-sonnet-4-6` (ap-south-1) |
+| AI/LLM | Amazon Bedrock — `claude-sonnet-4-5` (ap-south-1) |
 | Avatar | ElevenLabs Conversational AI — multilingual Indian voices |
 | Frontend | Next.js 14 (App Router), TailwindCSS, Recharts |
 | i18n | next-intl — 5 locale routes, SSR-safe |
