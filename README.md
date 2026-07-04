@@ -115,7 +115,7 @@ Open `.env` and set the values below. Everything else can stay at its default.
 ```bash
 # Amazon Bedrock — Claude (ap-south-1)
 BEDROCK_REGION=ap-south-1
-BEDROCK_MODEL_ID=apac.anthropic.claude-sonnet-4-5-20250929-v1:0
+BEDROCK_MODEL_ID=apac.anthropic.claude-sonnet-4-20250514-v1:0
 
 # ElevenLabs — paste voice IDs from your ElevenLabs project
 ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
