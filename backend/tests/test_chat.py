@@ -3,7 +3,7 @@ Tests for chat endpoints.
 """
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from models.schemas import Language, ChatMessage
+from models.schemas import ChatMessage
 from fastapi.testclient import TestClient
 from main import app
 
@@ -25,8 +25,6 @@ class TestChatEndpoint:
         mock_bedrock.messages.stream.return_value = mock_stream
 
         with patch('services.claude_service.client', mock_bedrock):
-            from services.rag_service import retrieve_context
-
             # Mock RAG to return empty
             with patch('services.rag_service.retrieve_context', return_value=""):
                 response = client.post("/api/chat", json={

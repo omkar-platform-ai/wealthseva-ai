@@ -1,18 +1,32 @@
 """
 Claude API service — handles all LLM calls, streaming, and tool use.
-Uses Amazon Bedrock for model inference with IAM authentication.
+
+Primary inference path is Amazon Bedrock (IAM authentication). A direct
+Anthropic-API path is used as a fallback ONLY when the Bedrock call raises
+(demo-day insurance while Bedrock is blocked by the payment/Marketplace
+issue). Setting ANTHROPIC_API_KEY enables the fallback; deleting it disables
+it with no code change. See WEA-57.
 """
 import os
 import json
 import time
+import logging
 from typing import AsyncIterator
 import anthropic
 from models.schemas import Language, ChatMessage
 from services.language_service import get_system_prompt
 
-# Bedrock configuration
+logger = logging.getLogger("wealthseva.claude")
+
+# Bedrock configuration (primary path)
 BEDROCK_REGION = os.getenv("BEDROCK_REGION", "ap-south-1")
 BEDROCK_MODEL_ID = os.getenv("BEDROCK_MODEL_ID", "global.anthropic.claude-sonnet-4-6")
+
+# Anthropic direct-API configuration (fallback path). Absence of the key
+# disables the fallback entirely — behaviour is then unchanged from before.
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+ANTHROPIC_MODEL_ID = os.getenv("ANTHROPIC_MODEL_ID", "claude-sonnet-4-5-20250929")
+
 MAX_HISTORY = 10
 TIMEOUT_SECONDS = 10
 
@@ -20,17 +34,42 @@ TIMEOUT_SECONDS = 10
 # When running on EC2/Lambda with IAM role, boto3 automatically finds credentials
 # When running locally, AWS credentials must be configured in ~/.aws/credentials or env vars
 try:
-    import boto3
+    import boto3  # noqa: F401
     _aws_credentials_available = True
 except ImportError:
     _aws_credentials_available = False
 
+# `client` is the Bedrock client and remains the primary path. Kept under this
+# name so existing tests that patch `services.claude_service.client` still work.
 if _aws_credentials_available:
     client = anthropic.AsyncAnthropicBedrock(
         aws_region=BEDROCK_REGION,
     )
 else:
     client = None
+
+# Direct Anthropic client (fallback) — only constructed when a key is present.
+if ANTHROPIC_API_KEY:
+    _anthropic_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+else:
+    _anthropic_client = None
+
+
+def _get_client_candidates() -> list[tuple]:
+    """Return ordered (client, model_id, path_label) attempts.
+
+    Bedrock first (primary), then the direct Anthropic API (fallback) when
+    ANTHROPIC_API_KEY is set. Callers try each in order and drop to the
+    demo/mock response if the list is empty or every attempt raises. A single
+    tuple cannot express the "try Bedrock, on exception retry Anthropic" flow,
+    so this returns the candidate list the callers iterate over.
+    """
+    candidates: list[tuple] = []
+    if client is not None:
+        candidates.append((client, BEDROCK_MODEL_ID, "bedrock"))
+    if _anthropic_client is not None:
+        candidates.append((_anthropic_client, ANTHROPIC_MODEL_ID, "anthropic"))
+    return candidates
 
 # Simple in-memory cache for market insights (60-second TTL)
 _insights_cache = {}
@@ -62,8 +101,10 @@ async def stream_chat(
     context: str = "",
 ) -> AsyncIterator[str]:
     """Stream a Claude response for the wealth advisor chat."""
-    if client is None:
-        # Graceful fallback: demo-mode response if AWS credentials not configured
+    candidates = _get_client_candidates()
+    if not candidates:
+        # Graceful fallback: demo-mode response if no live path is available
+        logger.info("stream_chat path=demo (no client configured)")
         yield _DEMO_FALLBACK.get(language, _DEMO_FALLBACK[Language.EN])
         return
 
@@ -76,24 +117,36 @@ async def stream_chat(
     messages = [{"role": m.role, "content": m.content} for m in trimmed_history]
     messages.append({"role": "user", "content": message})
 
-    streamed_any = False
-    try:
-        async with client.messages.stream(
-            model=BEDROCK_MODEL_ID,
-            max_tokens=1024,
-            system=system_prompt,
-            messages=messages,
-            timeout=TIMEOUT_SECONDS,
-        ) as stream:
-            async for text in stream.text_stream:
-                streamed_any = True
-                yield text
-    except Exception:
-        # Credentials missing/expired or network failure — degrade, never die mid-demo
-        if streamed_any:
-            yield _STREAM_INTERRUPTED.get(language, _STREAM_INTERRUPTED[Language.EN])
-        else:
-            yield _DEMO_FALLBACK.get(language, _DEMO_FALLBACK[Language.EN])
+    # Try Bedrock first, then the Anthropic direct API on failure.
+    for api_client, model_id, path in candidates:
+        streamed_any = False
+        try:
+            async with api_client.messages.stream(
+                model=model_id,
+                max_tokens=1024,
+                system=system_prompt,
+                messages=messages,
+                timeout=TIMEOUT_SECONDS,
+            ) as stream:
+                async for text in stream.text_stream:
+                    streamed_any = True
+                    yield text
+            logger.info("stream_chat path=%s", path)
+            return
+        except Exception as exc:
+            if streamed_any:
+                # Partial output already sent — retrying another provider would
+                # duplicate text, so surface an interruption instead.
+                logger.info("stream_chat path=%s interrupted mid-stream", path)
+                yield _STREAM_INTERRUPTED.get(language, _STREAM_INTERRUPTED[Language.EN])
+                return
+            # Failed before any text streamed — log and try the next candidate.
+            logger.warning("stream_chat path=%s failed before streaming: %s", path, exc)
+            continue
+
+    # Every live path failed before producing output — degrade, never die mid-demo.
+    logger.info("stream_chat path=demo (all providers failed)")
+    yield _DEMO_FALLBACK.get(language, _DEMO_FALLBACK[Language.EN])
 
 
 # Structured fallback when live analysis is unavailable — matches the response schema
@@ -234,24 +287,38 @@ async def generate_market_insights(language: Language) -> list:
         if current_time - cached_time < _INSIGHTS_CACHE_TTL:
             return cached_data
 
-    if client is None:
+    candidates = _get_client_candidates()
+    if not candidates:
+        logger.info("generate_market_insights path=demo (no client configured)")
         return _MOCK_INSIGHTS.get(language, _MOCK_INSIGHTS[Language.EN])
 
     system_prompt = get_system_prompt(language)
+    user_prompt = (
+        f"Give me 3 brief market insights for Indian retail investors today. "
+        f"Respond in {language.value}. Return as a JSON array of strings only, no markdown."
+    )
 
-    try:
-        response = await client.messages.create(
-            model=BEDROCK_MODEL_ID,
-            max_tokens=512,
-            system=system_prompt,
-            messages=[{
-                "role": "user",
-                "content": f"Give me 3 brief market insights for Indian retail investors today. Respond in {language.value}. Return as a JSON array of strings only, no markdown."
-            }],
-            timeout=TIMEOUT_SECONDS,
-        )
-    except Exception:
-        # Bedrock unreachable — serve mock insights, never 500
+    # Try Bedrock first, then the Anthropic direct API on failure.
+    response = None
+    for api_client, model_id, path in candidates:
+        try:
+            response = await api_client.messages.create(
+                model=model_id,
+                max_tokens=512,
+                system=system_prompt,
+                messages=[{"role": "user", "content": user_prompt}],
+                timeout=TIMEOUT_SECONDS,
+            )
+            logger.info("generate_market_insights path=%s", path)
+            break
+        except Exception as exc:
+            # Provider unreachable — log and try the next candidate.
+            logger.warning("generate_market_insights path=%s failed: %s", path, exc)
+            continue
+
+    if response is None:
+        # Every live path failed — serve mock insights, never 500.
+        logger.info("generate_market_insights path=demo (all providers failed)")
         return _MOCK_INSIGHTS.get(language, _MOCK_INSIGHTS[Language.EN])
 
     response_text = response.content[0].text.strip()
