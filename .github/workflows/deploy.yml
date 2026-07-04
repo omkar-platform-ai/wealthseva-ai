@@ -117,9 +117,10 @@ jobs:
           #   https://main.d123abc.amplifyapp.com,https://wealthseva.example.com
           # Falls back to localhost only so local-dev browsers can hit prod backend.
           CORS_ORIGINS: ${{ vars.CORS_ORIGINS || 'http://localhost:3000' }}
-          # Bedrock inference-profile ID (APAC Claude Sonnet 4.5). Passed explicitly
-          # so it wins over the Secrets Manager value; override via repo var if needed.
-          BEDROCK_MODEL_ID: ${{ vars.BEDROCK_MODEL_ID || 'apac.anthropic.claude-sonnet-4-5-20250929-v1:0' }}
+          # Bedrock inference-profile ID (APAC Claude Sonnet 4 — regional profile keeps
+          # inference in Asia-Pacific). Passed explicitly so it wins over the Secrets
+          # Manager value; override via repo var if needed.
+          BEDROCK_MODEL_ID: ${{ vars.BEDROCK_MODEL_ID || 'apac.anthropic.claude-sonnet-4-20250514-v1:0' }}
         run: |
           ssh -i /tmp/ec2_key.pem \
               -o StrictHostKeyChecking=no \
