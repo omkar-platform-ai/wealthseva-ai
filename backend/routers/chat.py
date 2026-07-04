@@ -8,6 +8,17 @@ from services.rag_service import retrieve_context, get_rag_status
 
 router = APIRouter()
 
+# Keep the token stream flowing incrementally instead of being buffered whole by
+# an intermediary. `X-Accel-Buffering: no` tells an nginx reverse proxy to skip
+# response buffering for this response (nginx defaults to proxy_buffering on,
+# which holds the full body → time-to-first-byte == total, killing progressive
+# typing). `Cache-Control: no-cache` stops any layer from holding the stream to
+# cache it. Harmless if no such proxy is present. See WEA-60.
+_STREAM_HEADERS = {
+    "Cache-Control": "no-cache",
+    "X-Accel-Buffering": "no",
+}
+
 # Compliance: recommend fund *categories*, never specific fund names (see system prompt rules)
 _DEMO_SIP_HINDI = (
     "रमेश जी, ₹5,000 प्रति माह के SIP से 10 साल में लगभग ₹11.6 लाख बनेंगे। "
@@ -28,7 +39,7 @@ async def chat(req: ChatRequest):
         return StreamingResponse(
             demo_stream(),
             media_type="text/plain",
-            headers={"X-Detected-Language": "hi"},
+            headers={**_STREAM_HEADERS, "X-Detected-Language": "hi"},
         )
 
     # Detect language from input, fall back to user preference
@@ -43,7 +54,7 @@ async def chat(req: ChatRequest):
             yield chunk
 
     return StreamingResponse(generate(), media_type="text/plain",
-                              headers={"X-Detected-Language": effective_lang.value})
+                              headers={**_STREAM_HEADERS, "X-Detected-Language": effective_lang.value})
 
 
 @router.get("/rag/status")
