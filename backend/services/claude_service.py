@@ -34,7 +34,7 @@ TIMEOUT_SECONDS = 10
 # When running on EC2/Lambda with IAM role, boto3 automatically finds credentials
 # When running locally, AWS credentials must be configured in ~/.aws/credentials or env vars
 try:
-    import boto3
+    import boto3  # noqa: F401
     _aws_credentials_available = True
 except ImportError:
     _aws_credentials_available = False

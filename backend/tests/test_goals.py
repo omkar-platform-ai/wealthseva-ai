@@ -1,8 +1,7 @@
 """
 Tests for goals router: GET /api/goals/presets, POST /api/goals, _compute_projection().
 """
-import pytest
-from datetime import date, timedelta
+from datetime import date
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from main import app

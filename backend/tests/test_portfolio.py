@@ -2,10 +2,7 @@
 Portfolio analyzer endpoint tests.
 Tests JSON response structure, language support, and sample CSV generation.
 """
-import pytest
-import pandas as pd
 from fastapi.testclient import TestClient
-from io import BytesIO
 import sys
 import os
 
