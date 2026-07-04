@@ -7,14 +7,31 @@ from langdetect import detect, LangDetectException
 from models.schemas import Language
 
 
-# ElevenLabs voice IDs per language — set in .env
-VOICE_MAP: dict[str, str] = {
-    "en": os.getenv("ELEVENLABS_VOICE_EN", ""),
-    "hi": os.getenv("ELEVENLABS_VOICE_HI", ""),
-    "mr": os.getenv("ELEVENLABS_VOICE_MR", ""),
-    "ta": os.getenv("ELEVENLABS_VOICE_TA", ""),
-    "bn": os.getenv("ELEVENLABS_VOICE_BN", ""),
+# ElevenLabs voice IDs per language — provisioned via environment / AWS Secrets
+# Manager. Two key-naming conventions exist across environments, so we read the
+# canonical name (documented in .env.example) first and fall back to the legacy
+# name used in the production secret. Reading only one convention leaves
+# VOICE_MAP empty in the other environment, which collapses every language to a
+# single browser-TTS voice (WEA-65).
+_VOICE_ENV_KEYS: dict[str, tuple[str, ...]] = {
+    "en": ("ELEVENLABS_VOICE_EN", "ELEVENLABS_VOICE_ID_ENGLISH"),
+    "hi": ("ELEVENLABS_VOICE_HI", "ELEVENLABS_VOICE_ID_HINDI"),
+    "mr": ("ELEVENLABS_VOICE_MR", "ELEVENLABS_VOICE_ID_MARATHI"),
+    "ta": ("ELEVENLABS_VOICE_TA", "ELEVENLABS_VOICE_ID_TAMIL"),
+    "bn": ("ELEVENLABS_VOICE_BN", "ELEVENLABS_VOICE_ID_BENGALI"),
 }
+
+
+def _resolve_voice_id(lang_code: str) -> str:
+    """Return the first non-empty voice ID configured for `lang_code`."""
+    for env_key in _VOICE_ENV_KEYS.get(lang_code, ()):
+        value = os.getenv(env_key, "").strip()
+        if value:
+            return value
+    return ""
+
+
+VOICE_MAP: dict[str, str] = {lang: _resolve_voice_id(lang) for lang in _VOICE_ENV_KEYS}
 
 # Map langdetect codes → our Language enum
 LANGDETECT_MAP: dict[str, Language] = {
@@ -53,5 +70,11 @@ def get_system_prompt(language: Language) -> str:
 
 
 def get_voice_id(language: Language) -> str:
-    """Get ElevenLabs voice ID for the given language."""
-    return VOICE_MAP.get(language.value, VOICE_MAP["en"])
+    """Get the ElevenLabs voice ID for the given language.
+
+    Falls back to the English voice when the requested language has no voice ID
+    configured; if English is also unset, returns "" and the /api/tts router
+    drops to browser speechSynthesis (never a 500). The ``or`` handles the
+    empty-string case, which ``dict.get(key, default)`` alone would not.
+    """
+    return VOICE_MAP.get(language.value) or VOICE_MAP.get("en", "")
