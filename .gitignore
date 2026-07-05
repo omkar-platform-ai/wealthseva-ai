@@ -66,3 +66,6 @@ headroom_memory.db
 .serena
 VALIDATION_REPORT.md
 memory/
+
+# repowise API keys (local)
+.repowise/.env
