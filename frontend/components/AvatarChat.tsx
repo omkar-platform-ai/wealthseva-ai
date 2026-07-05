@@ -1,14 +1,25 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Mic, Send, Volume2, VolumeX } from 'lucide-react';
+import { Mic, Send, Volume2, VolumeX, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { speak, createRecognizer, SpeakHandle, Recognizer } from '@/lib/voice';
+import { useRouter, usePathname } from '../navigation';
 
 interface Message {
-  role: 'user' | 'assistant';
+  // 'divider' entries mark a mid-conversation language switch; they are
+  // rendered as a thread separator and never sent to the backend.
+  role: 'user' | 'assistant' | 'divider';
   content: string;
 }
+
+const NATIVE_NAMES: Record<string, string> = {
+  en: 'English',
+  hi: 'हिंदी',
+  mr: 'मराठी',
+  ta: 'தமிழ்',
+  bn: 'বাংলা',
+};
 interface HealthStatus {
   healthy: boolean;
   loading: boolean;
@@ -20,7 +31,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:800
 export default function AvatarChat() {
   const t = useTranslations('advisor');
   const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [suggestedLocale, setSuggestedLocale] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<HealthStatus>({ healthy: true, loading: false });
@@ -70,13 +84,20 @@ export default function AvatarChat() {
     setSttSupported(typeof (w.SpeechRecognition ?? w.webkitSpeechRecognition) === 'function');
   }, []);
 
-  // Reset chat on locale change
+  // Keep the conversation across locale switches — switching language
+  // mid-conversation must NOT lose context (demo priority #1). Only the
+  // audio stops; a divider marks where the language changed.
+  const prevLocaleRef = useRef(locale);
   useEffect(() => {
-    setMessages([]);
-    setShowChips(true);
+    if (prevLocaleRef.current === locale) return;
+    prevLocaleRef.current = locale;
+    setSuggestedLocale(null);
     speakRef.current?.stop();
     speakRef.current = null;
     recognizerRef.current?.stop();
+    const divider = t('continuity_divider', { language: NATIVE_NAMES[locale] ?? locale });
+    setMessages(prev => (prev.length === 0 ? prev : [...prev, { role: 'divider', content: divider }]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
   useEffect(() => {
@@ -107,9 +128,18 @@ export default function AvatarChat() {
           message: messageToSend,
           session_id: 'demo-session',
           language: locale,
-          history: updatedMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
+          history: updatedMessages
+            .filter(m => m.role !== 'divider')
+            .slice(-10)
+            .map(m => ({ role: m.role, content: m.content })),
         }),
       });
+
+      // The language Shreya actually replied in (may differ from the UI
+      // locale when the user typed in another language) — drives the TTS
+      // voice and the "switch app language?" continuity chip.
+      const detected = response.headers.get('X-Detected-Language');
+      const replyLang = detected && NATIVE_NAMES[detected] ? detected : locale;
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -128,9 +158,11 @@ export default function AvatarChat() {
         });
       }
 
+      setSuggestedLocale(replyLang !== locale ? replyLang : null);
+
       if (voiceOnRef.current && reply) {
         setAvatarState('speaking');
-        speakRef.current = await speak(reply, locale, () => setAvatarState('idle'));
+        speakRef.current = await speak(reply, replyLang, () => setAvatarState('idle'));
       }
     } catch (err) {
       setMessages(prev => [...prev, { role: 'assistant', content: t('error' as never) }]);
@@ -164,13 +196,7 @@ export default function AvatarChat() {
     : avatarState === 'speaking' ? t('speaking' as never)
     : loading ? 'Typing…'
     : (
-      <>IDBI Wealth Advisor · {locale.toUpperCase()} · {
-        locale === 'en' ? 'English' :
-        locale === 'hi' ? 'हिंदी' :
-        locale === 'mr' ? 'मराठी' :
-        locale === 'ta' ? 'தமிழ்' :
-        locale === 'bn' ? 'বাংলা' : locale.toUpperCase()
-      }</>
+      <>IDBI Wealth Advisor · {locale.toUpperCase()} · {NATIVE_NAMES[locale] ?? locale.toUpperCase()}</>
     );
 
   return (
@@ -234,6 +260,13 @@ export default function AvatarChat() {
           </div>
         )}
         {messages.map((msg, i) => (
+          msg.role === 'divider' ? (
+            <div key={i} className="flex items-center gap-3 py-1" role="separator">
+              <span className="flex-1 h-px bg-idbi-line" />
+              <span className="text-[11px] font-medium text-idbi-faint">{msg.content}</span>
+              <span className="flex-1 h-px bg-idbi-line" />
+            </div>
+          ) : (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[76%] px-4 py-3 rounded-[18px] text-sm leading-relaxed ${
               msg.role === 'user'
@@ -249,9 +282,37 @@ export default function AvatarChat() {
               )}
             </div>
           </div>
+          )
         ))}
         <div ref={bottomRef} />
       </div>
+
+      {/* Language-continuity chip: Shreya replied in a language other than the
+          UI locale — offer a one-tap switch (conversation is preserved). */}
+      {suggestedLocale && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-3.5 mb-2 flex items-center gap-2.5 bg-idbi-light rounded-[13px] px-3.5 py-2.5"
+        >
+          <p className="flex-1 text-[12.5px] font-medium text-idbi-slate">
+            {t('continuity_prompt', { language: NATIVE_NAMES[suggestedLocale] })}
+          </p>
+          <button
+            onClick={() => router.push(pathname, { locale: suggestedLocale })}
+            className="shrink-0 text-[12.5px] font-bold text-white bg-idbi-green px-3.5 py-1.5 rounded-full hover:bg-idbi-dark transition-colors"
+          >
+            {t('continuity_switch')}
+          </button>
+          <button
+            onClick={() => setSuggestedLocale(null)}
+            aria-label={t('continuity_dismiss')}
+            className="shrink-0 text-idbi-faint hover:text-idbi-slate transition-colors"
+          >
+            <X size={14} />
+          </button>
+        </motion.div>
+      )}
 
       {/* Input */}
       <div className="border-t border-idbi-line p-3.5 flex gap-2.5 items-center bg-white">
