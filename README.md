@@ -2,7 +2,7 @@
 
 > WealthSeva AI — Avatar-based multilingual wealth advisor for IDBI Bank customers
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-WealthSeva-brightgreen)](https://github.com/omkar-platform-ai/wealthseva-ai)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-WealthSeva-brightgreen)](https://main.d13rdix674q29k.amplifyapp.com/dashboard)
 [![CI](https://github.com/omkar-platform-ai/wealthseva-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/omkar-platform-ai/wealthseva-ai/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
@@ -33,6 +33,7 @@ The key differentiator is the combination that has never been delivered together
 - [Deployment](#deployment)
 - [RBI Compliance Note](#rbi-compliance-note)
 - [Project Structure](#project-structure)
+- [Navigating the Codebase](#navigating-the-codebase)
 - [Hackathon Context](#hackathon-context)
 
 ---
@@ -70,6 +71,48 @@ WealthSeva is a decoupled two-service architecture: a **Next.js 14** frontend an
                                    │
         Amazon Bedrock (Claude)  ·  ElevenLabs  ·  Pinecone  ·  Supabase
 ```
+
+### Component Diagram
+
+```mermaid
+graph TD
+    subgraph FE["Next.js 14 Frontend · AWS Amplify"]
+        UI["AvatarChat · Dashboard · GoalPlanner · RiskQuiz<br/>LanguageSwitcher EN · HI · MR · TA · BN"]
+    end
+
+    subgraph BE["FastAPI Backend · Python 3.12 · ap-south-1"]
+        RT["Routers<br/>chat · portfolio · risk · goals<br/>insights · idbi · tts"]
+        SV["Services<br/>claude · language · rag · risk"]
+    end
+
+    BR["Amazon Bedrock<br/>Claude Sonnet"]
+    EL["ElevenLabs<br/>voice synthesis"]
+    PC["Pinecone<br/>per-language RAG"]
+    SB["Supabase<br/>profiles · sessions"]
+    IDBI["IDBI Sandbox<br/>datasets"]
+
+    UI -->|HTTP / SSE| RT
+    RT --> SV
+    SV --> BR
+    SV --> PC
+    SV --> SB
+    RT --> EL
+    RT --> IDBI
+```
+
+### Request Flows
+
+1. **Risk Assessment** — `RiskQuiz.tsx` collects 5 answers → `POST /api/risk-profile` → `risk_service` scores them → returns a Conservative / Moderate / Aggressive profile with a recommended allocation.
+2. **Goal Planning** — `GoalPlanner.tsx` submits a goal → `POST /api/goals` → `claude_service` (Amazon Bedrock) synthesizes a plan → returns an SIP + savings schedule.
+3. **Conversational Chat** — `AvatarChat.tsx` sends a message → `POST /api/chat` → `language_service` detects the language → `rag_service` retrieves IDBI context from the matching Pinecone namespace → `claude_service` streams the grounded reply → ElevenLabs renders it as avatar voice.
+4. **Localization** — `LanguageSwitcher` changes the next-intl locale route → UI strings load from `messages/{locale}.json` and Claude loads the matching `ai/system_prompts/wealth_advisor_{locale}.md`.
+
+### Architectural Patterns
+
+- **Layered architecture** — presentation (Next.js / React) → application (FastAPI service layer) → data (Pydantic schemas + external AI/data services).
+- **Service-oriented backend** — `claude_service`, `language_service`, `rag_service`, and `risk_service` are decoupled and independently testable.
+- **Component-based UI** — page routes compose self-contained feature components (AvatarChat, GoalPlanner, RiskQuiz) and shared primitives (Navbar, LanguageSwitcher).
+- **Internationalization** — locale-based routing (`app/[locale]`), per-locale message catalogs, and a persistent language switcher across all 5 languages.
 
 ---
 
@@ -236,7 +279,7 @@ npm run build         # Production build (catches missing env vars and import er
 
 ## Deployment
 
-The live demo runs on **AWS EC2** (backend, `ap-south-1`) + **Vercel** (frontend). See `docs/solution_document.md` for the full architecture write-up.
+The live demo runs on **AWS EC2** (backend, `ap-south-1`) + **AWS Amplify** (frontend). See `docs/solution_document.md` for the full architecture write-up.
 
 ### Backend (AWS EC2)
 
@@ -250,12 +293,15 @@ pip install -r requirements.txt
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
-### Frontend (Vercel)
+### Frontend (AWS Amplify)
+
+The frontend deploys to **AWS Amplify**. A push to `main` triggers an automatic build and deploy (see `.github/workflows/deploy.yml`); Amplify builds the `frontend/` app per the root `amplify.yml`.
 
 ```bash
-cd frontend
-npx vercel --prod
-# Set NEXT_PUBLIC_BACKEND_URL to your EC2 backend URL in the Vercel dashboard
+# One-time: connect the repo in the Amplify console (build root: frontend/),
+# then set the backend URL under App settings > Environment variables:
+NEXT_PUBLIC_BACKEND_URL=<your EC2 backend URL>
+# Every subsequent push to main deploys automatically.
 ```
 
 ### Index IDBI Datasets (post-shortlist)
@@ -294,14 +340,17 @@ wealthseva-ai/
 │   ├── middleware.ts        # Locale routing
 │   └── package.json
 ├── backend/                # FastAPI + Python 3.12
-│   ├── main.py             # App factory, CORS, rate limiting
-│   ├── routers/            # chat, portfolio, risk, insights, goals, idbi
+│   ├── main.py             # App factory, CORS, rate limiting, /health
+│   ├── start.py            # Container entrypoint (loads .env / AWS Secrets Manager, runs uvicorn)
+│   ├── routers/            # chat, portfolio, risk, insights, goals, idbi, tts
 │   ├── services/
 │   │   ├── claude_service.py    # Bedrock streaming, portfolio analysis, goal planning
 │   │   ├── language_service.py  # Language detection, prompt routing, voice mapping
-│   │   └── rag_service.py       # Pinecone retrieval (per-language namespaces)
+│   │   ├── rag_service.py       # Pinecone retrieval (per-language namespaces)
+│   │   └── risk_service.py      # Risk scoring + recommended allocation
 │   ├── models/schemas.py        # Pydantic models
 │   ├── tests/                   # pytest suite (7 files)
+│   ├── Dockerfile               # Python 3.12-slim, runs start.py on port 8000
 │   └── requirements.txt
 ├── ai/
 │   ├── system_prompts/     # wealth_advisor_{en,hi,mr,ta,bn}.md — RBI-compliant prompts
@@ -317,6 +366,29 @@ wealthseva-ai/
 └── README.md
 ```
 
+### Module Map
+
+| Area | Purpose | Key files |
+|---|---|---|
+| **Backend Services** | Core AI & business logic | `claude_service`, `language_service`, `rag_service`, `risk_service` |
+| **Frontend Advisor** | Main avatar experience | `advisor/page`, `AvatarChat`, `EscalateAdvisorModal`, `ConsentGate` |
+| **Navigation & i18n** | Routing & localization | `navigation.ts`, `i18n.ts`, `middleware.ts`, `LanguageSwitcher` |
+| **UI Components** | Shared UI elements | `Navbar`, `MobileBottomNav`, `PortfolioCard`, `FadeIn` |
+| **Server & Testing** | Backend infrastructure | `main.py`, `start.py`, `routers/`, `tests/` |
+| **Risk & Goals** | Financial planning features | `RiskQuiz`, `RiskProfileBadge`, `GoalPlanner` |
+
+---
+
+## Navigating the Codebase
+
+New to the project? Follow this path to get oriented quickly:
+
+1. **Understand the data contracts** — read `backend/models/schemas.py` to see every request/response shape crossing the API boundary.
+2. **Trace one request end to end** — follow a risk submission from `frontend/components/RiskQuiz.tsx` → `backend/routers/risk.py` → `backend/services/risk_service.py` → response.
+3. **Tour the services** — each file in `backend/services/` is independently testable; start with `language_service.py` (simplest), then `claude_service.py` (the Bedrock + streaming core).
+4. **Frontend entry points** — `RiskQuiz.tsx` shows the component + i18n patterns; `AvatarChat.tsx` shows the streaming chat + voice integration.
+5. **Run it locally** — launch the API via `backend/start.py` (or `uvicorn main:app`) and the UI with `npm run dev` from `frontend/`. See [Local Development Setup](#local-development-setup).
+
 ---
 
 ## Tech Stack
@@ -331,7 +403,7 @@ wealthseva-ai/
 | Language detection | langdetect (offline, 55 languages) |
 | RAG | LangChain + Pinecone (per-language namespaces) |
 | Database | Supabase (PostgreSQL + Auth) |
-| Cloud | AWS EC2 ap-south-1 (backend) + Vercel (frontend) |
+| Cloud | AWS EC2 ap-south-1 (backend) + AWS Amplify (frontend) |
 | CI/CD | GitHub Actions — lint + test on PR; deploy on main |
 
 ---
