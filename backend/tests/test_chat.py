@@ -136,3 +136,29 @@ class TestDetectedLanguageHeader:
         # Without this, browsers hide the header from fetch() cross-origin
         exposed = response.headers.get("access-control-expose-headers", "")
         assert "x-detected-language" in exposed.lower()
+
+
+class TestAccountContextInjection:
+    """Chat grounds replies in the customer's IDBI account snapshot."""
+
+    @pytest.mark.asyncio
+    async def test_system_prompt_carries_account_data(self):
+        mock_bedrock = MagicMock()
+        mock_stream = AsyncMock()
+        mock_stream.text_stream.__aiter__ = AsyncMock(return_value=iter(["ok"]))
+        mock_stream.__aenter__ = AsyncMock(return_value=mock_stream)
+        mock_stream.__aexit__ = AsyncMock()
+        mock_bedrock.messages.stream.return_value = mock_stream
+
+        with patch('services.claude_service.client', mock_bedrock):
+            response = client.post("/api/chat", json={
+                "message": "Where is my money parked?",
+                "session_id": "test-123",
+                "language": "en",
+            })
+
+            assert response.status_code == 200
+            system_prompt = mock_bedrock.messages.stream.call_args[1]['system']
+            assert "## Customer IDBI Account Data" in system_prompt
+            # Ramesh's idle-cash position must be visible to the model
+            assert "ICICI Pru Liquid Fund" in system_prompt
