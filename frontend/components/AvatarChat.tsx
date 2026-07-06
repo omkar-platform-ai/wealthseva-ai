@@ -89,21 +89,38 @@ export default function AvatarChat({ initialMessage }: Props) {
     setSttSupported(typeof (w.SpeechRecognition ?? w.webkitSpeechRecognition) === 'function');
   }, []);
 
-  // Keep the conversation across locale switches — switching language
-  // mid-conversation must NOT lose context (demo priority #1). Only the
-  // audio stops; a divider marks where the language changed.
-  const prevLocaleRef = useRef(locale);
+  // Persist messages to sessionStorage so they survive locale-switch remounts.
+  // On mount: restore history; if the locale changed since last visit, insert
+  // a divider so the thread stays intact with a visual marker.
   useEffect(() => {
-    if (prevLocaleRef.current === locale) return;
-    prevLocaleRef.current = locale;
-    setSuggestedLocale(null);
-    speakRef.current?.stop();
-    speakRef.current = null;
-    recognizerRef.current?.stop();
-    const divider = t('continuity_divider', { language: NATIVE_NAMES[locale] ?? locale });
-    setMessages(prev => (prev.length === 0 ? prev : [...prev, { role: 'divider', content: divider }]));
+    try {
+      const stored = sessionStorage.getItem('ws_chat_messages');
+      const lastLocale = sessionStorage.getItem('ws_chat_last_locale');
+      if (stored) {
+        const parsed: Message[] = JSON.parse(stored);
+        if (parsed.length > 0 && lastLocale && lastLocale !== locale) {
+          const divider = t('continuity_divider', { language: NATIVE_NAMES[locale] ?? locale });
+          setMessages([...parsed, { role: 'divider', content: divider }]);
+        } else {
+          setMessages(parsed);
+        }
+      }
+    } catch {
+      // sessionStorage unavailable (private mode, SSR guard)
+    }
+    sessionStorage.setItem('ws_chat_last_locale', locale);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  }, []);
+
+  // Keep sessionStorage in sync on every messages change
+  useEffect(() => {
+    if (messages.length === 0) return;
+    try {
+      sessionStorage.setItem('ws_chat_messages', JSON.stringify(messages));
+    } catch {
+      // quota exceeded or unavailable
+    }
+  }, [messages]);
 
   useEffect(() => {
     return () => {
