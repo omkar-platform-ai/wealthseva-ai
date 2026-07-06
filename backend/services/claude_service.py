@@ -168,50 +168,40 @@ _PORTFOLIO_FALLBACK = {
 
 async def analyze_portfolio(portfolio_data: dict, language: Language) -> dict:
     """Analyze a portfolio and return structured recommendations as JSON."""
-    if client is None:
+    candidates = _get_client_candidates()
+    if not candidates:
         return dict(_PORTFOLIO_FALLBACK)
 
     system_prompt = get_system_prompt(language)
-    
-    # Add strict JSON output instruction
-    json_instruction = """
-    
-IMPORTANT: You must respond with ONLY a valid JSON object. No markdown, no explanation, no additional text.
-Your response must be exactly in this format:
-{
-    "summary": "One sentence overview of the portfolio",
-    "recommendations": ["Recommendation 1", "Recommendation 2", "Recommendation 3"],
-    "sip_suggestion": "Specific fund category and amount suggestion"
-}
+    json_instruction = (
+        "\n\nIMPORTANT: Respond with ONLY a valid JSON object — no markdown, no extra text.\n"
+        'Format: {"summary": "...", "recommendations": ["...", "...", "..."], "sip_suggestion": "..."}\n'
+        "Respond in the language matching the user's input."
+    )
+    user_prompt = (
+        f"Analyze this portfolio and provide structured recommendations:\n\n{portfolio_data}\n{json_instruction}"
+    )
 
-Respond in the language matching the user's input.
-"""
-    
-    enhanced_prompt = f"""Analyze this portfolio and provide structured recommendations:
+    response = None
+    for api_client, model_id, path in candidates:
+        try:
+            response = await api_client.messages.create(
+                model=model_id,
+                max_tokens=1024,
+                system=system_prompt + json_instruction,
+                messages=[{"role": "user", "content": user_prompt}],
+                timeout=TIMEOUT_SECONDS,
+            )
+            logger.info("analyze_portfolio path=%s", path)
+            break
+        except Exception as exc:
+            logger.warning("analyze_portfolio path=%s failed: %s", path, exc)
+            continue
 
-Portfolio Data:
-{portfolio_data}
-
-{json_instruction}"""
-
-    try:
-        response = await client.messages.create(
-            model=BEDROCK_MODEL_ID,
-            max_tokens=1024,
-            system=system_prompt + json_instruction,
-            messages=[{
-                "role": "user",
-                "content": enhanced_prompt
-            }],
-            timeout=TIMEOUT_SECONDS,
-        )
-    except Exception:
-        # Bedrock unreachable (bad credentials, network) — degrade, never 500
+    if response is None:
         return dict(_PORTFOLIO_FALLBACK)
 
     response_text = response.content[0].text.strip()
-
-    # Remove markdown code blocks if present
     if response_text.startswith("```json"):
         response_text = response_text.replace("```json", "").replace("```", "").strip()
     elif response_text.startswith("```"):
@@ -220,35 +210,39 @@ Portfolio Data:
     try:
         return json.loads(response_text)
     except json.JSONDecodeError:
-        # Fallback if JSON parsing fails
         return {
             "summary": response_text[:200],
             "recommendations": ["Review portfolio allocation", "Consider diversification", "Rebalance periodically"],
-            "sip_suggestion": "Consider starting with ₹5000/month in a balanced fund"
+            "sip_suggestion": "Consider starting with ₹5000/month in a balanced fund category",
         }
 
 
 async def generate_goal_plan(goals: list[dict], language: Language) -> str:
     """Generate a savings plan for the user's financial goals."""
-    if client is None:
-        return "I apologize, but I'm currently unable to generate your goal plan. Please ensure AWS credentials are properly configured."
+    candidates = _get_client_candidates()
+    if not candidates:
+        return "I'm unable to generate your goal plan right now — live AI is unavailable. The Goal Planner still shows deterministic SIP projections above."
 
     system_prompt = get_system_prompt(language)
+    response = None
+    for api_client, model_id, path in candidates:
+        try:
+            response = await api_client.messages.create(
+                model=model_id,
+                max_tokens=2048,
+                system=system_prompt,
+                messages=[{"role": "user", "content": f"Create a detailed savings and investment plan for these goals:\n\n{goals}"}],
+                timeout=TIMEOUT_SECONDS,
+            )
+            logger.info("generate_goal_plan path=%s", path)
+            break
+        except Exception as exc:
+            logger.warning("generate_goal_plan path=%s failed: %s", path, exc)
+            continue
 
-    try:
-        response = await client.messages.create(
-            model=BEDROCK_MODEL_ID,
-            max_tokens=2048,
-            system=system_prompt,
-            messages=[{
-                "role": "user",
-                "content": f"Create a detailed savings and investment plan for these goals:\n\n{goals}"
-            }],
-            timeout=TIMEOUT_SECONDS,
-        )
-        return response.content[0].text
-    except Exception:
+    if response is None:
         return "I'm unable to generate your goal plan right now. Please try again in a moment."
+    return response.content[0].text
 
 
 # Mock insights per language — used when live AI is unavailable
@@ -354,24 +348,28 @@ async def generate_market_insights(language: Language) -> list:
 async def generate_risk_explanation(profile: str, score: int, allocation: dict, language: Language) -> str:
     """Generate a personalized explanation for the risk profile."""
     fallback = f"Your risk profile is {profile} with a score of {score}. We recommend an allocation of {allocation}."
-    if client is None:
+    candidates = _get_client_candidates()
+    if not candidates:
         return fallback
 
     system_prompt = get_system_prompt(language)
+    response = None
+    for api_client, model_id, path in candidates:
+        try:
+            response = await api_client.messages.create(
+                model=model_id,
+                max_tokens=256,
+                system=system_prompt,
+                messages=[{"role": "user", "content": f"Explain in one sentence why a {profile} investor with score {score} should use this allocation: {allocation}"}],
+                timeout=TIMEOUT_SECONDS,
+            )
+            logger.info("generate_risk_explanation path=%s", path)
+            break
+        except Exception as exc:
+            logger.warning("generate_risk_explanation path=%s failed: %s", path, exc)
+            continue
 
-    try:
-        response = await client.messages.create(
-            model=BEDROCK_MODEL_ID,
-            max_tokens=256,
-            system=system_prompt,
-            messages=[{
-                "role": "user",
-                "content": f"Explain in one sentence why a {profile} investor with score {score} should use this allocation: {allocation}"
-            }],
-            timeout=TIMEOUT_SECONDS,
-        )
-        return response.content[0].text
-    except Exception:
-        # Bedrock unreachable — quiz result must still render, never 500
+    if response is None:
         return fallback
+    return response.content[0].text
 
