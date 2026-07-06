@@ -12,10 +12,20 @@ interface AnalysisResult { summary: string; recommendations: string[]; sip_sugge
 // On-brand chart palette (green / teal / orange family).
 const COLORS = ['#00836C', '#4FA9A7', '#F37021', '#F5C36B', '#307360'];
 
+// Sample portfolio variants — value is the backend ?variant= key, labelKey the i18n key.
+const SAMPLE_VARIANTS = [
+  { variant: 'balanced', labelKey: 'sample_balanced' },
+  { variant: 'conservative', labelKey: 'sample_conservative' },
+  { variant: 'aggressive', labelKey: 'sample_aggressive' },
+  { variant: 'idle_cash', labelKey: 'sample_idle_cash' },
+  { variant: 'beginner', labelKey: 'sample_beginner' },
+] as const;
+
 export default function PortfolioCard() {
   const t = useTranslations('portfolio');
   const locale = useLocale();
   const [analyzing, setAnalyzing] = useState(false);
+  const [sampleMenuOpen, setSampleMenuOpen] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [allocationData, setAllocationData] = useState<Array<{ category: string; value: number }>>([]);
   const [error, setError] = useState<string>('');
@@ -79,13 +89,13 @@ export default function PortfolioCard() {
   };
 
   // ---- Backend wiring: GET /api/portfolio/sample ----
-  const handleSampleUpload = async () => {
+  const handleSampleUpload = async (variant: string) => {
     setError('');
     setAnalyzing(true);
     setAnalysis(null);
     setAllocationData([]);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio/sample`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio/sample?variant=${variant}`);
       if (!res.ok) throw new Error('Failed to fetch sample portfolio');
       const blob = await res.blob();
       const file = new File([blob], 'sample_portfolio.csv', { type: 'text/csv' });
@@ -114,14 +124,41 @@ export default function PortfolioCard() {
           <h2 className="text-lg font-bold text-idbi-ink">{t('title')}</h2>
           <p className="mt-1 text-[12.5px] text-idbi-muted">{t('subtitle')}</p>
         </div>
-        <button
-          onClick={handleSampleUpload}
-          disabled={analyzing}
-          className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-idbi-orange text-white rounded-[11px] hover:bg-idbi-orangeDark disabled:opacity-50 disabled:cursor-not-allowed text-[13px] font-bold transition-colors shadow-[0_8px_18px_-8px_rgba(243,112,33,.7)]"
-        >
-          <Zap size={15} strokeWidth={2.2} />
-          {t('sample_button')}
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setSampleMenuOpen((o) => !o)}
+            disabled={analyzing}
+            aria-label={t('sample_menu_label')}
+            aria-haspopup="menu"
+            aria-expanded={sampleMenuOpen}
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-idbi-orange text-white rounded-[11px] hover:bg-idbi-orangeDark disabled:opacity-50 disabled:cursor-not-allowed text-[13px] font-bold transition-colors shadow-[0_8px_18px_-8px_rgba(243,112,33,.7)]"
+          >
+            <Zap size={15} strokeWidth={2.2} />
+            {t('sample_button')}
+            <span className="text-[10px]">▼</span>
+          </button>
+
+          {sampleMenuOpen && (
+            <div
+              role="menu"
+              className="absolute right-0 mt-2 w-52 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 z-50"
+            >
+              {SAMPLE_VARIANTS.map(({ variant, labelKey }) => (
+                <button
+                  key={variant}
+                  role="menuitem"
+                  onClick={() => {
+                    setSampleMenuOpen(false);
+                    handleSampleUpload(variant);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-[13px] text-gray-900 hover:bg-idbi-light hover:text-idbi-green transition-colors first:rounded-t-xl last:rounded-b-xl"
+                >
+                  {t(labelKey)}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div

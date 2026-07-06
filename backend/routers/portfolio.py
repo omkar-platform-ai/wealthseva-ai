@@ -11,6 +11,42 @@ router = APIRouter()
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
 REQUIRED_COLUMNS = {"Ticker", "Category", "Value", "Units"}
 
+# Sample portfolios for the "Try with Sample" picker. Each is a tiny CSV with
+# columns Ticker,Category,Value,Units. Value/Units are PLAIN numbers (no ₹, no
+# thousands commas) so PapaParse dynamicTyping reads them as numerics, and no
+# commas appear inside fund names (a comma would shift columns and break parsing).
+SAMPLE_PORTFOLIOS: dict[str, str] = {
+    # Ramesh persona — pinned to MOCK_PORTFOLIO (total ₹5,09,620, idle-cash story).
+    "balanced": """Ticker,Category,Value,Units
+HDFC Flexi Cap Fund,Flexi Cap Equity,114240,60
+SBI Blue Chip Fund,Large Cap Equity,61880,703.18
+HDFC Short Term Debt Fund,Short Duration Debt,84200,2854.24
+SBI Gold ETF,Gold ETF,9300,150
+ICICI Pru Liquid Fund,Liquid,240000,640""",
+    # Capital preservation ~₹5.0L — corporate bond / gilt / liquid heavy + small large cap.
+    "conservative": """Ticker,Category,Value,Units
+HDFC Corporate Bond Fund,Corporate Bond,200000,6666.67
+SBI Magnum Gilt Fund,Gilt,130000,2000
+ICICI Pru Liquid Fund,Liquid,120000,320
+SBI Blue Chip Fund,Large Cap Equity,50000,568.18""",
+    # Growth ~₹6.0L — flexi / small / mid / international equity + small debt.
+    "aggressive": """Ticker,Category,Value,Units
+HDFC Flexi Cap Fund,Flexi Cap Equity,180000,94.54
+Nippon Small Cap Fund,Small Cap Equity,150000,833.33
+Kotak Emerging Equity Fund,Mid Cap Equity,130000,1083.33
+Motilal Oswal Nasdaq 100 FOF,International Equity,90000,2250
+HDFC Short Term Debt Fund,Short Duration Debt,50000,1694.92""",
+    # Exaggerated idle-cash story ~₹5.5L — ~90% liquid / overnight.
+    "idle_cash": """Ticker,Category,Value,Units
+ICICI Pru Liquid Fund,Liquid,350000,933.33
+SBI Overnight Fund,Overnight,150000,125
+HDFC Flexi Cap Fund,Flexi Cap Equity,50000,26.26""",
+    # First-timer ~₹35k — 2 funds: index equity + liquid.
+    "beginner": """Ticker,Category,Value,Units
+UTI Nifty 50 Index Fund,Index Equity,25000,192.31
+ICICI Pru Liquid Fund,Liquid,10000,26.67""",
+}
+
 
 @router.post("/portfolio")
 async def analyze_portfolio_endpoint(
@@ -59,12 +95,13 @@ async def analyze_portfolio_endpoint(
 
 
 @router.get("/portfolio/sample")
-async def get_sample_portfolio():
-    """Get a sample portfolio CSV for testing."""
-    csv_content = """Ticker,Category,Value,Units
-HDFC Top 100,Large Cap Equity,50000,120
-ICICI Prudential Gilt,Debt,30000,450
-SBI Liquid Fund,Liquid,20000,200"""
+async def get_sample_portfolio(variant: str = "balanced"):
+    """Get a sample portfolio CSV for testing.
+
+    `variant` selects one of the SAMPLE_PORTFOLIOS. An unknown variant falls
+    back to `balanced` so a typo never breaks the on-stage demo flow.
+    """
+    csv_content = SAMPLE_PORTFOLIOS.get(variant, SAMPLE_PORTFOLIOS["balanced"])
 
     return Response(
         content=csv_content,

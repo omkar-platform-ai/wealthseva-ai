@@ -3,8 +3,12 @@ Portfolio analyzer endpoint tests.
 Tests JSON response structure, language support, and sample CSV generation.
 """
 from fastapi.testclient import TestClient
+import io
 import sys
 import os
+
+import pandas as pd
+import pytest
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -67,8 +71,11 @@ def test_post_portfolio_hindi():
     # but we verify the structure is correct
 
 
+SAMPLE_VARIANTS = ["balanced", "conservative", "aggressive", "idle_cash", "beginner"]
+
+
 def test_get_sample_portfolio():
-    """GET /api/portfolio/sample returns downloadable CSV with correct header."""
+    """GET /api/portfolio/sample defaults to the balanced (Ramesh) portfolio."""
     response = client.get("/api/portfolio/sample")
 
     assert response.status_code == 200
@@ -76,12 +83,45 @@ def test_get_sample_portfolio():
     assert "attachment" in response.headers["content-disposition"]
     assert 'filename="sample_portfolio.csv"' in response.headers["content-disposition"]
 
-    # Verify CSV content
+    # Default is the balanced Ramesh persona (pinned to MOCK_PORTFOLIO).
     csv_content = response.text
     assert "Ticker,Category,Value,Units" in csv_content
-    assert "HDFC Top 100" in csv_content
-    assert "ICICI Prudential Gilt" in csv_content
-    assert "SBI Liquid Fund" in csv_content
+    assert "HDFC Flexi Cap Fund" in csv_content
+    assert "SBI Blue Chip Fund" in csv_content
+    assert "ICICI Pru Liquid Fund" in csv_content
+
+
+@pytest.mark.parametrize("variant", SAMPLE_VARIANTS)
+def test_get_sample_portfolio_variants(variant):
+    """Each variant returns a valid 4-column CSV with numeric Value/Units."""
+    response = client.get(f"/api/portfolio/sample?variant={variant}")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/csv; charset=utf-8"
+    assert 'filename="sample_portfolio.csv"' in response.headers["content-disposition"]
+
+    # Parse the CSV the same way the frontend / backend analyzer does.
+    df = pd.read_csv(io.BytesIO(response.content))
+    assert set(df.columns) == {"Ticker", "Category", "Value", "Units"}
+    assert len(df) >= 1
+
+    # Value/Units must be plain numerics (no ₹, no thousands commas).
+    assert pd.api.types.is_numeric_dtype(df["Value"])
+    assert pd.api.types.is_numeric_dtype(df["Units"])
+    assert df["Value"].notna().all()
+    assert df["Units"].notna().all()
+
+    # No commas inside fund names (would shift columns).
+    assert df["Ticker"].str.contains(",").sum() == 0
+
+
+def test_get_sample_portfolio_unknown_variant_falls_back_to_balanced():
+    """An unknown variant falls back to balanced (demo-safe)."""
+    bogus = client.get("/api/portfolio/sample?variant=bogus")
+    balanced = client.get("/api/portfolio/sample?variant=balanced")
+
+    assert bogus.status_code == 200
+    assert bogus.text == balanced.text
 
 
 def test_file_too_large():
