@@ -1,7 +1,6 @@
 """
 Tests for Money Moments nudge engine — deterministic rules, no LLM.
 """
-import pytest
 from fastapi.testclient import TestClient
 from main import app
 from routers.nudges import _idle_cash_nudge, _sip_shortfall_nudges, _months_remaining

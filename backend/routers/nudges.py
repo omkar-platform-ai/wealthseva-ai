@@ -61,7 +61,7 @@ def _idle_cash_nudge(portfolio: list) -> Optional[Nudge]:
                 f"Monthly expenses (from bank transactions): ₹{_MONTHLY_EXPENSES:,}",
                 f"Emergency corpus = {_EMERGENCY_MONTHS} months × ₹{_MONTHLY_EXPENSES:,} = ₹{emergency_needed:,.0f}",
             ],
-            rule=f"Liquid fund > emergency corpus × 1.3 → idle-cash nudge",
+            rule="Liquid fund > emergency corpus × 1.3 → idle-cash nudge",
             calculation=f"₹{liquid_value:,.0f} − ₹{emergency_needed:,.0f} = ₹{excess:,.0f} excess",
         ),
         chat_seed=(
