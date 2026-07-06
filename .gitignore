@@ -67,5 +67,10 @@ headroom_memory.db
 VALIDATION_REPORT.md
 memory/
 
-# repowise API keys (local)
-.repowise/.env
+# repowise (local index cache + API keys)
+.repowise/
+
+# Local config & caches (not versioned)
+.mcp.json
+*.tsbuildinfo
+CLAUDE-BKP.md
