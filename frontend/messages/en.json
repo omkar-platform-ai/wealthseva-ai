@@ -158,7 +158,10 @@
     "sample_upload_error": "Failed to load sample portfolio. Please try again.",
     "subtitle": "Upload holdings for an AI breakdown",
     "upload_hint": "Max 2MB · CSV only",
-    "chart_value_label": "Value"
+    "chart_value_label": "Value",
+    "cas_sample_button": "Try with sample CAS (PDF)",
+    "cas_view_pdf": "View sample CAS",
+    "cas_sample_note": "Analyses a bundled specimen consolidated statement (CAS) — no real data."
   },
   "insights": {
     "title": "Today's Market Insights",

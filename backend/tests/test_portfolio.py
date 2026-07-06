@@ -180,3 +180,64 @@ def test_invalid_language_code():
     detail = response.json()["detail"]
     assert "invalid language" in detail.lower()
     assert "xyz" in detail.lower()
+
+
+def test_cas_sample_returns_analysis_and_holdings():
+    """GET /api/portfolio/cas-sample returns analysis + non-empty holdings."""
+    response = client.get("/api/portfolio/cas-sample?language=en")
+
+    assert response.status_code == 200
+    body = response.json()
+
+    # Analysis has the same structure the CSV path produces.
+    assert "analysis" in body
+    analysis = body["analysis"]
+    assert "summary" in analysis
+    assert isinstance(analysis["recommendations"], list)
+    assert "sip_suggestion" in analysis
+
+    # Holdings are non-empty and in the canonical {Ticker,Category,Value,Units} shape.
+    assert "holdings" in body
+    holdings = body["holdings"]
+    assert isinstance(holdings, list) and len(holdings) > 0
+    for h in holdings:
+        assert set(h.keys()) == {"Ticker", "Category", "Value", "Units"}
+        assert isinstance(h["Value"], (int, float))
+
+    # Chart data (one bar per Category, summed) has no NaN and a positive total.
+    totals: dict[str, float] = {}
+    for h in holdings:
+        totals[h["Category"]] = totals.get(h["Category"], 0) + h["Value"]
+    assert all(v == v for v in totals.values())  # no NaN
+    assert sum(totals.values()) > 0
+
+
+def test_cas_sample_defaults_to_english():
+    """GET /api/portfolio/cas-sample without a language defaults to English."""
+    response = client.get("/api/portfolio/cas-sample")
+    assert response.status_code == 200
+    assert "analysis" in response.json()
+
+
+def test_cas_sample_hindi():
+    """GET /api/portfolio/cas-sample?language=hi returns the same structure."""
+    response = client.get("/api/portfolio/cas-sample?language=hi")
+    assert response.status_code == 200
+    body = response.json()
+    assert "analysis" in body and "holdings" in body
+    assert len(body["holdings"]) > 0
+
+
+def test_cas_sample_invalid_language():
+    """GET /api/portfolio/cas-sample rejects invalid language codes."""
+    response = client.get("/api/portfolio/cas-sample?language=xyz")
+    assert response.status_code == 400
+    assert "invalid language" in response.json()["detail"].lower()
+
+
+def test_cas_sample_pdf_is_served():
+    """GET /api/portfolio/cas-sample/pdf serves a valid PDF."""
+    response = client.get("/api/portfolio/cas-sample/pdf")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.content.startswith(b"%PDF")

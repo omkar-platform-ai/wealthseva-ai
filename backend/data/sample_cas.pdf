@@ -1,0 +1,109 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 5509 >>
+stream
+0.000 0.514 0.424 rg 0 780 595 62 re f
+BT 1.000 1.000 1.000 rg /F2 18 Tf 1 0 0 1 40 808 Tm (Consolidated Account Statement \(CAS\)) Tj ET
+BT 1.000 1.000 1.000 rg /F1 9 Tf 1 0 0 1 40 790 Tm (SPECIMEN / SAMPLE  -  for WealthSeva AI demonstration only. Not a real statement.) Tj ET
+BT 0.000 0.000 0.000 rg /F2 11 Tf 1 0 0 1 40 758 Tm (Investor: RAMESH KUMAR) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 40 742 Tm (PAN: ABCDE1234F   \(specimen PAN - not a real PAN\)) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 40 726 Tm (Statement Period: 01-Apr-2025 to 31-Mar-2026) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 40 710 Tm (Consolidation: NSDL / CDSL depositories + CAMS / KFintech RTAs) Tj ET
+BT 0.000 0.514 0.424 rg /F2 12 Tf 1 0 0 1 40 690 Tm (A.  Demat Holdings - Equity Shares) Tj ET
+0.000 0.514 0.424 RG 1.0 w 40 685 m 555 685 l S
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 40 670 Tm (Company) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 250 670 Tm (ISIN) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 400 670 Tm (Units) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 480 670 Tm (Value \(Rs\)) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 655 Tm (Reliance Industries Ltd) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 655 Tm (INE002A01018) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 400 655 Tm (50) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 480 655 Tm (1,45,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 640 Tm (HDFC Bank Ltd) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 640 Tm (INE040A01034) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 400 640 Tm (60) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 480 640 Tm (96,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 625 Tm (Infosys Ltd) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 625 Tm (INE009A01021) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 400 625 Tm (50) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 480 625 Tm (78,000) Tj ET
+BT 0.000 0.514 0.424 rg /F2 12 Tf 1 0 0 1 40 591 Tm (B.  Mutual Fund Folios) Tj ET
+0.000 0.514 0.424 RG 1.0 w 40 586 m 555 586 l S
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 40 571 Tm (Scheme) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 250 571 Tm (Folio) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 330 571 Tm (Category) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 420 571 Tm (Units) Tj ET
+BT 0.000 0.000 0.000 rg /F2 9 Tf 1 0 0 1 500 571 Tm (Value \(Rs\)) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 556 Tm (SBI Bluechip Fund) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 556 Tm (12345678) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 330 556 Tm (Equity) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 420 556 Tm (700.000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 500 556 Tm (62,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 541 Tm (HDFC Corporate Bond Fund) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 541 Tm (23456789) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 330 541 Tm (Debt) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 420 541 Tm (3,600.000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 500 541 Tm (1,10,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 526 Tm (ICICI Pru Short Term Fund) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 526 Tm (34567890) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 330 526 Tm (Debt) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 420 526 Tm (1,400.000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 500 526 Tm (70,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 511 Tm (SBI Liquid Fund) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 511 Tm (45678901) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 330 511 Tm (Liquid) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 420 511 Tm (24.000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 500 511 Tm (90,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 40 496 Tm (Nippon India Gold Savings Fund) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 250 496 Tm (56789012) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 330 496 Tm (Gold) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 420 496 Tm (1,800.000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 9 Tf 1 0 0 1 500 496 Tm (45,000) Tj ET
+0.900 0.960 0.940 rg 40 460 515 22 re f
+BT 0.000 0.514 0.424 rg /F2 12 Tf 1 0 0 1 48 466 Tm (Total Portfolio Value:  Rs 6,96,000) Tj ET
+BT 0.953 0.440 0.129 rg /F2 12 Tf 1 0 0 1 40 426 Tm (Asset Allocation) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 48 408 Tm (Equity) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 180 408 Tm (Rs 3,81,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 300 408 Tm (55%) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 48 393 Tm (Debt) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 180 393 Tm (Rs 1,80,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 300 393 Tm (26%) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 48 378 Tm (Liquid) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 180 378 Tm (Rs 90,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 300 378 Tm (13%) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 48 363 Tm (Gold) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 180 363 Tm (Rs 45,000) Tj ET
+BT 0.000 0.000 0.000 rg /F1 10 Tf 1 0 0 1 300 363 Tm (6%) Tj ET
+BT 0.450 0.450 0.450 rg /F1 8 Tf 1 0 0 1 40 48 Tm (This is a SPECIMEN statement generated for the WealthSeva AI demo. All names, PAN, folios and) Tj ET
+BT 0.450 0.450 0.450 rg /F1 8 Tf 1 0 0 1 40 38 Tm (holdings are fictitious. Not a financial document and not for any real transaction.) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+5957
+%%EOF

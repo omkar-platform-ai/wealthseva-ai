@@ -158,7 +158,10 @@
     "sample_upload_error": "नमुना पोर्टफोलिओ लोड करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
     "subtitle": "AI विश्लेषणासाठी होल्डिंग्स अपलोड करा",
     "upload_hint": "जास्तीत जास्त 2MB · फक्त CSV",
-    "chart_value_label": "मूल्य"
+    "chart_value_label": "मूल्य",
+    "cas_sample_button": "नमुना CAS (PDF) वापरून पहा",
+    "cas_view_pdf": "नमुना CAS पहा",
+    "cas_sample_note": "नमुना एकत्रित खाते विवरण (CAS) चे विश्लेषण करते — कोणताही खरा डेटा नाही."
   },
   "insights": {
     "title": "आजची बाजार अंतर्दृष्टी",

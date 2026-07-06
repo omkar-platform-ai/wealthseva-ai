@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { useState } from 'react';
 import * as Papa from 'papaparse';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { UploadCloud, Zap, Check } from 'lucide-react';
+import { UploadCloud, Zap, Check, FileText } from 'lucide-react';
 
 interface PortfolioData { Ticker: string; Category: string; Value: number; Units: number; }
 interface AnalysisResult { summary: string; recommendations: string[]; sip_suggestion: string; }
@@ -106,6 +106,35 @@ export default function PortfolioCard() {
     }
   };
 
+  // ---- Backend wiring: GET /api/portfolio/cas-sample (WEA-73) ----
+  // Demo-safe: the backend analyses a known, hardcoded set of holdings for the
+  // bundled sample CAS — no client-side PDF parsing, so the flow can't fail.
+  const handleCasSample = async () => {
+    setError('');
+    setAnalyzing(true);
+    setAnalysis(null);
+    setAllocationData([]);
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio/cas-sample?language=${locale}`);
+      if (!res.ok) throw new Error('Failed to fetch sample CAS');
+      const data = await res.json();
+      const holdings = (data.holdings || []) as PortfolioData[];
+      const categoryMap = new Map<string, number>();
+      holdings.forEach((row) => {
+        categoryMap.set(row.Category, (categoryMap.get(row.Category) || 0) + (row.Value || 0));
+      });
+      const chartData = Array.from(categoryMap.entries())
+        .map(([category, value]) => ({ category, value }))
+        .sort((a, b) => b.value - a.value);
+      setAllocationData(chartData);
+      setAnalysis(data.analysis);
+    } catch (err) {
+      setError(t('sample_upload_error'));
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'text/csv': ['.csv'] },
     maxSize: MAX_FILE_SIZE,
@@ -124,40 +153,63 @@ export default function PortfolioCard() {
           <h2 className="text-lg font-bold text-idbi-ink">{t('title')}</h2>
           <p className="mt-1 text-[12.5px] text-idbi-muted">{t('subtitle')}</p>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setSampleMenuOpen((o) => !o)}
-            disabled={analyzing}
-            aria-label={t('sample_menu_label')}
-            aria-haspopup="menu"
-            aria-expanded={sampleMenuOpen}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-idbi-orange text-white rounded-[11px] hover:bg-idbi-orangeDark disabled:opacity-50 disabled:cursor-not-allowed text-[13px] font-bold transition-colors shadow-[0_8px_18px_-8px_rgba(243,112,33,.7)]"
-          >
-            <Zap size={15} strokeWidth={2.2} />
-            {t('sample_button')}
-            <span className="text-[10px]">▼</span>
-          </button>
-
-          {sampleMenuOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 mt-2 w-52 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 z-50"
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <button
+              onClick={handleCasSample}
+              disabled={analyzing}
+              title={t('cas_sample_note')}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white text-idbi-green border border-idbi-green rounded-[11px] hover:bg-idbi-light disabled:opacity-50 disabled:cursor-not-allowed text-[13px] font-bold transition-colors"
             >
-              {SAMPLE_VARIANTS.map(({ variant, labelKey }) => (
-                <button
-                  key={variant}
-                  role="menuitem"
-                  onClick={() => {
-                    setSampleMenuOpen(false);
-                    handleSampleUpload(variant);
-                  }}
-                  className="w-full text-left px-4 py-2.5 text-[13px] text-gray-900 hover:bg-idbi-light hover:text-idbi-green transition-colors first:rounded-t-xl last:rounded-b-xl"
+              <FileText size={15} strokeWidth={2.2} />
+              {t('cas_sample_button')}
+            </button>
+
+            <div className="relative">
+              <button
+                onClick={() => setSampleMenuOpen((o) => !o)}
+                disabled={analyzing}
+                aria-label={t('sample_menu_label')}
+                aria-haspopup="menu"
+                aria-expanded={sampleMenuOpen}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-idbi-orange text-white rounded-[11px] hover:bg-idbi-orangeDark disabled:opacity-50 disabled:cursor-not-allowed text-[13px] font-bold transition-colors shadow-[0_8px_18px_-8px_rgba(243,112,33,.7)]"
+              >
+                <Zap size={15} strokeWidth={2.2} />
+                {t('sample_button')}
+                <span className="text-[10px]">▼</span>
+              </button>
+
+              {sampleMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 mt-2 w-52 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 z-50"
                 >
-                  {t(labelKey)}
-                </button>
-              ))}
+                  {SAMPLE_VARIANTS.map(({ variant, labelKey }) => (
+                    <button
+                      key={variant}
+                      role="menuitem"
+                      onClick={() => {
+                        setSampleMenuOpen(false);
+                        handleSampleUpload(variant);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-[13px] text-gray-900 hover:bg-idbi-light hover:text-idbi-green transition-colors first:rounded-t-xl last:rounded-b-xl"
+                    >
+                      {t(labelKey)}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          <a
+            href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/portfolio/cas-sample/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11.5px] text-idbi-muted hover:text-idbi-green underline underline-offset-2"
+          >
+            <span aria-hidden="true">📄</span> {t('cas_view_pdf')}
+          </a>
         </div>
       </div>
 

@@ -1,15 +1,38 @@
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import Response, FileResponse
 from models.schemas import Language
 from services.claude_service import analyze_portfolio
 import pandas as pd
 import io
+import os
 
 router = APIRouter()
 
 # Security limits
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5MB
 REQUIRED_COLUMNS = {"Ticker", "Category", "Value", "Units"}
+
+# Bundled synthetic sample CAS (WEA-73). The PDF at data/sample_cas.pdf is the
+# "look, a real consolidated statement" visual; SAMPLE_CAS_HOLDINGS below is the
+# DEMO SOURCE OF TRUTH — the exact known-good normalised records for that sample
+# in the same {Ticker, Category, Value, Units} shape the CSV path feeds to
+# analyze_portfolio. Numbers here MUST stay in sync with the PDF. Zero parse risk:
+# the /cas-sample endpoint never depends on live PDF parsing.
+SAMPLE_CAS_PDF_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "sample_cas.pdf"
+)
+SAMPLE_CAS_HOLDINGS: list[dict] = [
+    # Demat equity holdings
+    {"Ticker": "Reliance Industries Ltd", "Category": "Equity", "Value": 145000, "Units": 50},
+    {"Ticker": "HDFC Bank Ltd", "Category": "Equity", "Value": 96000, "Units": 60},
+    {"Ticker": "Infosys Ltd", "Category": "Equity", "Value": 78000, "Units": 50},
+    # Mutual fund folios
+    {"Ticker": "SBI Bluechip Fund", "Category": "Equity", "Value": 62000, "Units": 700},
+    {"Ticker": "HDFC Corporate Bond Fund", "Category": "Debt", "Value": 110000, "Units": 3600},
+    {"Ticker": "ICICI Pru Short Term Fund", "Category": "Debt", "Value": 70000, "Units": 1400},
+    {"Ticker": "SBI Liquid Fund", "Category": "Liquid", "Value": 90000, "Units": 24},
+    {"Ticker": "Nippon India Gold Savings Fund", "Category": "Gold", "Value": 45000, "Units": 1800},
+]
 
 # Sample portfolios for the "Try with Sample" picker. Each is a tiny CSV with
 # columns Ticker,Category,Value,Units. Value/Units are PLAIN numbers (no ₹, no
@@ -107,4 +130,39 @@ async def get_sample_portfolio(variant: str = "balanced"):
         content=csv_content,
         media_type="text/csv",
         headers={"Content-Disposition": 'attachment; filename="sample_portfolio.csv"'}
+    )
+
+
+@router.get("/portfolio/cas-sample")
+async def get_cas_sample(language: str = "en"):
+    """Analyze the bundled synthetic sample CAS (WEA-73).
+
+    De-scoped, demo-safe slice: runs the exact same orchestrator the CSV path
+    uses on a KNOWN, hardcoded set of holdings (SAMPLE_CAS_HOLDINGS) — no live
+    PDF parsing, so the on-stage flow cannot fail. Returns the analysis plus the
+    holdings so the frontend can render the allocation chart without parsing PDF.
+    """
+    # Validate language → 400 on bad code (mirrors the CSV endpoint).
+    try:
+        lang = Language(language)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid language code: '{language}'. Supported: en, hi, mr, ta, bn"
+        )
+
+    result = await analyze_portfolio(SAMPLE_CAS_HOLDINGS, lang)
+    return {"analysis": result, "holdings": SAMPLE_CAS_HOLDINGS}
+
+
+@router.get("/portfolio/cas-sample/pdf")
+async def get_cas_sample_pdf():
+    """Serve the bundled synthetic sample CAS PDF so judges can open it."""
+    if not os.path.exists(SAMPLE_CAS_PDF_PATH):
+        raise HTTPException(status_code=404, detail="Sample CAS PDF not found.")
+    return FileResponse(
+        SAMPLE_CAS_PDF_PATH,
+        media_type="application/pdf",
+        filename="sample_cas.pdf",
+        content_disposition_type="inline",
     )

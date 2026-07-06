@@ -158,7 +158,10 @@
     "sample_upload_error": "नमूना पोर्टफोलियो लोड करने में विफल। कृपया पुनः प्रयास करें।",
     "subtitle": "AI विश्लेषण के लिए अपनी होल्डिंग्स अपलोड करें",
     "upload_hint": "अधिकतम 2MB · केवल CSV",
-    "chart_value_label": "मूल्य"
+    "chart_value_label": "मूल्य",
+    "cas_sample_button": "नमूना CAS (PDF) आज़माएं",
+    "cas_view_pdf": "नमूना CAS देखें",
+    "cas_sample_note": "एक नमूना समेकित खाता विवरण (CAS) का विश्लेषण करता है — कोई वास्तविक डेटा नहीं।"
   },
   "insights": {
     "title": "आज की बाज़ार अंतर्दृष्टि",
