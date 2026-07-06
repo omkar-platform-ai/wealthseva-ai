@@ -63,6 +63,7 @@
     "voice_on": "आवाज सुरू करा",
     "voice_off": "आवाज बंद करा",
     "mic_label": "तुमचा प्रश्न बोला",
+    "reset_label": "नवीन चॅट",
     "continuity_divider": "आता {language} मध्ये सुरू",
     "continuity_prompt": "श्रेया {language} मध्ये उत्तर देत आहे",
     "continuity_switch": "बदला",

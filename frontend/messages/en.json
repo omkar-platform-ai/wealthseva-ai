@@ -63,6 +63,7 @@
     "voice_on": "Turn voice on",
     "voice_off": "Turn voice off",
     "mic_label": "Speak your question",
+    "reset_label": "New chat",
     "continuity_divider": "Continuing in {language}",
     "continuity_prompt": "Shreya is replying in {language}",
     "continuity_switch": "Switch",

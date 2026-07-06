@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Mic, Send, Volume2, VolumeX, X } from 'lucide-react';
+import { Mic, Send, Volume2, VolumeX, X, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { speak, createRecognizer, SpeakHandle, Recognizer } from '@/lib/voice';
 import { useRouter, usePathname } from '../navigation';
@@ -62,6 +62,25 @@ export default function AvatarChat({ initialMessage }: Props) {
     voiceOnRef.current = next;
     setVoiceOn(next);
     if (!next) stopSpeaking();
+  };
+
+  // Start over: tear down any active speech/mic, clear the thread back to the
+  // welcome + chips, and drop persisted history. Must removeItem explicitly —
+  // the sessionStorage-sync effect early-returns on messages.length === 0, so
+  // setMessages([]) alone would leave ws_chat_messages behind.
+  const resetChat = () => {
+    stopSpeaking();
+    recognizerRef.current?.stop();
+    setAvatarState('idle');
+    setMessages([]);
+    setSuggestedLocale(null);
+    setShowChips(true);
+    setInput('');
+    try {
+      sessionStorage.removeItem('ws_chat_messages');
+    } catch {
+      // sessionStorage unavailable (private mode, SSR guard)
+    }
   };
 
   useEffect(() => {
@@ -249,6 +268,15 @@ export default function AvatarChat({ initialMessage }: Props) {
           <p className="text-[#BFE6DC] text-xs font-medium mt-0.5">{statusLabel}</p>
         </div>
         <div className="ml-auto flex items-center gap-3">
+          <button
+            onClick={resetChat}
+            disabled={loading}
+            className="text-[#BFE6DC] hover:text-white transition-colors disabled:opacity-50"
+            aria-label={t('reset_label' as never)}
+            title={t('reset_label' as never)}
+          >
+            <RotateCcw size={18} />
+          </button>
           <button
             onClick={toggleVoice}
             className="text-[#BFE6DC] hover:text-white transition-colors"

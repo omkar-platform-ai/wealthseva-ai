@@ -63,6 +63,7 @@
     "voice_on": "ভয়েস চালু করুন",
     "voice_off": "ভয়েস বন্ধ করুন",
     "mic_label": "আপনার প্রশ্ন বলুন",
+    "reset_label": "নতুন চ্যাট",
     "continuity_divider": "এখন {language} ভাষায় চলছে",
     "continuity_prompt": "শ্রেয়া {language} ভাষায় উত্তর দিচ্ছেন",
     "continuity_switch": "পরিবর্তন",

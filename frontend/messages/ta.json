@@ -63,6 +63,7 @@
     "voice_on": "குரலை இயக்கு",
     "voice_off": "குரலை நிறுத்து",
     "mic_label": "உங்கள் கேள்வியைப் பேசுங்கள்",
+    "reset_label": "புதிய உரையாடல்",
     "continuity_divider": "இப்போது {language} இல் தொடர்கிறது",
     "continuity_prompt": "ஷ்ரேயா {language} இல் பதிலளிக்கிறார்",
     "continuity_switch": "மாற்று",
