@@ -29,6 +29,7 @@ The key differentiator is the combination that has never been delivered together
 - [Architecture Overview](#architecture-overview)
 - [Local Development Setup](#local-development-setup)
 - [Demo Mode](#demo-mode)
+- [Roadmap](#roadmap)
 - [Running Tests](#running-tests)
 - [Deployment](#deployment)
 - [RBI Compliance Note](#rbi-compliance-note)
@@ -251,6 +252,18 @@ A fully scripted 5-step walkthrough that requires no backend API keys — ideal 
 | **5 — Hindi SIP** | Shreya responds in Hindi: ₹5,000/month SIP recommendation for HDFC Flexi Cap Fund |
 
 A step progress bar tracks completion (Step N of 5). No API keys or backend connection is required for the scripted demo steps.
+
+---
+
+## Roadmap
+
+Where WealthSeva goes beyond the demo. The full breakdown lives in **[ROADMAP.md](ROADMAP.md)**, and a live, localized version (all 5 languages) is in the app at **`/roadmap`**.
+
+| Phase | Highlights |
+|---|---|
+| ✅ **Shipped — Demo (Jul 9)** | Voice-first vernacular advisor · "Why this advice?" transparency · Money Moments nudges · personalized RAG-grounded answers · mid-chat language switching |
+| 🚧 **In progress — Jul 31** | CAS statement analysis (CDSL/NSDL + mutual funds) · saved history & goals · deeper multilingual semantic search · more proactive guards |
+| 🔭 **Planned — Aug 13+** | Live IDBI account integration · offline / low-connectivity mode · in-app & WhatsApp channels · more Indian languages |
 
 ---
 

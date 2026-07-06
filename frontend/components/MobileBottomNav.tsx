@@ -2,7 +2,7 @@
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, MessageCircle, Target, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, MessageCircle, Target, TrendingUp, Map } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const t = useTranslations('nav');
@@ -14,12 +14,13 @@ export default function MobileBottomNav() {
     { href: `/${locale}/advisor`, label: t('advisor'), Icon: MessageCircle },
     { href: `/${locale}/goals`, label: t('goals'), Icon: Target },
     { href: `/${locale}/insights`, label: t('insights'), Icon: TrendingUp },
+    { href: `/${locale}/roadmap`, label: t('roadmap'), Icon: Map },
   ];
 
   return (
     // Floating pill bar — sits above the safe-area inset, matches redesign.
     <nav className="md:hidden fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(env(safe-area-inset-bottom),12px)] pt-2 pointer-events-none">
-      <div className="pointer-events-auto mx-auto max-w-md bg-white/95 backdrop-blur-md border border-idbi-line rounded-[22px] shadow-float grid grid-cols-4 p-1.5">
+      <div className="pointer-events-auto mx-auto max-w-md bg-white/95 backdrop-blur-md border border-idbi-line rounded-[22px] shadow-float grid grid-cols-5 p-1.5">
         {tabs.map(({ href, label, Icon }) => {
           const active = pathname.startsWith(href);
           return (

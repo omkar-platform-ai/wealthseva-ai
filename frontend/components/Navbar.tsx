@@ -28,6 +28,7 @@ export default function Navbar() {
     { href: `/${locale}/advisor`, label: t('advisor') },
     { href: `/${locale}/goals`, label: t('goals') },
     { href: `/${locale}/insights`, label: t('insights') },
+    { href: `/${locale}/roadmap`, label: t('roadmap') },
   ];
 
   return (

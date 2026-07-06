@@ -1,4 +1,45 @@
 {
+  "roadmap": {
+    "title": "Product Roadmap",
+    "subtitle": "What we've shipped for the demo — and where WealthSeva goes next.",
+    "status_shipped": "Shipped",
+    "status_next": "In progress",
+    "status_planned": "Planned",
+    "note": "Timeline follows our IDBI Innovate 2026 build plan and may evolve.",
+    "phases": [
+      {
+        "tag": "Demo · Jul 9",
+        "status": "shipped",
+        "items": [
+          { "title": "Voice-first vernacular advisor", "desc": "Shreya speaks and listens in all 5 languages." },
+          { "title": "\"Why this advice?\" transparency", "desc": "Every recommendation shows its data, rule and calculation — RBI FREE-AI aligned." },
+          { "title": "Money Moments nudges", "desc": "Proactive alerts like idle-cash and goal-drift detection." },
+          { "title": "Personalized, grounded answers", "desc": "Advice grounded in your IDBI account data and a multilingual knowledge base." },
+          { "title": "Switch language mid-chat", "desc": "Change language any time — Shreya continues without losing context." }
+        ]
+      },
+      {
+        "tag": "Next · Jul 31",
+        "status": "next",
+        "items": [
+          { "title": "CAS statement analysis", "desc": "Upload your Consolidated Account Statement (CDSL/NSDL demat + mutual funds) for instant analysis." },
+          { "title": "Saved history & goals", "desc": "Your conversations and goals persist across sessions." },
+          { "title": "Deeper multilingual search", "desc": "Semantic retrieval tuned for every supported language." },
+          { "title": "More proactive guards", "desc": "Panic-selling guards and SIP-shortfall alerts." }
+        ]
+      },
+      {
+        "tag": "Vision · Aug 13+",
+        "status": "planned",
+        "items": [
+          { "title": "Live IDBI accounts", "desc": "Real account data via a live / mock toggle." },
+          { "title": "Works in low connectivity", "desc": "Pre-cached audio and offline fallbacks for branch use." },
+          { "title": "In-app & WhatsApp", "desc": "Embedded in IDBI mobile banking and WhatsApp." },
+          { "title": "More Indian languages", "desc": "Telugu, Gujarati, Kannada and beyond." }
+        ]
+      }
+    ]
+  },
   "onboarding": {
     "welcome": "Welcome to WealthSeva AI",
     "subtitle": "Your personal AI wealth advisor, powered by IDBI Bank",
@@ -179,7 +220,8 @@
     "insights": "Insights",
     "language_switcher_label": "Switch Language",
     "judge_demo": "Judge Demo",
-    "switched_to": "Switched to {language}"
+    "switched_to": "Switched to {language}",
+    "roadmap": "Roadmap"
   },
   "common": {
     "loading": "Loading...",
