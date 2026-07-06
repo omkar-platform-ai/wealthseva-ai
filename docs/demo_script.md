@@ -25,7 +25,7 @@ Show a slide: fragmented advisory landscape, advisor-to-customer ratio, vernacul
 ## [1:30–3:30] Live Demo
 
 **Step 1** — Open app in English. New customer flow.
-> "Meet Ramesh. He's 34, earns ₹80,000/month, and has never invested."
+> "Meet Ramesh. He's 42, earns ₹80,000/month, and has never invested."
 
 **Step 2** — Risk quiz (show 5 questions, animated)
 > "Shreya — our AI avatar — guides him through a 60-second risk assessment."
