@@ -3,13 +3,10 @@ import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { TrendingUp } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 
 function DemoLink({ locale }: { locale: string }) {
-  const params = useSearchParams();
-  if (params.get('demo') !== 'true') return null;
   return (
     <Link
       href={`/${locale}/demo?demo=true`}
