@@ -177,7 +177,7 @@ export default function GoalPlanner() {
           </div>
           <div>
             <label className={labelCls}>{t('target_date')}</label>
-            <input type="number" value={form.years} onChange={e => setForm(f => ({ ...f, years: e.target.value }))} className={inputCls} placeholder="Years to goal" min="1" max="40" />
+            <input type="number" value={form.years} onChange={e => setForm(f => ({ ...f, years: e.target.value }))} className={inputCls} placeholder={t('years_placeholder')} min="1" max="40" />
           </div>
           <div>
             <label className={labelCls}>{t('current_savings')}</label>
@@ -240,7 +240,7 @@ export default function GoalPlanner() {
                         <Tooltip
                           contentStyle={{ backgroundColor: '#122622', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '12px' }}
                           formatter={(v: number) => [formatINR(v, locale), t('projected_value_label')]}
-                          labelFormatter={(l: number) => `Year ${l}`}
+                          labelFormatter={(l: number) => t('chart_year_label', { year: l })}
                         />
                         <Area type="monotone" dataKey="corpus" stroke="#00836C" strokeWidth={2.6} fill="url(#corpusGrad)" dot={false} activeDot={{ r: 4 }} />
                       </AreaChart>

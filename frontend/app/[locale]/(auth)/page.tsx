@@ -12,7 +12,7 @@ export default function OnboardingPage() {
       <div className="text-center mb-8">
         <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-idbi-light text-idbi-green text-xs font-bold mb-5">
           <ShieldCheck size={14} />
-          2-minute risk assessment
+          {t('assessment_badge')}
         </span>
         <h1 className="text-[30px] sm:text-[34px] font-extrabold tracking-tight text-idbi-ink mb-3 text-balance">
           {t('welcome')}
@@ -26,7 +26,7 @@ export default function OnboardingPage() {
       </div>
 
       <p className="text-center text-xs text-idbi-faint mt-6">
-        Your answers stay on this device and are used only to tailor recommendations.
+        {t('privacy_note')}
       </p>
     </div>
   );

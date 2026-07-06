@@ -12,7 +12,7 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
           onClick={reset}
           className="px-4 py-2 bg-idbi-green text-white rounded-lg hover:bg-idbi-dark transition-colors text-sm"
         >
-          Refresh
+          {t('refresh')}
         </button>
       </div>
     </div>

@@ -5,7 +5,9 @@
     "startButton": "Get Started",
     "conservative": "Conservative",
     "moderate": "Moderate",
-    "aggressive": "Aggressive"
+    "aggressive": "Aggressive",
+    "assessment_badge": "2-minute risk assessment",
+    "privacy_note": "Your answers stay on this device and are used only to tailor recommendations."
   },
   "risk": {
     "title": "Risk Profile Assessment",
@@ -32,7 +34,10 @@
     "why_data_text": "Your 5 answers scored {points}, giving {score} of {max} points.",
     "why_rule_text": "Fixed score bands: 5–8 = {conservative}, 9–14 = {moderate}, 15–20 = {aggressive}. Your score {score} falls in the {profile} band.",
     "why_result_text": "The {profile} profile maps to the fixed model allocation shown in the chart.",
-    "why_note": "Calculated with fixed rules — AI is not used for this result."
+    "why_note": "Calculated with fixed rules — AI is not used for this result.",
+    "note_conservative": "Capital preservation with steady, lower-risk returns.",
+    "note_moderate": "Balanced growth with measured risk exposure.",
+    "note_aggressive": "Growth-focused, comfortable with higher volatility."
   },
   "advisor": {
     "title": "Your Wealth Advisor",
@@ -61,7 +66,11 @@
     "continuity_divider": "Continuing in {language}",
     "continuity_prompt": "Shreya is replying in {language}",
     "continuity_switch": "Switch",
-    "continuity_dismiss": "Dismiss"
+    "continuity_dismiss": "Dismiss",
+    "typing": "Typing…",
+    "status_default": "IDBI Wealth Advisor",
+    "source_kb": "IDBI knowledge base",
+    "source_account": "Your portfolio"
   },
   "consent": {
     "title": "Data Consent",
@@ -77,7 +86,21 @@
     "insights_title": "Today's Insights",
     "last_updated": "Last updated",
     "portfolio": "Your Portfolio",
-    "uploadPortfolio": "Upload Portfolio CSV"
+    "uploadPortfolio": "Upload Portfolio CSV",
+    "demo_banner": "Demo Mode — pre-populated with sample data",
+    "sync_status": "Portfolio synced · just now",
+    "value_subtitle_linked": "Across all linked accounts",
+    "value_subtitle_empty": "Link an account to see your value",
+    "sip_subtitle_active": "Across your active goals",
+    "sip_subtitle_empty": "No active SIPs yet",
+    "sip_recommended": "{pct}% of ₹{amount} recommended",
+    "sip_setup_prompt": "Set up a plan in Goals",
+    "view_all": "View all",
+    "demo_insights": [
+      "Staying invested through market cycles has historically beaten trying to time entries and exits.",
+      "Laddering fixed deposits across maturities balances liquidity with returns.",
+      "Gold can hedge inflation — most advisors suggest capping it near 10% of your portfolio."
+    ]
   },
   "goals": {
     "title": "Your Financial Goals",
@@ -109,7 +132,9 @@
     "why_data_text": "Target {target} in {months} months, starting from {savings} saved today.",
     "why_assumption_text": "{rate}% expected annual return (illustrative, not guaranteed).",
     "why_calc_text": "Your savings grow to {fv}, leaving a gap of {gap}. The standard SIP formula turns that gap into {sip} per month.",
-    "why_note": "Calculated with a fixed formula — AI is not used for this number."
+    "why_note": "Calculated with a fixed formula — AI is not used for this number.",
+    "years_placeholder": "Years to goal",
+    "chart_year_label": "Year {year}"
   },
   "portfolio": {
     "title": "Portfolio Analysis",
@@ -123,7 +148,10 @@
     "allocation_chart_label": "Current Allocation",
     "file_too_large": "File size exceeds 2MB limit. Please upload a smaller file.",
     "invalid_format": "Only CSV files are allowed.",
-    "sample_upload_error": "Failed to load sample portfolio. Please try again."
+    "sample_upload_error": "Failed to load sample portfolio. Please try again.",
+    "subtitle": "Upload holdings for an AI breakdown",
+    "upload_hint": "Max 2MB · CSV only",
+    "chart_value_label": "Value"
   },
   "insights": {
     "title": "Today's Market Insights",
@@ -139,12 +167,88 @@
     "goals": "Goals",
     "portfolio": "Portfolio",
     "insights": "Insights",
-    "language_switcher_label": "Switch Language"
+    "language_switcher_label": "Switch Language",
+    "judge_demo": "Judge Demo",
+    "switched_to": "Switched to {language}"
   },
   "common": {
     "loading": "Loading...",
     "error_generic": "Something went wrong. Please try again.",
     "shreya_break": "Shreya is taking a short break. Please refresh in a moment.",
-    "currency_symbol": "₹"
+    "currency_symbol": "₹",
+    "refresh": "Refresh"
+  },
+  "moments": {
+    "title": "Money Moments",
+    "severity_low": "Low",
+    "severity_medium": "Medium",
+    "severity_high": "High",
+    "why_show": "Why this?",
+    "why_hide": "Hide details",
+    "talk_to_shreya": "Talk to Shreya"
+  },
+  "demo": {
+    "banner": "Judge Demo Mode — Automated WealthSeva AI walkthrough",
+    "step_counter": "Step {step} of 5",
+    "percent_complete": "{percent}% complete",
+    "step_labels": ["Meet Ramesh", "Risk Quiz", "Portfolio", "Goal Plan", "Hindi SIP"],
+    "next_step": "Next Step",
+    "not_demo_prompt": "Visit this page with <code>?demo=true</code> to start the demo.",
+    "s1_title": "Meet Ramesh",
+    "s1_subtitle": "Age 42 · Mumbai · Salaried Professional",
+    "s1_income_label": "Monthly income",
+    "s1_income_value": "₹80,000",
+    "s1_invest_label": "Investments",
+    "s1_invest_value": "₹5.1L",
+    "s1_invest_note": "(₹2.4L idle in a liquid fund)",
+    "s1_goal_label": "Goal",
+    "s1_goal_pre": "Retire at 62 with",
+    "s1_goal_value": "₹50L corpus",
+    "s1_risk_label": "Risk preference",
+    "s1_risk_value": "Moderate",
+    "s1_lang_label": "Preferred language",
+    "s1_lang_value": "Hindi",
+    "s1_watch": "Watch WealthSeva AI guide Ramesh through a complete financial plan — from risk profiling to personalized SIP advice in Hindi.",
+    "s1_start": "Start Demo",
+    "s2_title": "Risk Profile Quiz",
+    "s2_counter": "Q {n} / 5",
+    "s2_quiz": [
+      { "q": "What is your primary investment objective?", "opts": ["Capital preservation & safety", "Balanced growth with income", "High growth potential", "Maximum returns at any risk"] },
+      { "q": "How long can you keep your money invested without needing it?", "opts": ["Less than 1 year", "3–7 years", "7–15 years", "More than 15 years"] },
+      { "q": "If your portfolio dropped 20%, what would you do?", "opts": ["Sell everything immediately", "Hold and wait for recovery", "Buy more at lower prices", "Double down aggressively"] },
+      { "q": "What is your approximate annual household income?", "opts": ["Below ₹5 lakh", "₹5L – ₹15L", "₹15L – ₹30L", "Above ₹30 lakh"] },
+      { "q": "How comfortable are you with short-term market volatility?", "opts": ["Not comfortable at all", "Somewhat comfortable", "Comfortable with ups & downs", "Very comfortable — I embrace it"] }
+    ],
+    "s2_result_title": "Risk Profile: Moderate",
+    "s2_result_desc": "Ramesh has a balanced, growth-oriented investment approach.",
+    "s2_alloc_equity": "Equity",
+    "s2_alloc_debt": "Debt",
+    "s2_alloc_gold": "Gold",
+    "s3_uploading": "Uploading Sample Portfolio…",
+    "s3_title": "Portfolio Analysis",
+    "s3_loaded_badge": "Sample Loaded",
+    "s3_total_label": "Total Portfolio Value",
+    "s3_cat_equity": "Equity",
+    "s3_cat_debt": "Debt",
+    "s3_cat_gold": "Gold",
+    "s3_cat_liquid": "Liquid",
+    "s4_title": "Retirement Goal Plan",
+    "s4_prefilled_badge": "Pre-filled",
+    "s4_goalname_label": "Goal Name",
+    "s4_goalname_value": "Retirement",
+    "s4_target_label": "Target Corpus",
+    "s4_target_value": "₹50,00,000",
+    "s4_horizon_label": "Time Horizon",
+    "s4_horizon_value": "20 Years",
+    "s4_earmarked_label": "Earmarked So Far",
+    "s4_earmarked_value": "₹0 — starting fresh",
+    "s4_sip_label": "Recommended Monthly SIP",
+    "s4_sip_value": "₹5,000 / month",
+    "s4_sip_note": "At 12% p.a. CAGR → ≈₹50L in 20 years",
+    "s4_fund_split": ["🏦 Flexi-cap equity fund — 60% (growth core)", "📈 Large-cap index fund — 20% (stability)", "🔒 Short-duration debt fund — 20% (cushion)"],
+    "s5_disclosure_label": "AI Disclosure:",
+    "s5_disclosure_text": "This response is AI-generated for educational and demonstration purposes only. Please consult a SEBI-registered investment advisor before making investment decisions.",
+    "s5_complete_title": "Demo Complete!",
+    "s5_complete_desc": "WealthSeva AI guided Ramesh through a full financial plan in under 2 minutes."
   }
 }

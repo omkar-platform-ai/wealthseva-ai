@@ -9,13 +9,6 @@ import FadeIn from '@/components/FadeIn';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
-// Canned insights kept only for demo mode (?demo=true); live mode fetches /api/insights.
-const DEMO_INSIGHTS = [
-  'Staying invested through market cycles has historically beaten trying to time entries and exits.',
-  'Laddering fixed deposits across maturities balances liquidity with returns.',
-  'Gold can hedge inflation — most advisors suggest capping it near 10% of your portfolio.',
-];
-
 // Decorative sparkline path — purely visual, no fabricated figures.
 const SPARK =
   'M0,34 C25,30 40,36 62,28 C88,19 104,26 128,20 C150,15 168,24 190,16 C214,8 232,18 258,10 C276,5 288,9 300,6';
@@ -83,9 +76,10 @@ function DashboardInner() {
     return () => { cancelled = true; };
   }, []);
 
-  // Insights strip
+  // Insights strip. In demo mode we serve canned insights from messages so they
+  // re-localise on language switch (locale is in the dep array); live mode fetches.
   useEffect(() => {
-    if (isDemo) { setInsights(DEMO_INSIGHTS); return; }
+    if (isDemo) { setInsights(t.raw('demo_insights') as string[]); return; }
     setInsightsLoading(true);
     fetch(`${BACKEND_URL}/api/insights?language=${locale}`)
       .then(r => r.json())
@@ -95,6 +89,7 @@ function DashboardInner() {
       })
       .catch(() => setInsights([]))
       .finally(() => setInsightsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, isDemo]);
 
   const { value: portfolioValue, gainPct, risk: riskProfile, sip: monthlySip } = summary;
@@ -104,7 +99,7 @@ function DashboardInner() {
     <div className="max-w-[1200px] mx-auto px-5 sm:px-7 py-8">
       {isDemo && (
         <div className="mb-5 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm font-semibold">
-          Demo Mode — pre-populated with sample data
+          {t('demo_banner')}
         </div>
       )}
 
@@ -113,7 +108,7 @@ function DashboardInner() {
         <h1 className="text-[30px] font-extrabold tracking-tight text-idbi-ink">{t('title')}</h1>
         <div className="flex items-center gap-2 bg-white border border-idbi-line px-3.5 py-2 rounded-xl shadow-[0_1px_2px_rgba(16,40,34,.04)]">
           <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(34,176,125,.18)]" />
-          <span className="text-[12.5px] font-semibold text-idbi-slate">Portfolio synced · just now</span>
+          <span className="text-[12.5px] font-semibold text-idbi-slate">{t('sync_status')}</span>
         </div>
       </div>
 
@@ -134,7 +129,7 @@ function DashboardInner() {
             {portfolioValue != null ? `₹${portfolioValue.toLocaleString('en-IN')}` : '—'}
           </p>
           <p className="relative mb-3.5 text-[12.5px] text-[#A9DBCC]">
-            {portfolioValue != null ? 'Across all linked accounts' : 'Link an account to see your value'}
+            {portfolioValue != null ? t('value_subtitle_linked') : t('value_subtitle_empty')}
           </p>
           <svg width="100%" height="46" viewBox="0 0 300 46" preserveAspectRatio="none" className="relative block">
             <defs>
@@ -162,12 +157,12 @@ function DashboardInner() {
           <p className="mt-2.5 mb-1 text-[32px] font-extrabold tracking-tight text-idbi-ink">
             {monthlySip != null ? `₹${monthlySip.toLocaleString('en-IN')}` : '—'}
           </p>
-          <p className="mb-3.5 text-[12.5px] text-idbi-muted">{monthlySip != null ? 'Across your active goals' : 'No active SIPs yet'}</p>
+          <p className="mb-3.5 text-[12.5px] text-idbi-muted">{monthlySip != null ? t('sip_subtitle_active') : t('sip_subtitle_empty')}</p>
           <div className="h-2 rounded-full bg-idbi-light overflow-hidden">
             <div className="h-full rounded-full bg-gradient-to-r from-idbi-green to-idbi-teal" style={{ width: monthlySip != null ? '72%' : '0%' }} />
           </div>
           <p className="mt-2 text-[11.5px] font-semibold text-idbi-faint">
-            {monthlySip != null ? '72% of ₹22,000 recommended' : 'Set up a plan in Goals'}
+            {monthlySip != null ? t('sip_recommended', { pct: 72, amount: '22,000' }) : t('sip_setup_prompt')}
           </p>
         </div>
       </FadeIn>
@@ -182,7 +177,7 @@ function DashboardInner() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-idbi-ink">{t('insights_title')}</h2>
           <a href={`/${locale}/insights`} className="inline-flex items-center gap-1 text-[12.5px] font-bold text-idbi-green hover:text-idbi-dark transition-colors">
-            View all <ArrowRight size={14} />
+            {t('view_all')} <ArrowRight size={14} />
           </a>
         </div>
         {insightsLoading ? (

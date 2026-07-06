@@ -223,9 +223,9 @@ export default function AvatarChat({ initialMessage }: Props) {
   const statusLabel =
     avatarState === 'listening' ? t('listening' as never)
     : avatarState === 'speaking' ? t('speaking' as never)
-    : loading ? 'Typing…'
+    : loading ? t('typing')
     : (
-      <>IDBI Wealth Advisor · {locale.toUpperCase()} · {NATIVE_NAMES[locale] ?? locale.toUpperCase()}</>
+      <>{t('status_default')} · {locale.toUpperCase()} · {NATIVE_NAMES[locale] ?? locale.toUpperCase()}</>
     );
 
   return (
@@ -315,12 +315,12 @@ export default function AvatarChat({ initialMessage }: Props) {
                 <div className="flex gap-1.5 flex-wrap px-1">
                   {msg.sources.includes('kb') && (
                     <span className="text-[10.5px] font-medium text-idbi-faint bg-[#F1F5F3] px-2.5 py-1 rounded-full">
-                      📚 IDBI knowledge base
+                      📚 {t('source_kb')}
                     </span>
                   )}
                   {msg.sources.includes('account') && (
                     <span className="text-[10.5px] font-medium text-idbi-faint bg-[#F1F5F3] px-2.5 py-1 rounded-full">
-                      💼 Your portfolio
+                      💼 {t('source_account')}
                     </span>
                   )}
                 </div>

@@ -7,12 +7,13 @@ import { TrendingUp } from 'lucide-react';
 import LanguageSwitcher from './LanguageSwitcher';
 
 function DemoLink({ locale }: { locale: string }) {
+  const t = useTranslations('nav');
   return (
     <Link
       href={`/${locale}/demo?demo=true`}
       className="text-sm text-white/90 font-semibold hover:text-white transition-colors border border-white/40 px-3 py-1 rounded-full"
     >
-      Judge Demo →
+      {t('judge_demo')} →
     </Link>
   );
 }

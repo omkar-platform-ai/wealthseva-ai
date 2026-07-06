@@ -2,10 +2,11 @@
 import { useTranslations } from 'next-intl';
 
 // Gauge position + badge treatment per profile (kept on-brand).
-const META: Record<string, { pct: number; label: number; badge: string; note: string }> = {
-  conservative: { pct: 0.28, label: 28, badge: 'bg-[#E4F4EC] text-[#1E7A4E]', note: 'Capital preservation with steady, lower-risk returns.' },
-  moderate: { pct: 0.45, label: 45, badge: 'bg-[#FFF3D6] text-[#9A6C00]', note: 'Balanced growth with measured risk exposure.' },
-  aggressive: { pct: 0.72, label: 72, badge: 'bg-[#FDE7DD] text-[#C25A15]', note: 'Growth-focused, comfortable with higher volatility.' },
+// Note copy lives in messages (risk.note_*) so it localises on language switch.
+const META: Record<string, { pct: number; label: number; badge: string }> = {
+  conservative: { pct: 0.28, label: 28, badge: 'bg-[#E4F4EC] text-[#1E7A4E]' },
+  moderate: { pct: 0.45, label: 45, badge: 'bg-[#FFF3D6] text-[#9A6C00]' },
+  aggressive: { pct: 0.72, label: 72, badge: 'bg-[#FDE7DD] text-[#C25A15]' },
 };
 
 const R = 31;
@@ -14,8 +15,11 @@ const C = 2 * Math.PI * R;
 export default function RiskProfileBadge({ profile = 'moderate' }: { profile?: string }) {
   const t = useTranslations('onboarding');
   const tDash = useTranslations('dashboard');
-  const meta = META[profile] ?? META.moderate;
-  const label = t(profile as 'conservative' | 'moderate' | 'aggressive');
+  const tRisk = useTranslations('risk');
+  const profileKey = (META[profile] ? profile : 'moderate') as 'conservative' | 'moderate' | 'aggressive';
+  const meta = META[profileKey];
+  const label = t(profileKey);
+  const noteKey = `note_${profileKey}` as const;
   const offset = C * (1 - meta.pct);
 
   return (
@@ -36,7 +40,7 @@ export default function RiskProfileBadge({ profile = 'moderate' }: { profile?: s
           <span className={`inline-block text-[13px] font-bold capitalize px-3 py-1.5 rounded-full ${meta.badge}`}>
             {label}
           </span>
-          <p className="mt-2.5 text-[12px] leading-snug text-idbi-faint">{meta.note}</p>
+          <p className="mt-2.5 text-[12px] leading-snug text-idbi-faint">{tRisk(noteKey)}</p>
         </div>
       </div>
     </div>

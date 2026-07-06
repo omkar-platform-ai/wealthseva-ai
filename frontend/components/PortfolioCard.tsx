@@ -112,7 +112,7 @@ export default function PortfolioCard() {
       <div className="flex justify-between items-center mb-[18px] gap-4 flex-wrap">
         <div>
           <h2 className="text-lg font-bold text-idbi-ink">{t('title')}</h2>
-          <p className="mt-1 text-[12.5px] text-idbi-muted">Upload holdings for an AI breakdown</p>
+          <p className="mt-1 text-[12.5px] text-idbi-muted">{t('subtitle')}</p>
         </div>
         <button
           onClick={handleSampleUpload}
@@ -135,7 +135,7 @@ export default function PortfolioCard() {
           <UploadCloud size={22} className="text-idbi-green" strokeWidth={2} />
         </div>
         <p className="text-[14.5px] font-semibold text-idbi-slate">{t('upload_prompt')}</p>
-        <p className="mt-1.5 text-[12px] text-idbi-faint font-medium">Max 2MB · CSV only</p>
+        <p className="mt-1.5 text-[12px] text-idbi-faint font-medium">{t('upload_hint')}</p>
       </div>
 
       {analyzing && (
@@ -192,7 +192,7 @@ export default function PortfolioCard() {
                     <YAxis tick={{ fill: '#9AAAA5', fontSize: 12 }} stroke="#E1EAE7" />
                     <Tooltip
                       contentStyle={{ backgroundColor: '#122622', border: 'none', borderRadius: '10px', color: '#fff' }}
-                      formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Value']}
+                      formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, t('chart_value_label')]}
                       cursor={{ fill: 'rgba(0,131,108,.06)' }}
                     />
                     <Bar dataKey="value" radius={[8, 8, 0, 0]}>

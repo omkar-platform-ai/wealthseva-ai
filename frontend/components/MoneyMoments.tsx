@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface WhyTrace {
   data_points: string[];
@@ -41,6 +42,7 @@ interface Props {
 }
 
 export default function MoneyMoments({ onNudgeSelect }: Props) {
+  const t = useTranslations('moments');
   const [nudges, setNudges] = useState<Nudge[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -58,7 +60,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
   return (
     <section className="mt-6">
       <h2 className="text-base font-bold text-idbi-slate mb-3 flex items-center gap-2">
-        <span aria-hidden>⚡</span> Money Moments
+        <span aria-hidden>⚡</span> {t('title')}
       </h2>
       <div className="space-y-3">
         {nudges.map(nudge => (
@@ -74,7 +76,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-semibold text-sm text-idbi-slate">{nudge.title}</p>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SEVERITY_BADGE[nudge.severity]}`}>
-                    {nudge.severity.toUpperCase()}
+                    {t(`severity_${nudge.severity}` as const)}
                   </span>
                 </div>
                 <p className="text-xs text-idbi-faint mt-1.5 leading-relaxed">{nudge.body}</p>
@@ -83,7 +85,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
                   onClick={() => setExpanded(expanded === nudge.id ? null : nudge.id)}
                   className="text-[11px] font-medium mt-2 text-idbi-green hover:underline"
                 >
-                  {expanded === nudge.id ? 'Hide details ↑' : 'Why this? ↓'}
+                  {expanded === nudge.id ? `${t('why_hide')} ↑` : `${t('why_show')} ↓`}
                 </button>
 
                 {expanded === nudge.id && (
@@ -105,7 +107,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
                   onClick={() => onNudgeSelect(nudge.chat_seed)}
                   className="mt-3 text-[12px] font-bold text-white bg-idbi-green px-4 py-1.5 rounded-full hover:bg-idbi-dark transition-colors shadow-[0_4px_12px_-4px_rgba(0,131,108,.5)]"
                 >
-                  Talk to Shreya →
+                  {t('talk_to_shreya')} →
                 </button>
               </div>
             </div>
