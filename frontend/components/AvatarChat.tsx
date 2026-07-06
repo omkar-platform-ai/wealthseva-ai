@@ -29,7 +29,11 @@ type AvatarState = 'idle' | 'listening' | 'speaking';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
-export default function AvatarChat() {
+interface Props {
+  initialMessage?: string;
+}
+
+export default function AvatarChat({ initialMessage }: Props) {
   const t = useTranslations('advisor');
   const locale = useLocale();
   const router = useRouter();
@@ -107,6 +111,11 @@ export default function AvatarChat() {
       recognizerRef.current?.stop();
     };
   }, []);
+
+  // Pre-fill input when a Money Moments nudge is selected externally
+  useEffect(() => {
+    if (initialMessage) setInput(initialMessage);
+  }, [initialMessage]);
 
   // ---- Backend wiring: streaming POST /api/chat ----
   const sendMessage = async (chipInput?: string) => {

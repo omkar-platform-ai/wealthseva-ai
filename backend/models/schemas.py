@@ -127,3 +127,29 @@ class IDBIGoal(BaseModel):
 class IDBIGoalsResponse(BaseModel):
     data: List[IDBIGoal]
     source: str
+
+
+class NudgeType(str, Enum):
+    IDLE_CASH = "idle_cash"
+    SIP_SHORTFALL = "sip_shortfall"
+
+
+class NudgeWhyTrace(BaseModel):
+    data_points: List[str]
+    rule: str
+    calculation: str
+
+
+class Nudge(BaseModel):
+    id: str
+    type: NudgeType
+    title: str
+    body: str
+    severity: str  # "low" | "medium" | "high"
+    why_trace: NudgeWhyTrace
+    chat_seed: str  # pre-seeded message for Shreya
+
+
+class NudgesResponse(BaseModel):
+    nudges: List[Nudge]
+    source: str
