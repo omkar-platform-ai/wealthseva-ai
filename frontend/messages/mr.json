@@ -57,7 +57,11 @@
     "speaking": "बोलत आहे…",
     "voice_on": "आवाज सुरू करा",
     "voice_off": "आवाज बंद करा",
-    "mic_label": "तुमचा प्रश्न बोला"
+    "mic_label": "तुमचा प्रश्न बोला",
+    "continuity_divider": "आता {language} मध्ये सुरू",
+    "continuity_prompt": "श्रेया {language} मध्ये उत्तर देत आहे",
+    "continuity_switch": "बदला",
+    "continuity_dismiss": "बंद करा"
   },
   "consent": {
     "title": "डेटा संमती",

@@ -57,7 +57,11 @@
     "speaking": "Speaking…",
     "voice_on": "Turn voice on",
     "voice_off": "Turn voice off",
-    "mic_label": "Speak your question"
+    "mic_label": "Speak your question",
+    "continuity_divider": "Continuing in {language}",
+    "continuity_prompt": "Shreya is replying in {language}",
+    "continuity_switch": "Switch",
+    "continuity_dismiss": "Dismiss"
   },
   "consent": {
     "title": "Data Consent",

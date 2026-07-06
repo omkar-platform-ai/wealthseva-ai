@@ -2,6 +2,7 @@ import asyncio
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from models.schemas import ChatRequest, Language
+from services.account_service import get_account_context
 from services.claude_service import stream_chat
 from services.language_service import detect_language
 from services.rag_service import retrieve_context, get_rag_status
@@ -46,11 +47,15 @@ async def chat(req: ChatRequest):
     detected_lang = detect_language(req.message, fallback=req.language)
     effective_lang = detected_lang if detected_lang != Language.EN else req.language
 
-    # Retrieve IDBI context via RAG
-    context = await retrieve_context(req.message, effective_lang)
+    # Retrieve IDBI knowledge-base context (RAG) and the customer's account
+    # snapshot in parallel — both are optional and degrade to "".
+    context, account_context = await asyncio.gather(
+        retrieve_context(req.message, effective_lang),
+        get_account_context(),
+    )
 
     async def generate():
-        async for chunk in stream_chat(req.message, req.history, effective_lang, context):
+        async for chunk in stream_chat(req.message, req.history, effective_lang, context, account_context):
             yield chunk
 
     return StreamingResponse(generate(), media_type="text/plain",

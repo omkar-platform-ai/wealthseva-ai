@@ -99,6 +99,7 @@ async def stream_chat(
     history: list[ChatMessage],
     language: Language,
     context: str = "",
+    account_context: str = "",
 ) -> AsyncIterator[str]:
     """Stream a Claude response for the wealth advisor chat."""
     candidates = _get_client_candidates()
@@ -111,6 +112,10 @@ async def stream_chat(
     system_prompt = get_system_prompt(language)
     if context:
         system_prompt += f"\n\n## Relevant IDBI Data Context\n{context}"
+    if account_context:
+        # Kept separate from the KB context so the persona's "IDBI Account
+        # Data" rules apply to it (and so grounding can be attributed later).
+        system_prompt += f"\n\n## Customer IDBI Account Data\n{account_context}"
 
     # Trim history to MAX_HISTORY (keep only last N messages)
     trimmed_history = history[-MAX_HISTORY:] if len(history) > MAX_HISTORY else history
