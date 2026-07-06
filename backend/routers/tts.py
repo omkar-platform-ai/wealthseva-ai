@@ -35,12 +35,15 @@ async def text_to_speech(request: TTSRequest):
     voice_id = get_voice_id(request.language)
 
     if not api_key or not voice_id:
-        # Log booleans only — never the key or voice ID values.
         logger.warning(
             "tts path=browser-fallback reason=missing-config lang=%s api_key_set=%s voice_id_set=%s",
             request.language.value, bool(api_key), bool(voice_id),
         )
         return BROWSER_FALLBACK
+
+    # Log prefix of voice ID (safe — never the full ID) so prod logs confirm
+    # per-language routing vs. silent EN fallback.
+    logger.info("tts lang=%s voice_prefix=%s", request.language.value, voice_id[:8])
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
