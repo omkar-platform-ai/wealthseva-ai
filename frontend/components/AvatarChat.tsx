@@ -11,6 +11,7 @@ interface Message {
   // rendered as a thread separator and never sent to the backend.
   role: 'user' | 'assistant' | 'divider';
   content: string;
+  sources?: string[]; // grounding sources: 'kb' | 'account'
 }
 
 const NATIVE_NAMES: Record<string, string> = {
@@ -141,11 +142,13 @@ export default function AvatarChat() {
       const detected = response.headers.get('X-Detected-Language');
       const replyLang = detected && NATIVE_NAMES[detected] ? detected : locale;
 
+      const groundingSources = response.headers.get('X-Grounding-Sources')?.split(',').filter(Boolean) ?? [];
+
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let reply = '';
 
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: '', sources: groundingSources }]);
 
       while (reader) {
         const { done, value } = await reader.read();
@@ -153,7 +156,7 @@ export default function AvatarChat() {
         reply += decoder.decode(value);
         setMessages(prev => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: reply };
+          updated[updated.length - 1] = { role: 'assistant', content: reply, sources: groundingSources };
           return updated;
         });
       }
@@ -268,17 +271,33 @@ export default function AvatarChat() {
             </div>
           ) : (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[76%] px-4 py-3 rounded-[18px] text-sm leading-relaxed ${
-              msg.role === 'user'
-                ? 'bg-idbi-green text-white rounded-br-[5px]'
-                : 'bg-[#F1F5F3] text-idbi-slate rounded-bl-[5px]'
-            }`}>
-              {msg.content || (
-                <span className="inline-flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite .2s' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite .4s' }} />
-                </span>
+            <div className="max-w-[76%] flex flex-col gap-1.5">
+              <div className={`px-4 py-3 rounded-[18px] text-sm leading-relaxed ${
+                msg.role === 'user'
+                  ? 'bg-idbi-green text-white rounded-br-[5px]'
+                  : 'bg-[#F1F5F3] text-idbi-slate rounded-bl-[5px]'
+              }`}>
+                {msg.content || (
+                  <span className="inline-flex gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite .2s' }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite .4s' }} />
+                  </span>
+                )}
+              </div>
+              {msg.role === 'assistant' && msg.sources && msg.sources.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap px-1">
+                  {msg.sources.includes('kb') && (
+                    <span className="text-[10.5px] font-medium text-idbi-faint bg-[#F1F5F3] px-2.5 py-1 rounded-full">
+                      📚 IDBI knowledge base
+                    </span>
+                  )}
+                  {msg.sources.includes('account') && (
+                    <span className="text-[10.5px] font-medium text-idbi-faint bg-[#F1F5F3] px-2.5 py-1 rounded-full">
+                      💼 Your portfolio
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>

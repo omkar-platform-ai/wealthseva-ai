@@ -138,6 +138,66 @@ class TestDetectedLanguageHeader:
         assert "x-detected-language" in exposed.lower()
 
 
+class TestGroundingSourcesHeader:
+    """X-Grounding-Sources signals which sources grounded the reply."""
+
+    def test_demo_mode_carries_grounding_header(self):
+        """Demo-mode shortcut emits empty grounding (no RAG / account fetch)."""
+        response = client.post(
+            "/api/chat",
+            json={"message": "DEMO_MODE_SIP_HINDI", "session_id": "test-gs", "language": "en"},
+            headers={"Origin": "http://localhost:3000"},
+        )
+        assert response.status_code == 200
+        # Header must be present (may be empty string)
+        assert "x-grounding-sources" in response.headers
+        exposed = response.headers.get("access-control-expose-headers", "")
+        assert "x-grounding-sources" in exposed.lower()
+
+    def test_kb_and_account_sources_when_both_populated(self):
+        """When RAG returns context AND account snapshot is non-empty, both appear."""
+        mock_bedrock = MagicMock()
+        mock_stream = AsyncMock()
+        mock_stream.text_stream.__aiter__ = AsyncMock(return_value=iter(["ok"]))
+        mock_stream.__aenter__ = AsyncMock(return_value=mock_stream)
+        mock_stream.__aexit__ = AsyncMock()
+        mock_bedrock.messages.stream.return_value = mock_stream
+
+        with patch('services.claude_service.client', mock_bedrock), \
+             patch('services.rag_service.retrieve_context', return_value="Some KB chunk"):
+            response = client.post(
+                "/api/chat",
+                json={"message": "Where to invest?", "session_id": "test-gs2", "language": "en"},
+                headers={"Origin": "http://localhost:3000"},
+            )
+
+        assert response.status_code == 200
+        sources = response.headers.get("x-grounding-sources", "")
+        assert "kb" in sources
+        assert "account" in sources
+
+    def test_no_kb_source_when_rag_empty(self):
+        """When RAG returns nothing, 'kb' must NOT appear in grounding sources."""
+        mock_bedrock = MagicMock()
+        mock_stream = AsyncMock()
+        mock_stream.text_stream.__aiter__ = AsyncMock(return_value=iter(["ok"]))
+        mock_stream.__aenter__ = AsyncMock(return_value=mock_stream)
+        mock_stream.__aexit__ = AsyncMock()
+        mock_bedrock.messages.stream.return_value = mock_stream
+
+        with patch('services.claude_service.client', mock_bedrock), \
+             patch('services.rag_service.retrieve_context', return_value=""):
+            response = client.post(
+                "/api/chat",
+                json={"message": "Hello", "session_id": "test-gs3", "language": "en"},
+                headers={"Origin": "http://localhost:3000"},
+            )
+
+        assert response.status_code == 200
+        sources = response.headers.get("x-grounding-sources", "")
+        assert "kb" not in sources
+
+
 class TestAccountContextInjection:
     """Chat grounds replies in the customer's IDBI account snapshot."""
 

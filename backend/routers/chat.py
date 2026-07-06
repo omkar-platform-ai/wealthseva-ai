@@ -40,7 +40,7 @@ async def chat(req: ChatRequest):
         return StreamingResponse(
             demo_stream(),
             media_type="text/plain",
-            headers={**_STREAM_HEADERS, "X-Detected-Language": "hi"},
+            headers={**_STREAM_HEADERS, "X-Detected-Language": "hi", "X-Grounding-Sources": ""},
         )
 
     # Detect language from input, fall back to user preference
@@ -54,12 +54,16 @@ async def chat(req: ChatRequest):
         get_account_context(),
     )
 
+    grounding = ",".join(s for s in ["kb" if context else "", "account" if account_context else ""] if s)
+
     async def generate():
         async for chunk in stream_chat(req.message, req.history, effective_lang, context, account_context):
             yield chunk
 
     return StreamingResponse(generate(), media_type="text/plain",
-                              headers={**_STREAM_HEADERS, "X-Detected-Language": effective_lang.value})
+                              headers={**_STREAM_HEADERS,
+                                       "X-Detected-Language": effective_lang.value,
+                                       "X-Grounding-Sources": grounding})
 
 
 @router.get("/rag/status")

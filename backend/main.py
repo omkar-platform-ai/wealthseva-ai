@@ -26,7 +26,7 @@ app.add_middleware(
     # Response headers are NOT readable cross-origin unless exposed. The
     # frontend reads X-Detected-Language to drive the language-continuity chip
     # and pick the correct TTS voice for the reply.
-    expose_headers=["X-Detected-Language"],
+    expose_headers=["X-Detected-Language", "X-Grounding-Sources"],
 )
 
 app.include_router(chat.router, prefix="/api", tags=["Chat"])
