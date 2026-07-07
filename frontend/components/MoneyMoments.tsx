@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface WhyTrace {
   data_points: string[];
@@ -43,17 +43,21 @@ interface Props {
 
 export default function MoneyMoments({ onNudgeSelect }: Props) {
   const t = useTranslations('moments');
+  const locale = useLocale();
   const [nudges, setNudges] = useState<Nudge[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
+  // Re-fetch whenever the locale changes so nudge prose follows the language
+  // selection. Figures are deterministic and identical across locales.
   useEffect(() => {
-    fetch(`${BACKEND_URL}/api/nudges`)
+    setLoaded(false);
+    fetch(`${BACKEND_URL}/api/nudges?language=${locale}`)
       .then(r => r.json())
       .then(d => setNudges(d.nudges ?? []))
       .catch(() => {})
       .finally(() => setLoaded(true));
-  }, []);
+  }, [locale]);
 
   if (!loaded || nudges.length === 0) return null;
 
