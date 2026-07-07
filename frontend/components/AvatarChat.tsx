@@ -1,9 +1,10 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { Mic, Send, Volume2, VolumeX, X, RotateCcw } from 'lucide-react';
+import { Mic, Send, Volume2, VolumeX, X, RotateCcw, Headset } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { speak, createRecognizer, SpeakHandle, Recognizer } from '@/lib/voice';
+import EscalateAdvisorModal from '@/components/EscalateAdvisorModal';
 import { useRouter, usePathname } from '../navigation';
 
 interface Message {
@@ -44,6 +45,7 @@ export default function AvatarChat({ initialMessage }: Props) {
   const [loading, setLoading] = useState(false);
   const [health, setHealth] = useState<HealthStatus>({ healthy: true, loading: false });
   const [showChips, setShowChips] = useState(true);
+  const [escalateOpen, setEscalateOpen] = useState(false);
   const [avatarState, setAvatarState] = useState<AvatarState>('idle');
   const [voiceOn, setVoiceOn] = useState(true);
   const [sttSupported, setSttSupported] = useState(false);
@@ -278,6 +280,15 @@ export default function AvatarChat({ initialMessage }: Props) {
             <RotateCcw size={18} />
           </button>
           <button
+            onClick={() => setEscalateOpen(true)}
+            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-[11.5px] font-semibold pl-2 pr-2.5 py-1 rounded-full transition-colors"
+            aria-label={t('escalate_chip' as never)}
+            title={t('escalate_chip' as never)}
+          >
+            <Headset size={14} />
+            <span className="whitespace-nowrap hidden sm:inline">{t('escalate_chip' as never)}</span>
+          </button>
+          <button
             onClick={toggleVoice}
             className="text-[#BFE6DC] hover:text-white transition-colors"
             aria-label={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
@@ -312,6 +323,14 @@ export default function AvatarChat({ initialMessage }: Props) {
                     {chip.text}
                   </button>
                 ))}
+                {/* Action chip — opens the escalation modal (not sent to the LLM) */}
+                <button
+                  onClick={() => setEscalateOpen(true)}
+                  className="flex items-center gap-1.5 text-[13px] font-semibold border-[1.5px] border-idbi-green text-idbi-green px-4 py-2.5 rounded-full hover:bg-idbi-light transition-colors"
+                >
+                  <Headset size={14} />
+                  {t('escalate_chip' as never)}
+                </button>
               </div>
             )}
           </div>
@@ -420,6 +439,10 @@ export default function AvatarChat({ initialMessage }: Props) {
           <Send size={18} />
         </button>
       </div>
+
+      {escalateOpen && (
+        <EscalateAdvisorModal onClose={() => setEscalateOpen(false)} />
+      )}
     </div>
   );
 }

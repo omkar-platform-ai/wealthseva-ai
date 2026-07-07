@@ -3,13 +3,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import AvatarChat from '@/components/AvatarChat';
 import MoneyMoments from '@/components/MoneyMoments';
-import EscalateAdvisorModal from '@/components/EscalateAdvisorModal';
 import ConsentGate from '@/components/ConsentGate';
 
 export default function AdvisorPage() {
   const t = useTranslations('advisor');
+  const tc = useTranslations('consent');
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
-  const [escalateOpen, setEscalateOpen] = useState(false);
+  const [declined, setDeclined] = useState(false);
   const [nudgeSeed, setNudgeSeed] = useState<string | undefined>();
   const chatRef = useRef<HTMLDivElement>(null);
 
@@ -27,8 +27,27 @@ export default function AdvisorPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {!hasConsent && (
-        <ConsentGate onAccept={() => setHasConsent(true)} />
+      {!hasConsent && !declined && (
+        <ConsentGate
+          onAccept={() => setHasConsent(true)}
+          onDecline={() => setDeclined(true)}
+        />
+      )}
+
+      {declined && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
+            <span className="text-4xl mb-4 block">🔒</span>
+            <h2 className="text-lg font-bold text-idbi-green mb-3">{tc('declined_title')}</h2>
+            <p className="text-sm text-gray-700 mb-6">{tc('declined_body')}</p>
+            <button
+              onClick={() => setDeclined(false)}
+              className="w-full bg-idbi-green text-white py-2 rounded-xl text-sm font-medium hover:bg-idbi-dark transition-colors"
+            >
+              {tc('declined_review_cta')}
+            </button>
+          </div>
+        </div>
       )}
 
       <h1 className="text-2xl font-bold text-idbi-green mb-6">{t('title')}</h1>
@@ -41,20 +60,7 @@ export default function AdvisorPage() {
         {t('ai_disclaimer')}
       </p>
 
-      <div className="mt-4 flex justify-center">
-        <button
-          onClick={() => setEscalateOpen(true)}
-          className="text-idbi-green border border-idbi-green px-4 py-2 rounded-lg text-sm hover:bg-idbi-light transition-colors"
-        >
-          {t('escalate_cta')}
-        </button>
-      </div>
-
       <MoneyMoments onNudgeSelect={handleNudgeSelect} />
-
-      {escalateOpen && (
-        <EscalateAdvisorModal onClose={() => setEscalateOpen(false)} />
-      )}
     </div>
   );
 }
