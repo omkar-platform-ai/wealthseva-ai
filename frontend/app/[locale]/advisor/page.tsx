@@ -3,13 +3,11 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import AvatarChat from '@/components/AvatarChat';
 import MoneyMoments from '@/components/MoneyMoments';
-import EscalateAdvisorModal from '@/components/EscalateAdvisorModal';
 import ConsentGate from '@/components/ConsentGate';
 
 export default function AdvisorPage() {
   const t = useTranslations('advisor');
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
-  const [escalateOpen, setEscalateOpen] = useState(false);
   const [nudgeSeed, setNudgeSeed] = useState<string | undefined>();
   const chatRef = useRef<HTMLDivElement>(null);
 
@@ -41,20 +39,7 @@ export default function AdvisorPage() {
         {t('ai_disclaimer')}
       </p>
 
-      <div className="mt-4 flex justify-center">
-        <button
-          onClick={() => setEscalateOpen(true)}
-          className="text-idbi-green border border-idbi-green px-4 py-2 rounded-lg text-sm hover:bg-idbi-light transition-colors"
-        >
-          {t('escalate_cta')}
-        </button>
-      </div>
-
       <MoneyMoments onNudgeSelect={handleNudgeSelect} />
-
-      {escalateOpen && (
-        <EscalateAdvisorModal onClose={() => setEscalateOpen(false)} />
-      )}
     </div>
   );
 }
