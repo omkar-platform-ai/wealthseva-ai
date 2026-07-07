@@ -64,10 +64,21 @@
     "continuity_dismiss": "Dismiss"
   },
   "consent": {
-    "title": "Data Consent",
-    "body": "I consent to WealthSeva processing my financial information (portfolio holdings, risk profile, financial goals, and conversation history) to provide personalised wealth guidance. Data is used solely for this purpose and is not shared with third parties.",
-    "checkbox_label": "I agree to the above terms.",
-    "continue": "Continue"
+    "title": "Data Privacy Consent — DPDP Act 2023",
+    "fiduciary_label": "Data Fiduciary: IDBI Bank",
+    "body": "Before proceeding, please read the following notice issued by IDBI Bank (the Data Fiduciary) under the Digital Personal Data Protection Act 2023. Your consent is voluntary and necessary to use the AI Advisor.",
+    "data_collected_heading": "Personal Data We Collect",
+    "data_collected_body": "Portfolio holdings, risk profile, financial goals, and conversation history. This data is used solely to provide personalised AI wealth guidance and is not shared with any third party.",
+    "rights_heading": "Your Rights as a Data Principal",
+    "rights_body": "Under the DPDP Act 2023, you have the right to: access your personal data, seek correction or erasure, raise a grievance with IDBI Bank's Data Protection Officer, and nominate a representative. Contact: dpo@idbi.co.in",
+    "withdraw_heading": "Right to Withdraw Consent",
+    "withdraw_body": "You may withdraw consent at any time by clearing your browser data or by speaking with an IDBI human advisor. Withdrawal does not affect the lawfulness of prior processing.",
+    "checkbox_label": "I have read and understood the DPDP notice above, and I voluntarily give my consent to IDBI Bank to process my personal data for personalised AI wealth guidance.",
+    "continue": "I Consent & Continue",
+    "decline": "Decline",
+    "declined_title": "Consent Required",
+    "declined_body": "The AI Advisor requires your consent to process personal data under the DPDP Act 2023. Without consent, the chat cannot be opened. You may review the notice and consent at any time, or speak to a human IDBI advisor.",
+    "declined_review_cta": "Review Consent Notice"
   },
   "dashboard": {
     "title": "Dashboard",
