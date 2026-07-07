@@ -14,7 +14,7 @@ export default function AdvisorPage() {
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setHasConsent(localStorage.getItem('wealthseva_consent_v1') === 'true');
+    setHasConsent(sessionStorage.getItem('wealthseva_consent_v1') === 'true');
   }, []);
 
   const handleNudgeSelect = (seed: string) => {
@@ -22,34 +22,40 @@ export default function AdvisorPage() {
     chatRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Avoid flash of unstyled content before localStorage is read
+  // Avoid flash of unstyled content before sessionStorage is read
   if (hasConsent === null) return null;
+
+  // Hard gate: AvatarChat (and its backend calls) must NOT mount until consent
+  // is granted. Decline shows a blocked overlay; neither path renders the chat.
+  if (declined) {
+    return (
+      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+        <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
+          <span className="text-4xl mb-4 block">🔒</span>
+          <h2 className="text-lg font-bold text-idbi-green mb-3">{tc('declined_title')}</h2>
+          <p className="text-sm text-gray-700 mb-6">{tc('declined_body')}</p>
+          <button
+            onClick={() => setDeclined(false)}
+            className="w-full bg-idbi-green text-white py-2 rounded-xl text-sm font-medium hover:bg-idbi-dark transition-colors"
+          >
+            {tc('declined_review_cta')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasConsent) {
+    return (
+      <ConsentGate
+        onAccept={() => setHasConsent(true)}
+        onDecline={() => setDeclined(true)}
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {!hasConsent && !declined && (
-        <ConsentGate
-          onAccept={() => setHasConsent(true)}
-          onDecline={() => setDeclined(true)}
-        />
-      )}
-
-      {declined && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
-            <span className="text-4xl mb-4 block">🔒</span>
-            <h2 className="text-lg font-bold text-idbi-green mb-3">{tc('declined_title')}</h2>
-            <p className="text-sm text-gray-700 mb-6">{tc('declined_body')}</p>
-            <button
-              onClick={() => setDeclined(false)}
-              className="w-full bg-idbi-green text-white py-2 rounded-xl text-sm font-medium hover:bg-idbi-dark transition-colors"
-            >
-              {tc('declined_review_cta')}
-            </button>
-          </div>
-        </div>
-      )}
-
       <h1 className="text-2xl font-bold text-idbi-green mb-6">{t('title')}</h1>
 
       <div ref={chatRef}>

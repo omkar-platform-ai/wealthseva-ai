@@ -13,7 +13,7 @@ export default function ConsentGate({ onAccept, onDecline }: Props) {
 
   const handleContinue = () => {
     if (!checked) return;
-    localStorage.setItem('wealthseva_consent_v1', 'true');
+    sessionStorage.setItem('wealthseva_consent_v1', 'true');
     onAccept();
   };
 
