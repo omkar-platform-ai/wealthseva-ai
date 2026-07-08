@@ -74,3 +74,15 @@ memory/
 .mcp.json
 *.tsbuildinfo
 CLAUDE-BKP.md
+
+# docs
+docs/WEA*
+docs/wea*
+docs/PR*
+docs/FIX*
+docs/*.json
+
+
+# Others
+.agents/
+.paperclip/
