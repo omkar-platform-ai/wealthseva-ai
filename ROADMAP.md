@@ -26,6 +26,8 @@ The initial submission demonstrates the three differentiators end-to-end.
 | **Saved history & goals** | Conversations and goals persist across sessions (Supabase). | — |
 | **Deeper multilingual search** | Semantic retrieval (Titan embeddings) tuned per language, with per-language namespaces. | — |
 | **More proactive guards** | Panic-selling guards and SIP-shortfall alerts added to the Money Moments feed. | — |
+| **Government scheme advisor** | Compare NPS, Sukanya Samriddhi, SCSS, PPF, NSC and RBI bonds against a customer's goals and eligibility. Advisory only — no execution; recommendations route to the existing IDBI scheme (branch / NPS POP / SSY-PPF counter), not a new transaction rail. Rate table is date-stamped and needs a quarterly refresh process (small-savings rates are revised by the Finance Ministry every quarter). | [WEA-79](https://github.com/omkar-platform-ai/wealthseva-ai) |
+| **Capital gains & tax view** | LTCG/STCG estimate on the customer's mutual fund and digital gold holdings, computed with the same server-side deterministic pattern used for Risk and Goals ("Why this number?") — never LLM arithmetic. Deliberately scoped to the two asset classes already in MVP; explicitly not a general tax-filing or ITR tool, and does not model loss carry-forward or pre-2018 equity grandfathering. | [WEA-80](https://github.com/omkar-platform-ai/wealthseva-ai) |
 
 ## 🔭 Planned — Vision (Aug 13 & beyond)
 
@@ -35,6 +37,7 @@ The initial submission demonstrates the three differentiators end-to-end.
 | **Works in low connectivity** | Pre-cached audio and offline fallbacks for branch and rural use. |
 | **In-app & WhatsApp** | Embedded inside IDBI mobile banking and delivered over WhatsApp. |
 | **More Indian languages** | Telugu, Gujarati, Kannada and beyond. |
+| **Foreign investment guide** | Explains LRS remittance limits, the 20% TCS above ₹7L, and US equity capital-gains taxation. Informational only — deliberately not a transactable asset class; IDBI has no existing overseas-broker relationship to execute against, and the target user (vernacular-first, advisor-scarce segment) is not primarily a foreign-equity investor. | [WEA-81](https://github.com/omkar-platform-ai/wealthseva-ai) |
 
 ---
 

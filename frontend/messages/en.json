@@ -25,7 +25,9 @@
           { "title": "CAS statement analysis", "desc": "Upload your Consolidated Account Statement (CDSL/NSDL demat + mutual funds) for instant analysis." },
           { "title": "Saved history & goals", "desc": "Your conversations and goals persist across sessions." },
           { "title": "Deeper multilingual search", "desc": "Semantic retrieval tuned for every supported language." },
-          { "title": "More proactive guards", "desc": "Panic-selling guards and SIP-shortfall alerts." }
+          { "title": "More proactive guards", "desc": "Panic-selling guards and SIP-shortfall alerts." },
+          { "title": "Government scheme advisor", "desc": "Compare NPS, Sukanya Samriddhi, SCSS, PPF and other government schemes for your goals — informational only, not an execution platform." },
+          { "title": "Capital gains & tax view", "desc": "See LTCG/STCG on your mutual fund and gold holdings — a fixed-rule estimate, not a filing tool." }
         ]
       },
       {
@@ -35,7 +37,8 @@
           { "title": "Live IDBI accounts", "desc": "Real account data via a live / mock toggle." },
           { "title": "Works in low connectivity", "desc": "Pre-cached audio and offline fallbacks for branch use." },
           { "title": "In-app & WhatsApp", "desc": "Embedded in IDBI mobile banking and WhatsApp." },
-          { "title": "More Indian languages", "desc": "Telugu, Gujarati, Kannada and beyond." }
+          { "title": "More Indian languages", "desc": "Telugu, Gujarati, Kannada and beyond." },
+          { "title": "Foreign investment guide", "desc": "Understand LRS limits and US equity taxation — informational only, no trade execution." }
         ]
       }
     ]
