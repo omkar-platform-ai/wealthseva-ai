@@ -1,0 +1,123 @@
+<svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <title>WealthSeva AI — End-to-End Advisory Process Flow</title>
+  <desc>Per-query pipeline: customer → consent gate → language service → RAG retrieval → Claude (Bedrock) → vernacular voice reply, with supporting services and always-on guardrails. Light IDBI-styled theme.</desc>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L8,4 z" fill="#6B7B75"/>
+    </marker>
+    <marker id="arr-o" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto">
+      <path d="M0,0 L0,8 L8,4 z" fill="#E06A1C"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="500" fill="#FFFFFF" rx="10"/>
+
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#14352B">WealthSeva AI — End-to-End Advisory Process Flow</text>
+  <text x="600" y="50" text-anchor="middle" font-size="11" fill="#5B6B66">Every query flows: consent → language detection → RAG grounding → Claude (Bedrock) → vernacular voice reply</text>
+
+  <!-- ══════════════ MAIN PIPELINE ══════════════ -->
+  <!-- Box 1 · Customer -->
+  <rect x="31" y="72" width="168" height="84" fill="#14594A" rx="7"/>
+  <text x="115" y="92" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">1 · Customer</text>
+  <text x="115" y="110" text-anchor="middle" font-size="9" fill="#E6F0EC">Types or speaks in</text>
+  <text x="115" y="124" text-anchor="middle" font-size="9" fill="#E6F0EC">EN · HI · MR · TA · BN</text>
+  <text x="115" y="138" text-anchor="middle" font-size="9" fill="#B9D3CA">(mobile or desktop)</text>
+
+  <!-- Box 2 · Consent Gate -->
+  <rect x="225" y="72" width="168" height="84" fill="#14594A" rx="7"/>
+  <text x="309" y="92" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">2 · Consent Gate</text>
+  <text x="309" y="110" text-anchor="middle" font-size="9" fill="#E6F0EC">DPDP consent +</text>
+  <text x="309" y="124" text-anchor="middle" font-size="9" fill="#E6F0EC">RBI FREE-AI disclosure</text>
+  <text x="309" y="138" text-anchor="middle" font-size="9" fill="#B9D3CA">(first use only)</text>
+
+  <!-- Box 3 · Language Service -->
+  <rect x="419" y="72" width="168" height="84" fill="#14594A" rx="7"/>
+  <text x="503" y="92" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">3 · Language Service</text>
+  <text x="503" y="110" text-anchor="middle" font-size="9" fill="#E6F0EC">Auto-detects language</text>
+  <text x="503" y="124" text-anchor="middle" font-size="9" fill="#E6F0EC">Loads locale prompt</text>
+  <text x="503" y="138" text-anchor="middle" font-size="9" fill="#B9D3CA">Mid-chat switch supported</text>
+
+  <!-- Box 4 · RAG Retrieval -->
+  <rect x="613" y="72" width="168" height="84" fill="#14594A" rx="7"/>
+  <text x="697" y="92" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">4 · RAG Retrieval</text>
+  <text x="697" y="110" text-anchor="middle" font-size="9" fill="#E6F0EC">106-chunk IDBI KB</text>
+  <text x="697" y="124" text-anchor="middle" font-size="9" fill="#E6F0EC">Titan semantic + keyword</text>
+  <text x="697" y="138" text-anchor="middle" font-size="9" fill="#B9D3CA">Per-language namespaces</text>
+
+  <!-- Box 5 · Claude (Bedrock) — highlighted orange -->
+  <rect x="807" y="72" width="168" height="84" fill="#E06A1C" rx="7"/>
+  <text x="891" y="92" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">5 · Claude (Bedrock)</text>
+  <text x="891" y="110" text-anchor="middle" font-size="9" fill="#FFF0E6">Claude 3.7 Sonnet · APAC</text>
+  <text x="891" y="124" text-anchor="middle" font-size="9" fill="#FFF0E6">Grounded streaming reply</text>
+  <text x="891" y="138" text-anchor="middle" font-size="9" fill="#FFE0CC">Anthropic API fallback</text>
+
+  <!-- Box 6 · Reply -->
+  <rect x="1001" y="72" width="168" height="84" fill="#14594A" rx="7"/>
+  <text x="1085" y="96" text-anchor="middle" font-size="11" font-weight="bold" fill="#FFFFFF">6 · Reply</text>
+  <text x="1085" y="116" text-anchor="middle" font-size="9" fill="#E6F0EC">Streamed text</text>
+  <text x="1085" y="130" text-anchor="middle" font-size="9" fill="#E6F0EC">+ AI disclosure</text>
+
+  <!-- Horizontal arrows between steps -->
+  <line x1="202" y1="114" x2="222" y2="114" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="396" y1="114" x2="416" y2="114" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="590" y1="114" x2="610" y2="114" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="784" y1="114" x2="804" y2="114" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="978" y1="114" x2="998" y2="114" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+
+  <!-- ══════════════ SUPPORTING CALLOUTS ══════════════ -->
+  <!-- Account Snapshot -->
+  <rect x="225" y="200" width="168" height="88" fill="#FFFFFF" rx="7" stroke="#3A7D5F" stroke-width="1.5"/>
+  <text x="309" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14584A">Account Snapshot</text>
+  <text x="309" y="240" text-anchor="middle" font-size="8.5" fill="#566B63">IDBI sandbox data,</text>
+  <text x="309" y="253" text-anchor="middle" font-size="8.5" fill="#566B63">fetched in parallel:</text>
+  <text x="309" y="270" text-anchor="middle" font-size="8.5" fill="#2F4A42">portfolio · transactions · goals</text>
+
+  <!-- Deterministic Math -->
+  <rect x="419" y="200" width="168" height="88" fill="#FFFFFF" rx="7" stroke="#3A7D5F" stroke-width="1.5"/>
+  <text x="503" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14584A">Deterministic Math</text>
+  <text x="503" y="240" text-anchor="middle" font-size="8.5" fill="#566B63">SIP / allocation numbers</text>
+  <text x="503" y="253" text-anchor="middle" font-size="8.5" fill="#566B63">computed server-side —</text>
+  <text x="503" y="270" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#B45309">never LLM arithmetic</text>
+
+  <!-- Why-this-advice Trace -->
+  <rect x="613" y="200" width="168" height="88" fill="#FFFFFF" rx="7" stroke="#3A7D5F" stroke-width="1.5"/>
+  <text x="697" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14584A">Why-this-advice Trace</text>
+  <text x="697" y="240" text-anchor="middle" font-size="8.5" fill="#566B63">Every recommendation</text>
+  <text x="697" y="253" text-anchor="middle" font-size="8.5" fill="#566B63">exposes:</text>
+  <text x="697" y="270" text-anchor="middle" font-size="8.5" fill="#2F4A42">data → rule → calculation</text>
+
+  <!-- ElevenLabs Voice -->
+  <rect x="807" y="200" width="168" height="88" fill="#FFFFFF" rx="7" stroke="#E06A1C" stroke-width="1.5"/>
+  <text x="891" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14584A">ElevenLabs Voice</text>
+  <text x="891" y="240" text-anchor="middle" font-size="8.5" fill="#566B63">Reply spoken by Shreya</text>
+  <text x="891" y="253" text-anchor="middle" font-size="8.5" fill="#566B63">in the same language</text>
+  <text x="891" y="270" text-anchor="middle" font-size="8.5" fill="#B45309">5 native voices</text>
+
+  <!-- Vertical connectors -->
+  <line x1="309" y1="200" x2="309" y2="158" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="503" y1="200" x2="503" y2="158" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="697" y1="200" x2="697" y2="158" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>
+  <line x1="891" y1="158" x2="891" y2="198" stroke="#E06A1C" stroke-width="1.8" marker-end="url(#arr-o)"/>
+
+  <!-- ══════════════ ALWAYS-ON GUARDRAILS BAND ══════════════ -->
+  <rect x="20" y="312" width="1160" height="54" fill="#EAF5F0" rx="7" stroke="#9CCBB9" stroke-width="1.2"/>
+  <text x="38" y="333" font-size="11" font-weight="bold" fill="#14584A">Always-on guardrails</text>
+  <text x="38" y="352" font-size="9" fill="#41564E">AI disclosure on every response · Human-escalation CTA (SEBI-registered advisor) · Distress-signal detection · Rate limiting (slowapi) · Hallucination-resistant RAG grounding</text>
+
+  <!-- ══════════════ BOTTOM TWO CARDS ══════════════ -->
+  <!-- Money Moments -->
+  <rect x="20" y="378" width="568" height="98" fill="#FFFFFF" rx="7" stroke="#E06A1C" stroke-width="1.5"/>
+  <text x="304" y="400" text-anchor="middle" font-size="11" font-weight="bold" fill="#14584A">Proactive — Money Moments nudges</text>
+  <text x="304" y="422" text-anchor="middle" font-size="9" fill="#566B63">Idle-cash detection and goal-drift alerts, generated from the account snapshot —</text>
+  <text x="304" y="438" text-anchor="middle" font-size="9" fill="#566B63">each with a collapsible "why" trace and a deep-link into chat.</text>
+
+  <!-- Session & profile persistence -->
+  <rect x="612" y="378" width="568" height="98" fill="#FFFFFF" rx="7" stroke="#3A7D5F" stroke-width="1.5"/>
+  <text x="896" y="400" text-anchor="middle" font-size="11" font-weight="bold" fill="#14584A">Session &amp; profile persistence</text>
+  <text x="896" y="422" text-anchor="middle" font-size="9" fill="#566B63">Supabase stores profiles · risk scores · consent records · session history.</text>
+  <text x="896" y="438" text-anchor="middle" font-size="9" fill="#566B63">Pinecone per-language namespaces power retrieval (mock fallback included).</text>
+
+</svg>
