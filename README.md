@@ -262,8 +262,8 @@ Where WealthSeva goes beyond the demo. The full breakdown lives in **[ROADMAP.md
 | Phase | Highlights |
 |---|---|
 | ✅ **Shipped — Demo (Jul 9)** | Voice-first vernacular advisor · "Why this advice?" transparency · Money Moments nudges · personalized RAG-grounded answers · mid-chat language switching |
-| 🚧 **In progress — Jul 31** | CAS statement analysis (CDSL/NSDL + mutual funds) · saved history & goals · deeper multilingual semantic search · more proactive guards |
-| 🔭 **Planned — Aug 13+** | Live IDBI account integration · offline / low-connectivity mode · in-app & WhatsApp channels · more Indian languages |
+| 🚧 **In progress — Jul 31** | CAS statement analysis (CDSL/NSDL + mutual funds) · saved history & goals · deeper multilingual semantic search · more proactive guards · **government scheme advisor** (NPS/SSY/SCSS/PPF, advisory-only) · **capital gains & tax view** (LTCG/STCG on MF + gold holdings) |
+| 🔭 **Planned — Aug 13+** | Live IDBI account integration · offline / low-connectivity mode · in-app & WhatsApp channels · more Indian languages · **foreign investment guide** (LRS/US equity tax, informational-only) |
 
 ---
 
