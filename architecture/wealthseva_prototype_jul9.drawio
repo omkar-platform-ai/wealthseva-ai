@@ -49,7 +49,7 @@
         <mxCell id="browser" value="&lt;b&gt;📱💻 Browser (Mobile + Desktop)&lt;/b&gt;&lt;br&gt;5 languages · EN / HI / MR / TA / BN · Next.js 14 avatar chat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#334155;fontSize=10;fontColor=#E2E8F0;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="80" y="128" width="480" height="42" as="geometry"/>
         </mxCell>
-        <mxCell id="elevenlabs" value="&lt;font color=&apos;#FCD34D&apos;&gt;&lt;b&gt;🔊 ElevenLabs&lt;/b&gt;&lt;/font&gt; &lt;font color=&apos;#FCA5A5&apos;&gt;⚠ US-hosted — demo acceptable · Phase 2: Amazon Polly&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C1408;strokeColor=#78350F;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
+        <mxCell id="elevenlabs" value="&lt;font color=&apos;#FCD34D&apos;&gt;&lt;b&gt;🔊 Sarvam Bulbul v3&lt;/b&gt;&lt;/font&gt; &lt;font color=&apos;#4ADE80&apos;&gt;✓ India-resident · ElevenLabs fallback&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C1408;strokeColor=#78350F;fontSize=10;fontColor=#CBD5E1;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="600" y="128" width="500" height="42" as="geometry"/>
         </mxCell>
 
@@ -122,7 +122,7 @@
         <mxCell id="pinecone" value="&lt;b&gt;&lt;font color=&apos;#6B7280&apos;&gt;🔍 Pinecone (Vector DB)&lt;/font&gt;&lt;/b&gt;&lt;br&gt;RAG index · IDBI dataset · 5 language namespaces&lt;br&gt;&lt;font color=&apos;#F59E0B&apos;&gt;⚠ Keep for prototype · Fallback: mock_index.json already in repo&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#4B5563&apos;&gt;Phase 2: Migrate → OpenSearch Serverless (ap-south-1)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#374151;strokeDashPattern=6 3;fontSize=10;fontColor=#6B7280;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="560" y="696" width="490" height="88" as="geometry"/>
         </mxCell>
-        <mxCell id="secrets" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;🔑 AWS Secrets Manager&lt;/font&gt;&lt;/b&gt;&lt;br&gt;All API keys: ElevenLabs · IDBI Sandbox · Pinecone · Claude&lt;br&gt;EC2 IAM Role fetches secrets at startup — removes .env from repo &amp;amp; image&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW] ⏱ ~2 hours · Day 1&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1408;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">
+        <mxCell id="secrets" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;🔑 AWS Secrets Manager&lt;/font&gt;&lt;/b&gt;&lt;br&gt;All API keys: Sarvam · ElevenLabs · IDBI Sandbox · Pinecone · Claude&lt;br&gt;EC2 IAM Role fetches secrets at startup — removes .env from repo &amp;amp; image&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW] ⏱ ~2 hours · Day 1&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A1408;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="1100" y="696" width="524" height="88" as="geometry"/>
         </mxCell>
 

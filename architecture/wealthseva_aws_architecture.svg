@@ -47,12 +47,12 @@
   <text x="375" y="178" font-size="9" fill="#94A3B8">Avatar-based chat UI</text>
   <text x="375" y="190" font-size="9" fill="#94A3B8">React / Tailwind CSS</text>
 
-  <!-- ElevenLabs -->
+  <!-- Sarvam voice (primary) + ElevenLabs fallback -->
   <rect x="480" y="145" width="230" height="54" fill="#1C1408" rx="6" stroke="#78350F" stroke-width="1"/>
   <text x="530" y="162" text-anchor="middle" font-size="18" fill="#F59E0B">🔊</text>
-  <text x="565" y="162" font-size="11" font-weight="bold" fill="#FDE68A">ElevenLabs Avatar Voice</text>
-  <text x="565" y="178" font-size="9" fill="#FCA5A5">⚠ US-hosted — demo acceptable</text>
-  <text x="565" y="190" font-size="9" fill="#94A3B8">Production: evaluate Amazon Polly</text>
+  <text x="565" y="162" font-size="11" font-weight="bold" fill="#FDE68A">Sarvam Bulbul v3 Voice</text>
+  <text x="565" y="178" font-size="9" fill="#4ADE80">✓ India-resident (DPDP-aligned)</text>
+  <text x="565" y="190" font-size="9" fill="#94A3B8">ElevenLabs fallback · all 5 langs</text>
 
   <!-- ================================================================= -->
   <!-- ARROW 0→1 -->
@@ -287,7 +287,7 @@
   <rect x="620" y="836" width="210" height="68" fill="#280F0F" rx="6" stroke="#B45309" stroke-width="1"/>
   <text x="650" y="855" font-size="10" font-weight="bold" fill="#FCD34D">🔑 Secrets Manager</text>
   <text x="650" y="871" font-size="9" fill="#FDE68A">All API keys &amp; credentials</text>
-  <text x="650" y="887" font-size="8.5" fill="#FED7D7">ElevenLabs, IDBI Sandbox keys</text>
+  <text x="650" y="887" font-size="8.5" fill="#FED7D7">Sarvam, ElevenLabs, IDBI keys</text>
   <text x="650" y="901" font-size="8.5" fill="#FED7D7">Injected at ECS container start</text>
   <rect x="622" y="837" width="32" height="14" fill="#1E1B4B" rx="2"/>
   <text x="638" y="847" text-anchor="middle" font-size="7" font-weight="bold" fill="#A78BFA">NEW</text>
@@ -363,7 +363,7 @@
   <text x="60" y="1212" font-size="8.5" fill="#4ADE80">✓ Aurora (Mumbai) replaces Supabase</text>
   <text x="60" y="1226" font-size="8.5" fill="#4ADE80">✓ OpenSearch (Mumbai) replaces Pinecone</text>
   <text x="60" y="1240" font-size="8.5" fill="#4ADE80">✓ Amplify + CloudFront Indian origin</text>
-  <text x="60" y="1254" font-size="8.5" fill="#FCA5A5">⚠ ElevenLabs (US) — documented gap</text>
+  <text x="60" y="1254" font-size="8.5" fill="#4ADE80">✓ Sarvam voice (Mumbai) — India-resident</text>
   <text x="60" y="1265" font-size="8" fill="#64748B">All financial data stays in India</text>
 
   <!-- Gap 2 -->
@@ -372,7 +372,7 @@
   <text x="396" y="1212" font-size="8.5" fill="#4ADE80">✓ Guardrails enforce explainability</text>
   <text x="396" y="1226" font-size="8.5" fill="#4ADE80">✓ ConsentGate component in frontend</text>
   <text x="396" y="1240" font-size="8.5" fill="#4ADE80">✓ CloudTrail audit trail for all AI calls</text>
-  <text x="396" y="1254" font-size="8.5" fill="#FCD34D">→ Production: evaluate Sarvam AI / Krutrim</text>
+  <text x="396" y="1254" font-size="8.5" fill="#4ADE80">✓ Sarvam AI primary voice (shipped)</text>
   <text x="396" y="1265" font-size="8" fill="#64748B">Anthropic Claude via AWS-managed Bedrock</text>
 
   <!-- Gap 3 -->

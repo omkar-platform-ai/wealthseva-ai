@@ -46,7 +46,8 @@ def _url_routed_client(handlers):
 
 
 class TestTTSEndpoint:
-    """POST /api/tts — ElevenLabs proxy with browser fallback, never 500."""
+    """POST /api/tts — Sarvam-primary voice chain (Sarvam → ElevenLabs →
+    browser), never 500."""
 
     def test_without_api_key_returns_browser_fallback(self):
         with patch.dict(os.environ, {"ELEVENLABS_API_KEY": ""}):
@@ -55,8 +56,9 @@ class TestTTSEndpoint:
         assert response.json() == {"fallback": "browser"}
 
     def test_without_voice_id_returns_browser_fallback(self):
-        # Uses "mr" (an ElevenLabs locale) — "ta"/"bn" now route to Sarvam (WEA-78).
-        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "test-key"}), \
+        # Sarvam unconfigured + no ElevenLabs voice id → browser fallback.
+        # (All locales are Sarvam-primary since WEA-83; unset Sarvam skips it.)
+        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "test-key", "SARVAM_API_KEY": ""}), \
              patch("routers.tts.get_voice_id", return_value=""):
             response = client.post("/api/tts", json={"text": "Hello", "language": "mr"})
         assert response.status_code == 200
@@ -210,20 +212,50 @@ class TestTTSEndpoint:
         assert response.status_code == 200
         assert response.json() == {"fallback": "browser"}
 
-    def test_english_routes_to_elevenlabs_not_sarvam(self):
-        # Regression guard: en must hit ElevenLabs, never the Sarvam URL.
+    # ── EN/HI/MR → Sarvam-primary — WEA-83 ───────────────────────────────────
+
+    def test_english_routes_to_sarvam_when_configured(self):
+        # WEA-83: en is now Sarvam-primary — must hit the Sarvam URL with en-IN.
+        audio_bytes = b"mp3-bytes"
         mock_response = MagicMock()
-        mock_response.content = b"mp3-bytes"
+        mock_response.json.return_value = {
+            "audios": [base64.b64encode(audio_bytes).decode()]
+        }
         mock_response.raise_for_status = MagicMock()
         mock_client = _mock_async_client(post_result=mock_response)
 
-        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "test-key"}), \
-             patch("routers.tts.get_voice_id", return_value="voice-en"), \
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "test-sarvam-key",
+            "SARVAM_VOICE_ID_ENGLISH": "test-en-speaker",
+        }), patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
+            response = client.post("/api/tts", json={"text": "Hello", "language": "en"})
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("audio/mpeg")
+        assert response.content == audio_bytes
+        called_url = mock_client.post.call_args.args[0]
+        called_kwargs = mock_client.post.call_args.kwargs
+        assert called_url == "https://api.sarvam.ai/text-to-speech"
+        assert called_kwargs["json"]["target_language_code"] == "en-IN"
+        assert called_kwargs["json"]["speaker"] == "test-en-speaker"
+
+    def test_english_falls_back_to_elevenlabs_when_sarvam_unconfigured(self):
+        # WEA-83 + WEA-84: with no Sarvam speaker for en, Sarvam skips and
+        # ElevenLabs serves the voice (graceful, no regression for EN/HI/MR).
+        el_response = MagicMock()
+        el_response.content = b"elevenlabs-mp3"
+        el_response.raise_for_status = MagicMock()
+        mock_client = _mock_async_client(post_result=el_response)
+
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "",
+            "ELEVENLABS_API_KEY": "test-el-key",
+        }), patch("routers.tts.get_voice_id", return_value="voice-en"), \
              patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
             response = client.post("/api/tts", json={"text": "Hello", "language": "en"})
 
         assert response.status_code == 200
         assert response.headers["content-type"].startswith("audio/mpeg")
+        assert response.content == b"elevenlabs-mp3"
         called_url = mock_client.post.call_args.args[0]
         assert called_url.startswith("https://api.elevenlabs.io")
-        assert "sarvam" not in called_url

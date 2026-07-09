@@ -49,13 +49,17 @@ in the Indian financial sector is expected to express:
 over global LLMs; flags data sovereignty and vendor concentration risks from
 excessive reliance on external providers.
 
-**WealthSeva exposure:** Core model is Claude (Anthropic, US). ElevenLabs
-(US) handles avatar voice. Both are non-Indian providers.
+**WealthSeva exposure:** Core model is Claude (Anthropic, US) via Amazon
+Bedrock (Mumbai region). Avatar voice is synthesized primarily by **Sarvam AI
+(India-resident)**, with ElevenLabs (US) retained only as an automatic fallback.
 
-**Production gap to acknowledge:** A production system would evaluate
-indigenization — Sarvam AI, Krutrim, or IndiaAI Mission models — aligned with
-the RBI's preference. For the hackathon, Claude was selected for multilingual
-capability, API stability, and Anthropic's responsible AI commitments.
+**Production gap to acknowledge:** Voice is already indigenized — **Sarvam AI**,
+a FREE-AI-aligned Indian provider, is the primary voice engine, directly
+addressing the RBI's preference for indigenous models. The remaining item is
+the core LLM: a production system would evaluate an indigenous/Indian-region
+model (Krutrim, IndiaAI Mission models). For the hackathon, Claude was selected
+for multilingual capability, API stability, and Anthropic's responsible AI
+commitments.
 
 **No code change needed.** Prepare a talking point or deck slide.
 
@@ -71,14 +75,14 @@ The decision rule: the strictest applicable regulation wins.
 **WealthSeva exposure:** Portfolio holdings, risk profiles, goals, and
 conversation history all flow to:
 - Claude API (Anthropic — US-hosted by default)
-- ElevenLabs (US)
+- ElevenLabs (US) — fallback voice only; primary voice is Sarvam AI (India-resident)
 - Pinecone (configurable; default US)
 
 **Production mitigation story:**
 - Claude → Vertex AI on Google Cloud Mumbai region (already partially in place
   via `shreya-backend-engineer`'s Vertex AI routing)
 - Pinecone → deploy to `ap-south-1` (Mumbai) namespace
-- ElevenLabs → assess Indian-region availability; flag as known gap
+- Voice → ✅ primary is Sarvam AI (India-resident); ElevenLabs (US) retained only as fallback
 
 **No code change needed for hackathon.** Prepare a talking point.
 
@@ -321,7 +325,7 @@ Use this table in the "Responsible AI & Compliance" slide:
 
 | Gap | Hackathon Status | Production Fix |
 |---|---|---|
-| Third-party LLM (Claude/ElevenLabs) | Acknowledged; Claude chosen for multilingual capability | Evaluate Sarvam AI / Krutrim; Claude on Vertex AI Mumbai |
+| Third-party LLM (Claude) | Claude chosen for multilingual capability; voice already indigenized via Sarvam AI (India-resident) | Evaluate indigenous LLM (Krutrim); Claude on Vertex AI Mumbai |
 | Data localisation | US-hosted services in prototype | Vertex AI Mumbai + Pinecone ap-south-1 |
 | AI disclosure | ✅ Implemented (Task A) | Full DPDP-compliant notice |
 | Human override | ✅ Mock escalation button (Task B) | Live RM routing via IDBI CRM |

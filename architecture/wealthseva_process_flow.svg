@@ -86,14 +86,14 @@
   <text x="697" y="253" text-anchor="middle" font-size="8.5" fill="#94A3B8">exposes:</text>
   <text x="697" y="270" text-anchor="middle" font-size="8.5" fill="#CBD5E1">data → rule → calculation</text>
 
-  <!-- ElevenLabs Voice (receives from Claude) -->
+  <!-- Sarvam voice (receives from Claude) -->
   <rect x="807" y="200" width="168" height="88" fill="#1A1206" rx="7" stroke="#C2410C" stroke-width="1"/>
-  <text x="891" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#FDBA74">ElevenLabs Voice</text>
+  <text x="891" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#FDBA74">Sarvam Bulbul v3</text>
   <text x="891" y="240" text-anchor="middle" font-size="8.5" fill="#FED7AA">Reply spoken by Shreya</text>
   <text x="891" y="253" text-anchor="middle" font-size="8.5" fill="#FED7AA">in the same language</text>
-  <text x="891" y="270" text-anchor="middle" font-size="8.5" fill="#FCA5A5">5 native voices</text>
+  <text x="891" y="270" text-anchor="middle" font-size="8.5" fill="#FCA5A5">5 langs · ElevenLabs fallback</text>
 
-  <!-- Vertical connectors: 3 feed up into pipeline, ElevenLabs receives down -->
+  <!-- Vertical connectors: 3 feed up into pipeline, voice receives down -->
   <line x1="309" y1="200" x2="309" y2="158" stroke="#6B7280" stroke-width="1.6" marker-end="url(#arr)"/>
   <line x1="503" y1="200" x2="503" y2="158" stroke="#6B7280" stroke-width="1.6" marker-end="url(#arr)"/>
   <line x1="697" y1="200" x2="697" y2="158" stroke="#6B7280" stroke-width="1.6" marker-end="url(#arr)"/>

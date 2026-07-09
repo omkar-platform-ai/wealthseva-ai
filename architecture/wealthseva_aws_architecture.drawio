@@ -46,7 +46,7 @@
         <mxCell id="desktop" value="&lt;b&gt;💻 Desktop Browser&lt;/b&gt;&lt;br&gt;Avatar-based chat UI&lt;br&gt;React / Tailwind CSS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F172A;strokeColor=#475569;fontSize=10;fontColor=#E2E8F0;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="430" y="148" width="250" height="54" as="geometry"/>
         </mxCell>
-        <mxCell id="elevenlabs" value="&lt;font color=&apos;#F59E0B&apos;&gt;&lt;b&gt;🔊 ElevenLabs Avatar Voice&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#FCA5A5&apos;&gt;⚠ US-hosted — demo acceptable&lt;/font&gt;&lt;br&gt;Production: evaluate Amazon Polly" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C1408;strokeColor=#78350F;fontSize=10;fontColor=#E2E8F0;align=left;spacingLeft=10;" vertex="1" parent="1">
+        <mxCell id="elevenlabs" value="&lt;font color=&apos;#F59E0B&apos;&gt;&lt;b&gt;🔊 Sarvam Bulbul v3 Voice&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=&apos;#4ADE80&apos;&gt;✓ India-resident (DPDP-aligned)&lt;/font&gt;&lt;br&gt;ElevenLabs fallback · all 5 langs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1C1408;strokeColor=#78350F;fontSize=10;fontColor=#E2E8F0;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="710" y="148" width="300" height="54" as="geometry"/>
         </mxCell>
 
@@ -172,7 +172,7 @@
         <mxCell id="elasticache" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;⚡ ElastiCache Redis&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Session context cache&lt;br&gt;Cache last N conversation turns&lt;br&gt;Reduce Bedrock token costs&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#280F0F;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="1190" y="836" width="300" height="120" as="geometry"/>
         </mxCell>
-        <mxCell id="secrets" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;🔑 Secrets Manager&lt;/font&gt;&lt;/b&gt;&lt;br&gt;All API keys (ElevenLabs, IDBI Sandbox)&lt;br&gt;Injected at ECS container start&lt;br&gt;Replaces .env files in container image&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#280F0F;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">
+        <mxCell id="secrets" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;🔑 Secrets Manager&lt;/font&gt;&lt;/b&gt;&lt;br&gt;All API keys (Sarvam, ElevenLabs, IDBI Sandbox)&lt;br&gt;Injected at ECS container start&lt;br&gt;Replaces .env files in container image&lt;br&gt;&lt;font color=&apos;#A78BFA&apos;&gt;[NEW]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#280F0F;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">
           <mxGeometry x="860" y="986" width="300" height="50" as="geometry"/>
         </mxCell>
         <mxCell id="cognito" value="&lt;b&gt;&lt;font color=&apos;#FCD34D&apos;&gt;👤 Amazon Cognito&lt;/font&gt;&lt;/b&gt;&lt;br&gt;Replaces Supabase Auth&lt;br&gt;User Pools · JWT · MFA · OIDC&lt;br&gt;&lt;font color=&apos;#FB923C&apos;&gt;[REPLACE SUPABASE AUTH]&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#280F0F;strokeColor=#B45309;fontSize=10;fontColor=#FED7D7;align=left;spacingLeft=10;" vertex="1" parent="1">

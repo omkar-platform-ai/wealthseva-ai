@@ -18,7 +18,7 @@ India's banking sector serves 500M+ customers, yet 70% prefer to engage with fin
 
 WealthSeva AI closes this gap with **Shreya**, an AI-powered avatar advisor who speaks fluently in English, Hindi, Marathi, Tamil, and Bengali. Embedded inside IDBI Bank's existing mobile app, Shreya delivers personalized financial guidance grounded in the customer's actual transaction history, portfolio composition, and declared goals — in the language they think in. Every response is retrieved from a RAG pipeline seeded with IDBI's own datasets, not generated from memory, so figures and recommendations stay factual and hallucination-resistant.
 
-The key differentiator is the combination that has never been delivered together in Indian banking: real-time avatar voice synthesis (ElevenLabs + Sarvam Bulbul v3) in five vernacular Indian languages, retrieval-augmented generation over IDBI's own data, and RBI FREE-AI compliant AI disclosure — all without a single incremental headcount. The system scales from one customer to 500 million through the existing mobile banking surface.
+The key differentiator is the combination that has never been delivered together in Indian banking: real-time avatar voice synthesis (Sarvam Bulbul v3, India-resident, with ElevenLabs fallback) in five vernacular Indian languages, retrieval-augmented generation over IDBI's own data, and RBI FREE-AI compliant AI disclosure — all without a single incremental headcount. The system scales from one customer to 500 million through the existing mobile banking surface.
 
 ---
 
@@ -43,7 +43,7 @@ The key differentiator is the combination that has never been delivered together
 
 | Feature | Description |
 |---|---|
-| **AI Avatar Advisor** | Real-time talking avatar powered by Claude via Amazon Bedrock — Shreya, your IDBI wealth advisor. Voice via ElevenLabs (EN/HI/MR) and Sarvam Bulbul v3 (TA/BN) |
+| **AI Avatar Advisor** | Real-time talking avatar powered by Claude via Amazon Bedrock — Shreya, your IDBI wealth advisor. Voice via Sarvam Bulbul v3 (all 5 languages) with automatic ElevenLabs fallback |
 | **Multilingual** | Full UI + avatar voice in 5 Indian languages; auto-detects language from user input |
 | **Risk Profiler** | 5-question onboarding quiz → Conservative / Moderate / Aggressive profile + recommended allocation |
 | **Portfolio Analyzer** | Upload CSV → Claude analysis → actionable rebalancing recommendations |
@@ -56,12 +56,12 @@ The key differentiator is the combination that has never been delivered together
 
 ## Architecture Overview
 
-WealthSeva is a decoupled two-service architecture: a **Next.js 14** frontend and a **FastAPI** backend communicating over a well-defined REST/SSE API. Claude inference runs through **Amazon Bedrock** (Mumbai region, `ap-south-1`; IAM role auth on EC2 — no API key needed). The RAG pipeline retrieves context from **Pinecone** per-language namespaces before every Claude call. User sessions and profiles are stored in **Supabase**. Avatar voice synthesis runs through **ElevenLabs** (English/Hindi/Marathi) and **Sarvam Bulbul v3** (Tamil/Bengali) — Sarvam is India-headquartered with India-resident audio processing, strengthening the DPDP data-residency posture for those two languages.
+WealthSeva is a decoupled two-service architecture: a **Next.js 14** frontend and a **FastAPI** backend communicating over a well-defined REST/SSE API. Claude inference runs through **Amazon Bedrock** (Mumbai region, `ap-south-1`; IAM role auth on EC2 — no API key needed). The RAG pipeline retrieves context from **Pinecone** per-language namespaces before every Claude call. User sessions and profiles are stored in **Supabase**. Avatar voice synthesis runs primarily through **Sarvam Bulbul v3** for all five languages, with **ElevenLabs** as an automatic fallback if Sarvam is unavailable for a locale — Sarvam is India-headquartered with India-resident audio processing, strengthening the DPDP data-residency posture across the voice stack.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                     Next.js 14 Frontend                                  │
-│   Avatar UI (ElevenLabs)  ·  Dashboard  ·  Language Switcher EN|HI|MR|TA|BN │
+│   Avatar UI (Sarvam voice)  ·  Dashboard  ·  Language Switcher EN|HI|MR|TA|BN │
 └──────────────────────────────────┬──────────────────────────────────────┘
                                    │  HTTP / SSE
 ┌──────────────────────────────────▼──────────────────────────────────────┐
@@ -70,7 +70,7 @@ WealthSeva is a decoupled two-service architecture: a **Next.js 14** frontend an
 │  claude_service  ·  language_service  ·  rag_service  ·  risk_service   │
 └──────────────────────────────────┬──────────────────────────────────────┘
                                    │
-        Amazon Bedrock (Claude)  ·  ElevenLabs  ·  Pinecone  ·  Supabase
+    Amazon Bedrock (Claude)  ·  Sarvam Bulbul v3 (+ ElevenLabs fallback)  ·  Pinecone  ·  Supabase
 ```
 
 ### Component Diagram
@@ -87,7 +87,7 @@ graph TD
     end
 
     BR["Amazon Bedrock<br/>Claude Sonnet"]
-    EL["ElevenLabs (EN·HI·MR) +<br/>Sarvam Bulbul v3 (TA·BN)<br/>voice synthesis"]
+    EL["Sarvam Bulbul v3 (EN·HI·MR·TA·BN) +<br/>ElevenLabs fallback<br/>voice synthesis"]
     PC["Pinecone<br/>per-language RAG"]
     SB["Supabase<br/>profiles · sessions"]
     IDBI["IDBI Sandbox<br/>datasets"]
@@ -105,7 +105,7 @@ graph TD
 
 1. **Risk Assessment** — `RiskQuiz.tsx` collects 5 answers → `POST /api/risk-profile` → `risk_service` scores them → returns a Conservative / Moderate / Aggressive profile with a recommended allocation.
 2. **Goal Planning** — `GoalPlanner.tsx` submits a goal → `POST /api/goals` → `claude_service` (Amazon Bedrock) synthesizes a plan → returns an SIP + savings schedule.
-3. **Conversational Chat** — `AvatarChat.tsx` sends a message → `POST /api/chat` → `language_service` detects the language → `rag_service` retrieves IDBI context from the matching Pinecone namespace → `claude_service` streams the grounded reply → ElevenLabs renders it as avatar voice.
+3. **Conversational Chat** — `AvatarChat.tsx` sends a message → `POST /api/chat` → `language_service` detects the language → `rag_service` retrieves IDBI context from the matching Pinecone namespace → `claude_service` streams the grounded reply → Sarvam Bulbul v3 renders it as avatar voice (ElevenLabs fallback).
 4. **Localization** — `LanguageSwitcher` changes the next-intl locale route → UI strings load from `messages/{locale}.json` and Claude loads the matching `ai/system_prompts/wealth_advisor_{locale}.md`.
 
 ### Architectural Patterns
@@ -134,8 +134,8 @@ Judges and reviewers should be able to run the full stack locally in under 15 mi
 | Service | Purpose | Where to get it |
 |---|---|---|
 | AWS (Bedrock) | Claude inference | IAM user with `bedrock:InvokeModel` permission on `ap-south-1`; on EC2 use IAM role (no key needed) |
-| ElevenLabs | Avatar voice (EN/HI/MR) | https://elevenlabs.io — create voices for EN/HI/MR, copy their voice IDs |
-| Sarvam AI | Avatar voice (TA/BN) — Bulbul v3 | https://sarvam.ai — dashboard → API key; pick a Tamil and a Bengali speaker (₹100 free credit covers demo) |
+| Sarvam AI | Avatar voice (all 5 languages) — Bulbul v3, primary | https://sarvam.ai — dashboard → API key; pick a speaker for each of EN/HI/MR/TA/BN (₹100 free credit covers demo) |
+| ElevenLabs | Avatar voice — automatic fallback | https://elevenlabs.io — create voices for EN/HI/MR/TA/BN, copy their voice IDs (used only if Sarvam fails) |
 | Supabase | User profiles | https://supabase.com — new project → Settings > API |
 | Pinecone | RAG vector store | https://pinecone.io — optional; mock fallback used if key is absent |
 
@@ -162,16 +162,21 @@ Open `.env` and set the values below. Everything else can stay at its default.
 BEDROCK_REGION=ap-south-1
 BEDROCK_MODEL_ID=apac.anthropic.claude-sonnet-4-20250514-v1:0
 
-# ElevenLabs — EN/HI/MR voices (paste voice IDs from your ElevenLabs project)
+# Sarvam Bulbul v3 — PRIMARY voice, all 5 languages (speaker names from the Sarvam dashboard, lowercase)
+SARVAM_API_KEY=your_sarvam_api_key
+SARVAM_VOICE_ID_ENGLISH=your_english_speaker_name
+SARVAM_VOICE_ID_HINDI=your_hindi_speaker_name
+SARVAM_VOICE_ID_MARATHI=your_marathi_speaker_name
+SARVAM_VOICE_ID_TAMIL=your_tamil_speaker_name
+SARVAM_VOICE_ID_BENGALI=your_bengali_speaker_name
+
+# ElevenLabs — FALLBACK voice (used only if Sarvam fails; paste voice IDs from your ElevenLabs project)
 ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 ELEVENLABS_VOICE_EN=your_english_voice_id
 ELEVENLABS_VOICE_HI=your_hindi_voice_id
 ELEVENLABS_VOICE_MR=your_marathi_voice_id
-
-# Sarvam Bulbul v3 — TA/BN voices (speaker names from the Sarvam dashboard, lowercase)
-SARVAM_API_KEY=your_sarvam_api_key
-SARVAM_VOICE_ID_TAMIL=your_tamil_speaker_name
-SARVAM_VOICE_ID_BENGALI=your_bengali_speaker_name
+ELEVENLABS_VOICE_TA=your_tamil_voice_id
+ELEVENLABS_VOICE_BN=your_bengali_voice_id
 
 # Supabase — Project Settings > API
 SUPABASE_URL=https://your-project.supabase.co
@@ -413,7 +418,7 @@ New to the project? Follow this path to get oriented quickly:
 | Layer | Technology |
 |---|---|
 | AI/LLM | Amazon Bedrock — `claude-sonnet-4-5` (ap-south-1) |
-| Avatar | ElevenLabs (EN/HI/MR) + Sarvam Bulbul v3 (TA/BN) — multilingual Indian voices |
+| Avatar | Sarvam Bulbul v3 (all 5 languages, primary) + ElevenLabs (fallback) — multilingual Indian voices |
 | Frontend | Next.js 14 (App Router), TailwindCSS, Recharts |
 | i18n | next-intl — 5 locale routes, SSR-safe |
 | Backend | FastAPI, Python 3.12, uvicorn |
