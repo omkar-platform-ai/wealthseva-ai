@@ -38,9 +38,17 @@ def _compute_projection(target_amount: float, current_savings: float, target_dat
         corpus = current_savings * (1 + r) ** m
         if sip > 0:
             corpus += sip * ((1 + r) ** m - 1) / r
-        yearly_data.append({"year": y, "corpus": round(corpus)})
+        # Cap at target — the growth chart plateaus at the goal once funded
+        # instead of ballooning past it (see projected_corpus below).
+        yearly_data.append({"year": y, "corpus": round(min(corpus, target_amount))})
 
     projected = fv_savings + (sip * ((1 + r) ** months - 1) / r if sip > 0 else 0)
+    # Goal-oriented projection: the corpus never exceeds the target. When
+    # current savings (with growth) already cover the goal (remaining ≤ 0),
+    # sip is 0 and we report the target as met — NOT the inflated future
+    # value of those savings, which previously surfaced as a corpus many
+    # times larger than the amount the user was aiming for.
+    projected = min(projected, target_amount)
     return {
         "monthly_sip": round(sip),
         "projected_corpus": round(projected),

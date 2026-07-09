@@ -21,7 +21,11 @@ export default function LanguageSwitcher() {
   const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
 
   const switchLanguage = (newLocale: string) => {
-    router.push(pathname, { locale: newLocale });
+    // next-intl's usePathname() strips the query string, so re-attach the
+    // current search params — otherwise switching locale drops ?demo=true
+    // and the Judge Demo page falls back to its "not a demo" prompt.
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    router.push(search ? `${pathname}${search}` : pathname, { locale: newLocale });
     setOpen(false);
     
     // Show toast after switch

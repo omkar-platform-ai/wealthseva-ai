@@ -33,6 +33,19 @@ const PROFILE_BADGE: Record<string, string> = {
   aggressive: 'bg-[#FDE7DD] text-[#C25A15]',
 };
 
+// Backend returns English asset-class names as the allocation dict keys
+// (see services/risk_service.py ALLOCATIONS). Map each to a translation key
+// so the chart legend renders in the user's language, not always English.
+const ALLOC_LABEL_KEY: Record<string, string> = {
+  'Debt': 'alloc_debt',
+  'Large Cap': 'alloc_large_cap',
+  'Gold': 'alloc_gold',
+  'Equity Diversified': 'alloc_equity_diversified',
+  'Balanced': 'alloc_balanced',
+  'Equity': 'alloc_equity',
+  'Mid/Small Cap': 'alloc_mid_small_cap',
+};
+
 export default function RiskQuiz() {
   const t = useTranslations('risk');
   const locale = useLocale();
@@ -152,25 +165,41 @@ export default function RiskQuiz() {
         <div className="bg-white rounded-2xl border border-idbi-line shadow-card p-6">
           <h3 className="text-base font-bold text-idbi-ink mb-4">{t('explanation_label')}</h3>
           <div className="grid md:grid-cols-2 gap-6 items-center">
-            <ResponsiveContainer width="100%" height={200}>
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={48}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}%`}
-                  dataKey="value"
-                >
-                  {chartData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+            <div>
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={48}
+                    outerRadius={80}
+                    paddingAngle={2}
+                    dataKey="value"
+                  >
+                    {chartData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              {/* HTML legend — always visible (inline SVG pie labels clipped
+                  to invisibility on this small container) and localised. */}
+              <div className="mt-3 space-y-1.5">
+                {chartData.map((entry, index) => (
+                  <div key={entry.name} className="flex items-center gap-2.5 text-sm">
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span className="text-idbi-slate flex-1">
+                      {t((ALLOC_LABEL_KEY[entry.name] ?? 'alloc_debt') as 'alloc_debt')}
+                    </span>
+                    <span className="font-bold text-idbi-ink">{entry.value}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
             <p className="text-sm leading-relaxed text-idbi-slate">{result.explanation}</p>
           </div>
         </div>

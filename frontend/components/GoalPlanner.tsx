@@ -176,7 +176,7 @@ export default function GoalPlanner() {
             <input type="number" value={form.target_amount} onChange={e => setForm(f => ({ ...f, target_amount: e.target.value }))} className={inputCls} placeholder="1000000" min="1" />
           </div>
           <div>
-            <label className={labelCls}>{t('target_date')}</label>
+            <label className={labelCls}>{t('target_horizon')}</label>
             <input type="number" value={form.years} onChange={e => setForm(f => ({ ...f, years: e.target.value }))} className={inputCls} placeholder={t('years_placeholder')} min="1" max="40" />
           </div>
           <div>
