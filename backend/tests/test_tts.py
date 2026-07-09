@@ -1,6 +1,7 @@
 """
 Tests for /api/tts endpoint.
 """
+import base64
 import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -31,9 +32,10 @@ class TestTTSEndpoint:
         assert response.json() == {"fallback": "browser"}
 
     def test_without_voice_id_returns_browser_fallback(self):
+        # Uses "mr" (an ElevenLabs locale) — "ta"/"bn" now route to Sarvam (WEA-78).
         with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "test-key"}), \
              patch("routers.tts.get_voice_id", return_value=""):
-            response = client.post("/api/tts", json={"text": "Hello", "language": "ta"})
+            response = client.post("/api/tts", json={"text": "Hello", "language": "mr"})
         assert response.status_code == 200
         assert response.json() == {"fallback": "browser"}
 
@@ -70,3 +72,100 @@ class TestTTSEndpoint:
 
         assert response.status_code == 200
         assert response.json() == {"fallback": "browser"}
+
+    # ── Sarvam Bulbul v3 (TA/BN) — WEA-78 ────────────────────────────────────
+
+    def test_sarvam_tamil_success(self):
+        audio_bytes = b"mp3-bytes"
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "audios": [base64.b64encode(audio_bytes).decode()]
+        }
+        mock_response.raise_for_status = MagicMock()
+        mock_client = _mock_async_client(post_result=mock_response)
+
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "test-sarvam-key",
+            "SARVAM_VOICE_ID_TAMIL": "test-ta-speaker",
+        }), patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
+            response = client.post(
+                "/api/tts", json={"text": "வணக்கம்", "language": "ta"}
+            )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("audio/mpeg")
+        assert response.content == audio_bytes
+        # Verify the Sarvam contract: correct URL, custom auth header, Bulbul v3 model, ta-IN.
+        called_url = mock_client.post.call_args.args[0]
+        called_kwargs = mock_client.post.call_args.kwargs
+        assert called_url == "https://api.sarvam.ai/text-to-speech"
+        assert called_kwargs["headers"]["api-subscription-key"] == "test-sarvam-key"
+        assert called_kwargs["json"]["model"] == "bulbul:v3"
+        assert called_kwargs["json"]["target_language_code"] == "ta-IN"
+        assert called_kwargs["json"]["speaker"] == "test-ta-speaker"
+
+    def test_sarvam_bengali_success(self):
+        audio_bytes = b"mp3-bytes"
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "audios": [base64.b64encode(audio_bytes).decode()]
+        }
+        mock_response.raise_for_status = MagicMock()
+        mock_client = _mock_async_client(post_result=mock_response)
+
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "test-sarvam-key",
+            "SARVAM_VOICE_ID_BENGALI": "test-bn-speaker",
+        }), patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
+            response = client.post(
+                "/api/tts", json={"text": "নমস্কার", "language": "bn"}
+            )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("audio/mpeg")
+        assert response.content == audio_bytes
+        called_kwargs = mock_client.post.call_args.kwargs
+        assert called_kwargs["json"]["target_language_code"] == "bn-IN"
+        assert called_kwargs["json"]["speaker"] == "test-bn-speaker"
+
+    def test_sarvam_missing_key_falls_back_to_browser(self):
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "",
+            "SARVAM_VOICE_ID_TAMIL": "test-ta-speaker",
+        }):
+            response = client.post(
+                "/api/tts", json={"text": "வணக்கம்", "language": "ta"}
+            )
+        assert response.status_code == 200
+        assert response.json() == {"fallback": "browser"}
+
+    def test_sarvam_http_failure_falls_back_to_browser(self):
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "test-sarvam-key",
+            "SARVAM_VOICE_ID_TAMIL": "test-ta-speaker",
+        }), patch("routers.tts.httpx.AsyncClient",
+                  return_value=_mock_async_client(
+                      post_side_effect=httpx.ConnectError("sarvam down"))):
+            response = client.post(
+                "/api/tts", json={"text": "வணக்கம்", "language": "ta"}
+            )
+        assert response.status_code == 200
+        assert response.json() == {"fallback": "browser"}
+
+    def test_english_routes_to_elevenlabs_not_sarvam(self):
+        # Regression guard: en must hit ElevenLabs, never the Sarvam URL.
+        mock_response = MagicMock()
+        mock_response.content = b"mp3-bytes"
+        mock_response.raise_for_status = MagicMock()
+        mock_client = _mock_async_client(post_result=mock_response)
+
+        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "test-key"}), \
+             patch("routers.tts.get_voice_id", return_value="voice-en"), \
+             patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
+            response = client.post("/api/tts", json={"text": "Hello", "language": "en"})
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("audio/mpeg")
+        called_url = mock_client.post.call_args.args[0]
+        assert called_url.startswith("https://api.elevenlabs.io")
+        assert "sarvam" not in called_url
