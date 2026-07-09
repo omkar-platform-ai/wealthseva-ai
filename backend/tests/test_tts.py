@@ -22,6 +22,29 @@ def _mock_async_client(post_result=None, post_side_effect=None):
     return mock_client
 
 
+def _url_routed_client(handlers):
+    """Build a client whose .post() branches on the request URL.
+
+    `handlers` maps a URL substring → either a mock response (returned) or an
+    Exception instance (raised). Lets one mock serve the Sarvam call and the
+    ElevenLabs fallback call differently within a single request.
+    """
+    mock_client = MagicMock()
+    mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+    mock_client.__aexit__ = AsyncMock(return_value=False)
+
+    def _post(url, *args, **kwargs):
+        for substr, result in handlers.items():
+            if substr in url:
+                if isinstance(result, Exception):
+                    raise result
+                return result
+        raise AssertionError(f"unexpected TTS URL: {url}")
+
+    mock_client.post = AsyncMock(side_effect=_post)
+    return mock_client
+
+
 class TestTTSEndpoint:
     """POST /api/tts — ElevenLabs proxy with browser fallback, never 500."""
 
@@ -128,10 +151,12 @@ class TestTTSEndpoint:
         assert called_kwargs["json"]["target_language_code"] == "bn-IN"
         assert called_kwargs["json"]["speaker"] == "test-bn-speaker"
 
-    def test_sarvam_missing_key_falls_back_to_browser(self):
+    def test_sarvam_and_elevenlabs_unconfigured_falls_back_to_browser(self):
+        # Neither provider configured for ta → browser fallback (never 500).
         with patch.dict(os.environ, {
             "SARVAM_API_KEY": "",
             "SARVAM_VOICE_ID_TAMIL": "test-ta-speaker",
+            "ELEVENLABS_API_KEY": "",
         }):
             response = client.post(
                 "/api/tts", json={"text": "வணக்கம்", "language": "ta"}
@@ -139,13 +164,46 @@ class TestTTSEndpoint:
         assert response.status_code == 200
         assert response.json() == {"fallback": "browser"}
 
-    def test_sarvam_http_failure_falls_back_to_browser(self):
+    def test_sarvam_failure_falls_back_to_elevenlabs(self):
+        # WEA-84: Sarvam errors (e.g. credit exhausted) → ElevenLabs serves ta.
+        el_response = MagicMock()
+        el_response.content = b"elevenlabs-mp3"
+        el_response.raise_for_status = MagicMock()
+        mock_client = _url_routed_client({
+            "api.sarvam.ai": httpx.ConnectError("sarvam down"),
+            "api.elevenlabs.io": el_response,
+        })
+
         with patch.dict(os.environ, {
             "SARVAM_API_KEY": "test-sarvam-key",
             "SARVAM_VOICE_ID_TAMIL": "test-ta-speaker",
-        }), patch("routers.tts.httpx.AsyncClient",
-                  return_value=_mock_async_client(
-                      post_side_effect=httpx.ConnectError("sarvam down"))):
+            "ELEVENLABS_API_KEY": "test-el-key",
+        }), patch("routers.tts.get_voice_id", return_value="voice-ta"), \
+             patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
+            response = client.post(
+                "/api/tts", json={"text": "வணக்கம்", "language": "ta"}
+            )
+
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("audio/mpeg")
+        assert response.content == b"elevenlabs-mp3"
+        # Both providers were attempted, in order.
+        called_urls = [c.args[0] for c in mock_client.post.call_args_list]
+        assert any("api.sarvam.ai" in u for u in called_urls)
+        assert any("api.elevenlabs.io" in u for u in called_urls)
+
+    def test_sarvam_and_elevenlabs_both_fail_falls_back_to_browser(self):
+        # WEA-84: both providers error → browser fallback (200, never 500).
+        mock_client = _url_routed_client({
+            "api.sarvam.ai": httpx.ConnectError("sarvam down"),
+            "api.elevenlabs.io": httpx.ConnectError("elevenlabs down"),
+        })
+        with patch.dict(os.environ, {
+            "SARVAM_API_KEY": "test-sarvam-key",
+            "SARVAM_VOICE_ID_TAMIL": "test-ta-speaker",
+            "ELEVENLABS_API_KEY": "test-el-key",
+        }), patch("routers.tts.get_voice_id", return_value="voice-ta"), \
+             patch("routers.tts.httpx.AsyncClient", return_value=mock_client):
             response = client.post(
                 "/api/tts", json={"text": "வணக்கம்", "language": "ta"}
             )
