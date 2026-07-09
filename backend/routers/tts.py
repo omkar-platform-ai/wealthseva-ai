@@ -6,12 +6,12 @@ text replies via this endpoint, so RAG and compliance guardrails stay in the
 text pipeline. We do NOT use an ElevenLabs Conversational AI agent — that
 would bypass both.
 
-Provider chain (WEA-78, WEA-84): TA/BN are synthesized by Sarvam Bulbul v3
-(India-resident, Indic-native); EN/HI/MR by ElevenLabs. If the primary
-provider fails for ANY reason (missing config, credit exhausted, payment
-issue, rate limit, network error), the request automatically falls back to
-ElevenLabs, then to the browser. Each provider helper returns a Response on
-success or None to signal "try the next provider".
+Provider chain (WEA-78, WEA-84, WEA-83): all five languages are synthesized
+by Sarvam Bulbul v3 (India-resident, Indic-native) as the primary voice. If
+the primary provider fails for ANY reason (missing config, credit exhausted,
+payment issue, rate limit, network error), the request automatically falls
+back to ElevenLabs, then to the browser. Each provider helper returns a
+Response on success or None to signal "try the next provider".
 
 Graceful degradation contract: the endpoint never returns a 500 — if every
 provider is unavailable it returns {"fallback": "browser"} so the frontend
@@ -35,14 +35,27 @@ ELEVENLABS_TTS_URL = "https://api.elevenlabs.io/v1/text-to-speech"
 
 BROWSER_FALLBACK = {"fallback": "browser"}
 
-# Sarvam Bulbul v3 — primary for TA/BN (WEA-78, per WEA-76 partial-adopt).
-# Auth is a custom `api-subscription-key` header (NOT Bearer), and the response
-# is base64-encoded JSON — see _sarvam_tts. Additional locales can be moved to
-# Sarvam by extending these two maps (WEA-83).
+# Sarvam Bulbul v3 — primary voice for all five languages (WEA-83; started as
+# a TA/BN-only partial-adopt in WEA-78 per WEA-76). Auth is a custom
+# `api-subscription-key` header (NOT Bearer), and the response is base64-encoded
+# JSON — see _sarvam_tts. A locale with no configured speaker skips Sarvam and
+# falls through to ElevenLabs (WEA-84 chain), so provisioning is per-locale.
 SARVAM_TTS_URL = "https://api.sarvam.ai/text-to-speech"
 SARVAM_MODEL = "bulbul:v3"
-_SARVAM_LOCALES = {"ta": "ta-IN", "bn": "bn-IN"}
-_SARVAM_SPEAKER_ENV = {"ta": "SARVAM_VOICE_ID_TAMIL", "bn": "SARVAM_VOICE_ID_BENGALI"}
+_SARVAM_LOCALES = {
+    "en": "en-IN",
+    "hi": "hi-IN",
+    "mr": "mr-IN",
+    "ta": "ta-IN",
+    "bn": "bn-IN",
+}
+_SARVAM_SPEAKER_ENV = {
+    "en": "SARVAM_VOICE_ID_ENGLISH",
+    "hi": "SARVAM_VOICE_ID_HINDI",
+    "mr": "SARVAM_VOICE_ID_MARATHI",
+    "ta": "SARVAM_VOICE_ID_TAMIL",
+    "bn": "SARVAM_VOICE_ID_BENGALI",
+}
 
 
 def _sarvam_speaker(lang_code: str) -> str:
@@ -145,14 +158,14 @@ async def text_to_speech(request: TTSRequest):
     Sarvam (for its locales) → ElevenLabs → browser fallback."""
     lang_code = request.language.value
 
-    # 1. Sarvam is primary for its configured locales (TA/BN today).
+    # 1. Sarvam is the primary voice for all configured locales (EN/HI/MR/TA/BN).
     if lang_code in _SARVAM_LOCALES:
         audio = await _sarvam_tts(request.text, lang_code)
         if audio is not None:
             return audio
         logger.info("tts fallback provider=sarvam->elevenlabs lang=%s", lang_code)
 
-    # 2. ElevenLabs — primary for EN/HI/MR, fallback for Sarvam locales.
+    # 2. ElevenLabs — automatic fallback when Sarvam is unavailable.
     audio = await _elevenlabs_tts(request.text, request.language)
     if audio is not None:
         return audio

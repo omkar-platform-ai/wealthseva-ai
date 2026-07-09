@@ -89,12 +89,12 @@
   <text x="697" y="253" text-anchor="middle" font-size="8.5" fill="#566B63">exposes:</text>
   <text x="697" y="270" text-anchor="middle" font-size="8.5" fill="#2F4A42">data → rule → calculation</text>
 
-  <!-- ElevenLabs Voice -->
+  <!-- Sarvam voice -->
   <rect x="807" y="200" width="168" height="88" fill="#FFFFFF" rx="7" stroke="#E06A1C" stroke-width="1.5"/>
-  <text x="891" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14584A">ElevenLabs Voice</text>
+  <text x="891" y="220" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#14584A">Sarvam Bulbul v3</text>
   <text x="891" y="240" text-anchor="middle" font-size="8.5" fill="#566B63">Reply spoken by Shreya</text>
   <text x="891" y="253" text-anchor="middle" font-size="8.5" fill="#566B63">in the same language</text>
-  <text x="891" y="270" text-anchor="middle" font-size="8.5" fill="#B45309">5 native voices</text>
+  <text x="891" y="270" text-anchor="middle" font-size="8.5" fill="#B45309">5 langs · ElevenLabs fallback</text>
 
   <!-- Vertical connectors -->
   <line x1="309" y1="200" x2="309" y2="158" stroke="#6B7B75" stroke-width="1.8" marker-end="url(#arr)"/>

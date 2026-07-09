@@ -52,7 +52,7 @@ Show a slide: fragmented advisory landscape, advisor-to-customer ratio, vernacul
 
 - **Claude API** — natively handles all Indian languages. Zero translation cost.
 - **RAG on IDBI's synthetic datasets** — grounded, factual, hallucination-resistant.
-- **ElevenLabs multilingual voices** — same persona, 5 languages.
+- **Sarvam Bulbul v3 voices (India-resident)** — same persona, 5 languages; ElevenLabs fallback.
 - **Deployed on IDBI's AWS** — production-ready, not a prototype.
 
 ---
