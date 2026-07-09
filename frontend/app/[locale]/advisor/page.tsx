@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from '@/navigation';
 import AvatarChat from '@/components/AvatarChat';
 import MoneyMoments from '@/components/MoneyMoments';
 import ConsentGate from '@/components/ConsentGate';
@@ -8,6 +9,7 @@ import ConsentGate from '@/components/ConsentGate';
 export default function AdvisorPage() {
   const t = useTranslations('advisor');
   const tc = useTranslations('consent');
+  const router = useRouter();
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
   const [declined, setDeclined] = useState(false);
   const [nudgeSeed, setNudgeSeed] = useState<string | undefined>();
@@ -39,6 +41,12 @@ export default function AdvisorPage() {
             className="w-full bg-idbi-green text-white py-2 rounded-xl text-sm font-medium hover:bg-idbi-dark transition-colors"
           >
             {tc('declined_review_cta')}
+          </button>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="w-full border border-gray-300 text-gray-600 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors mt-3"
+          >
+            {tc('declined_exit_cta')}
           </button>
         </div>
       </div>

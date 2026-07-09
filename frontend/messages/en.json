@@ -133,7 +133,8 @@
     "decline": "Decline",
     "declined_title": "Consent Required",
     "declined_body": "The AI Advisor requires your consent to process personal data under the DPDP Act 2023. Without consent, the chat cannot be opened. You may review the notice and consent at any time, or speak to a human IDBI advisor.",
-    "declined_review_cta": "Review Consent Notice"
+    "declined_review_cta": "Review Consent Notice",
+    "declined_exit_cta": "Go to Dashboard"
   },
   "dashboard": {
     "title": "Dashboard",
