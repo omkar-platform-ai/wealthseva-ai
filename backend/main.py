@@ -46,6 +46,17 @@ app.include_router(idbi.router, prefix="/api", tags=["IDBI Sandbox"])
 app.include_router(tts.router, prefix="/api", tags=["TTS"])
 app.include_router(nudges.router, prefix="/api", tags=["Nudges"])
 
+# Shadow mounts under /v2/api for a CloudFront /v2/* canary (no path-strip
+# needed on the CFN origin). Mirrors every /api route.
+app.include_router(chat.router, prefix="/v2/api", tags=["Chat"])
+app.include_router(portfolio.router, prefix="/v2/api", tags=["Portfolio"])
+app.include_router(risk.router, prefix="/v2/api", tags=["Risk"])
+app.include_router(insights.router, prefix="/v2/api", tags=["Insights"])
+app.include_router(goals.router, prefix="/v2/api", tags=["Goals"])
+app.include_router(idbi.router, prefix="/v2/api", tags=["IDBI Sandbox"])
+app.include_router(tts.router, prefix="/v2/api", tags=["TTS"])
+app.include_router(nudges.router, prefix="/v2/api", tags=["Nudges"])
+
 
 @app.get("/health")
 @limiter.exempt

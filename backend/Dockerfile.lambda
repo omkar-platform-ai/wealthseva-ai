@@ -37,7 +37,10 @@ COPY ai /ai
 # OneDrive sync). The EC2 image runs as root so reads them fine, but Lambda's
 # non-root runtime cannot traverse a 0700 dir → ImportError on first import.
 # Normalize so every file/dir under /app is world-readable + traversable.
-RUN chmod -R a+rX /app
+# /ai (system prompts, via COPY ai /ai) sits OUTSIDE /app, so the same
+# OneDrive-perm normalization must cover it — otherwise language_service's
+# get_system_prompt hits PermissionError on /ai/system_prompts/*.md.
+RUN chmod -R a+rX /app /ai
 
 # start.py pulls wealthseva/production from Secrets Manager (ENVIRONMENT=
 # production) then starts uvicorn — unchanged from EC2. The Lambda exec role
@@ -45,6 +48,13 @@ RUN chmod -R a+rX /app
 ENV ENVIRONMENT=production
 ENV PORT=8000
 ENV UVICORN_WORKERS=1
+# AWS Lambda Web Adapter: tell it to use the Function URL RESPONSE_STREAM
+# invoke mode instead of its default ("buffered"). Without this the adapter
+# serializes the HTTP response into the buffered JSON envelope
+# (statusCode/headers/body) and the FURL streaming runtime serves those raw
+# bytes verbatim with a default outer 200 — i.e. the HTTP-wrapping bug.
+# Set on the function config too (belt-and-suspenders) — see infra notes.
+ENV AWS_LWA_INVOKE_MODE=response_stream
 
 EXPOSE 8000
 CMD ["python", "start.py"]

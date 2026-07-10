@@ -71,7 +71,12 @@ Resources:
             Version: "2012-10-17"
             Statement:
               # Bedrock — Claude (streaming, via InvokeModelWithResponseStream)
-              # and Titan embeddings. Same scope as the EC2 role.
+              # and Titan embeddings. Scope MIRRORS the EC2 role (verified
+              # 2026-07-10): the apac.* inference profile resolves its backing
+              # model CROSS-REGION (e.g. ap-northeast-1), so an ap-south-1-only
+              # scope 403s on InvokeModel and the app silently falls back to
+              # mock insights/chat. The wildcard-region foundation-model line +
+              # wildcard-region inference-profile line cover the backing model.
               - Sid: BedrockAccess
                 Effect: Allow
                 Action:
@@ -79,7 +84,8 @@ Resources:
                   - bedrock:InvokeModelWithResponseStream
                 Resource:
                   - !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/*"
-                  - !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/*"
+                  - !Sub "arn:aws:bedrock:*::foundation-model/*"
+                  - !Sub "arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/*"
               # Read the single prod secret that start.py injects as env vars.
               - Sid: SecretsRead
                 Effect: Allow
