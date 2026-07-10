@@ -1,0 +1,50 @@
+# Lambda variant of backend/Dockerfile — the SAME app and deps, packaged to run
+# on AWS Lambda via the AWS Lambda Web Adapter (awslabs/aws-lambda-web-adapter,
+# release v1.1.0). The adapter is a Rust extension that proxies Lambda invokes
+# to the uvicorn app on :8000; with InvokeMode=RESPONSE_STREAM on the Function
+# URL, the chunked /api/chat stream flows through unchanged.
+#
+# Build context MUST be the repo root (same as backend/Dockerfile) so ai/ copies
+# in — services/language_service.py resolves prompts via ../../ai/system_prompts.
+#   docker build --platform linux/amd64 \
+#       --file backend/Dockerfile.lambda \
+#       -t <account>.dkr.ecr.ap-south-1.amazonaws.com/wealthseva-backend:lambda .
+#
+# Only THREE things differ from the EC2 image (backend/Dockerfile):
+#   1. The Web Adapter binary is layered into /opt/extensions.
+#   2. UVICORN_WORKERS=1 — Lambda gives the container a single process; start.py's
+#      default of 2 workers would spawn children that fight the Lambda runtime.
+#   3. The app serves on $PORT (8000), which the adapter forwards invokes to.
+
+FROM public.ecr.aws/awsguru/aws-lambda-adapter:1.1.0 AS adapter
+
+FROM python:3.12-slim
+WORKDIR /app
+
+# AWS Lambda Web Adapter — runs as an extensions/ binary, translates
+# Lambda Runtime API invokes (+ response streaming) into HTTP to the app.
+COPY --from=adapter /lambda-adapter /opt/extensions/lambda-adapter
+
+# Identical dependency + source layout to the EC2 image.
+COPY backend/requirements.txt .
+RUN pip install -r requirements.txt --no-cache-dir
+
+COPY backend/ .
+COPY ai /ai
+
+# Lambda runs this container as a NON-root user. Source files copied from the
+# build host can land with restrictive perms (dirs 0700 / files 0600 — e.g. via
+# OneDrive sync). The EC2 image runs as root so reads them fine, but Lambda's
+# non-root runtime cannot traverse a 0700 dir → ImportError on first import.
+# Normalize so every file/dir under /app is world-readable + traversable.
+RUN chmod -R a+rX /app
+
+# start.py pulls wealthseva/production from Secrets Manager (ENVIRONMENT=
+# production) then starts uvicorn — unchanged from EC2. The Lambda exec role
+# grants secretsmanager:GetSecretValue (see infra/lambda-parallel-path.cfn.yaml).
+ENV ENVIRONMENT=production
+ENV PORT=8000
+ENV UVICORN_WORKERS=1
+
+EXPOSE 8000
+CMD ["python", "start.py"]

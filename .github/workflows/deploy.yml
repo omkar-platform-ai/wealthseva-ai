@@ -86,6 +86,61 @@ jobs:
           echo "✅ Pushed: ${IMAGE_URI}"
 
 
+  # ── 2. Build & push LAMBDA image (parallel path — ADR-001 Option B) ────────
+  # Deliberately a SEPARATE job from build-and-push: the Lambda image is the
+  # experimental parallel path, so a Lambda build failure must NOT block the
+  # live EC2 deploy (which depends only on build-and-push). Same ECR repo,
+  # tagged :lambda-<sha> + :lambda-latest.
+  build-and-push-lambda:
+    name: Build & Push Lambda image
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Same pin-to-CI-validated-commit discipline as build-and-push.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Lambda image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          COMMIT_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          # Same app + deps as the EC2 image, packaged for Lambda via the AWS
+          # Lambda Web Adapter (backend/Dockerfile.lambda). Build context = repo
+          # root so ai/ copies in (same as the EC2 image).
+          LAMBDA_IMAGE_URI="${REGISTRY}/${ECR_REPO}:lambda-${COMMIT_SHA}"
+          LAMBDA_LATEST_URI="${REGISTRY}/${ECR_REPO}:lambda-latest"
+
+          # --provenance=false: buildx otherwise wraps the single-platform image in
+          # a manifest LIST (+ attestation); Lambda rejects manifest lists with
+          # "image manifest ... not supported". (EC2 tolerates lists; Lambda does not.)
+          docker build \
+            --platform linux/amd64 \
+            --provenance=false \
+            --file backend/Dockerfile.lambda \
+            --tag "${LAMBDA_IMAGE_URI}" \
+            --tag "${LAMBDA_LATEST_URI}" \
+            .
+
+          docker push "${LAMBDA_IMAGE_URI}"
+          docker push "${LAMBDA_LATEST_URI}"
+
+          echo "lambda-image-uri=${LAMBDA_IMAGE_URI}" >> "$GITHUB_OUTPUT"
+          echo "✅ Pushed Lambda: ${LAMBDA_IMAGE_URI}"
+
+
   # ── 3. Deploy to EC2 ──────────────────────────────────────────────────────
   deploy:
     name: Deploy to EC2

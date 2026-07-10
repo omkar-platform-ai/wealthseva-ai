@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from origin_verify import OriginVerifyMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -28,6 +29,13 @@ app.add_middleware(
     # and pick the correct TTS voice for the reply.
     expose_headers=["X-Detected-Language", "X-Grounding-Sources"],
 )
+# Gate the public (AuthType NONE) Lambda Function URL behind a shared secret
+# header that CloudFront adds. No-op until ORIGIN_VERIFY_SECRET is set — set it
+# via `aws lambda update-function-configuration` AFTER the image carrying this
+# middleware is live (never in the same deploy, to avoid a lockout). Registered
+# after CORSMiddleware so it is the outermost layer (Starlette wraps LIFO).
+# See backend/origin_verify.py.
+app.add_middleware(OriginVerifyMiddleware)
 
 app.include_router(chat.router, prefix="/api", tags=["Chat"])
 app.include_router(portfolio.router, prefix="/api", tags=["Portfolio"])

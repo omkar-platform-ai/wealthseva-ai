@@ -86,3 +86,8 @@ docs/*.json
 # Others
 .agents/
 .paperclip/
+
+# Lambda parallel-path — LOCAL build artifacts (corporate TLS workaround)
+# Local-only, never committed. CI builds backend/Dockerfile.lambda without these.
+.henkel-ca.crt
+backend/Dockerfile.lambda.local
