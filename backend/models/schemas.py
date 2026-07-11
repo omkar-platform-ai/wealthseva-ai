@@ -19,14 +19,17 @@ class RiskProfile(str, Enum):
 
 class ChatMessage(BaseModel):
     role: str  # "user" or "assistant"
-    content: str
+    content: str = Field(max_length=2000)
 
 
 class ChatRequest(BaseModel):
-    message: str
+    # Hard bounds so oversized input is rejected with 422 BEFORE any Bedrock
+    # call — the public chat FURL's cost protection. MAX_HISTORY trims further
+    # downstream, but max_length caps what we even accept.
+    message: str = Field(min_length=1, max_length=2000)
     session_id: str
     language: Language = Language.EN
-    history: List[ChatMessage] = []
+    history: List[ChatMessage] = Field(default=[], max_length=10)
 
 
 class ChatResponse(BaseModel):

@@ -1,0 +1,179 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  WealthSeva AI — Lambda parallel path (ADR-001, Option B). Additive only: a
+  second backend compute path on a Lambda Function URL (response streaming).
+  The live EC2 instance and the CloudFront default behaviour are NOT touched.
+  Apply AFTER pushing the Lambda container image to ECR — see
+  docs/lambda-parallel-path.md.
+
+Parameters:
+  ImageUri:
+    Type: String
+    Description: >
+      ECR image URI built from backend/Dockerfile.lambda, e.g.
+      408336116890.dkr.ecr.ap-south-1.amazonaws.com/wealthseva-backend:lambda-<sha>
+  MemoryMB:
+    Type: Number
+    Default: 3008
+    MinValue: 512
+    MaxValue: 3008
+    Description: >
+      Lambda memory. Measured 2026-07-10: at 2048MB cold start was ~21s (the
+      CPU-bound import phase blew past Lambda's ~10s init-phase budget →
+      retries inflated it); at 3008MB cold start is ~3.1s (init completes
+      in-budget). 3008 is this account's CEILING (pre-Nov-2023 cap — values
+      >3008 are rejected with ValidationException; a Service Quota increase
+      could raise it, but 3.1s is demo-acceptable so provisioned concurrency
+      is NOT used). Lambda allocates CPU proportionally to memory.
+  TimeoutSec:
+    Type: Number
+    Default: 60
+    Description: >
+      Max invocation. Claude + ElevenLabs round-trips can take 10–30s; 60s
+      headroom. Raise if portfolio/long RAG calls time out.
+  SecretName:
+    Type: String
+    Default: wealthseva/production
+    Description: Secrets Manager secret that start.py injects as env vars.
+  BedrockModelId:
+    Type: String
+    Default: apac.anthropic.claude-3-7-sonnet-20250219-v1:0
+  CorsOrigins:
+    Type: String
+    Default: https://main.d13rdix674q29k.amplifyapp.com
+    Description: >
+      Comma-separated allowed frontend origins (CORS_ORIGINS). Default mirrors
+      the live EC2 backend's allowed origin (verified via Access-Control-Allow-
+      Origin 2026-07-10). Override if you add a custom domain / more branches.
+
+Resources:
+  # Purpose-built, scoped-down role — deliberately NOT a copy of wealthseva-ec2-role.
+  # Scope derived from the EC2 role's actual policy (verified 2026-07-10) minus
+  # what a container Lambda does not need (ECR pull is done by the Lambda service
+  # principal; SSM was EC2-only; the S3 bucket wealthseva-ai-assets does not exist).
+  LambdaExecRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: wealthseva-lambda-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      # CloudWatch Logs for /aws/lambda/wealthseva-backend-lambda.
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: wealthseva-lambda-app
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Bedrock — Claude (streaming, via InvokeModelWithResponseStream)
+              # and Titan embeddings. Scope MIRRORS the EC2 role (verified
+              # 2026-07-10): the apac.* inference profile resolves its backing
+              # model CROSS-REGION (e.g. ap-northeast-1), so an ap-south-1-only
+              # scope 403s on InvokeModel and the app silently falls back to
+              # mock insights/chat. The wildcard-region foundation-model line +
+              # wildcard-region inference-profile line cover the backing model.
+              - Sid: BedrockAccess
+                Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource:
+                  - !Sub "arn:aws:bedrock:${AWS::Region}::foundation-model/*"
+                  - !Sub "arn:aws:bedrock:*::foundation-model/*"
+                  - !Sub "arn:aws:bedrock:*:${AWS::AccountId}:inference-profile/*"
+              # Read the single prod secret that start.py injects as env vars.
+              - Sid: SecretsRead
+                Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretName}-*"
+              # NOTE: no S3 — wealthseva-ai-assets does not exist; the app is stateless.
+              # NOTE: no ECR/SSM — not needed by a container-image Lambda.
+
+  WealthSevaBackendLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: wealthseva-backend-lambda
+      Description: Parallel-path backend (ADR-001 Option B). EC2 stays primary until cutover.
+      Role: !GetAtt LambdaExecRole.Arn
+      PackageType: Image
+      Code:
+        ImageUri: !Ref ImageUri
+      # Explicit ImageConfig mirrors the Dockerfile (WORKDIR /app, CMD
+      # ["python","start.py"]). Optional — Lambda would use the image CMD
+      # anyway — but declaring it clears the AWS console's "Cannot read
+      # properties of undefined (reading 'ImageConfig')" error that hits
+      # container-image functions created via CloudFormation.
+      ImageConfig:
+        WorkingDirectory: /app
+        Command:
+          - python
+          - start.py
+      MemorySize: !Ref MemoryMB
+      Timeout: !Ref TimeoutSec
+      Environment:
+        Variables:
+          ENVIRONMENT: production
+          # AWS_DEFAULT_REGION / AWS_REGION are RESERVED by Lambda and set
+          # automatically to the function's region (ap-south-1 here). Do NOT
+          # declare them — CREATE fails with a reserved-key error.
+          SECRET_NAME: !Ref SecretName
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          BEDROCK_REGION: !Ref AWS::Region
+          CORS_ORIGINS: !Ref CorsOrigins
+          PORT: "8000"            # the app's listen port; Web Adapter forwards invokes here
+          UVICORN_WORKERS: "1"    # Lambda = single process
+      Tags:
+        - { Key: Project, Value: wealthseva-ai }
+        - { Key: Environment, Value: prototype }
+        - { Key: Path, Value: lambda-parallel }
+
+  # Function URL with response streaming — required for /api/chat chunked output.
+  # AuthType NONE keeps it simple for the validation window; BEFORE cutover, gate
+  # it behind a CloudFront origin custom header (x-origin-verify) so the URL
+  # can't be invoked directly — see docs/lambda-parallel-path.md §Hardening.
+  FunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt WealthSevaBackendLambda.Arn
+      AuthType: NONE
+      InvokeMode: RESPONSE_STREAM
+
+  # AuthType NONE STILL requires an explicit resource-based permission granting
+  # public invoke on the Function URL — without it every call returns 403.
+  # The AWS console adds this automatically; CloudFormation does NOT.
+  FunctionUrlInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WealthSevaBackendLambda
+      FunctionUrlAuthType: NONE
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+
+  # Statement 2 of 2 — required since AWS's Oct-2025 change: NONE-auth Function
+  # URLs need BOTH lambda:InvokeFunctionUrl (above) AND lambda:InvokeFunction
+  # (below), else the URL 403s. `InvokedViaFunctionUrl: true` is the only CFN
+  # surface that yields the lambda:InvokedViaFunctionUrl:true Bool condition
+  # (scoped to FURL invocations only — mirrors the --invoked-via-function-url
+  # CLI flag). AWS::Lambda::Permission has NO generic Condition property. Do NOT
+  # add FunctionUrlAuthType here — it would produce a different, broader key.
+  FunctionUrlInvokeFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref WealthSevaBackendLambda
+      Action: lambda:InvokeFunction
+      Principal: "*"
+      InvokedViaFunctionUrl: true
+
+Outputs:
+  FunctionUrl:
+    Description: Invoke this directly to validate the Lambda path before wiring CloudFront.
+    Value: !GetAtt FunctionUrl.FunctionUrl
+  FunctionArn:
+    Value: !GetAtt WealthSevaBackendLambda.Arn
+  FunctionRoleArn:
+    Value: !GetAtt LambdaExecRole.Arn

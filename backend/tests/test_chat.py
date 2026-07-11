@@ -3,7 +3,6 @@ Tests for chat endpoints.
 """
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from models.schemas import ChatMessage
 from fastapi.testclient import TestClient
 from main import app
 
@@ -85,39 +84,23 @@ class TestChatEndpoint:
                 assert response.status_code == 200
                 assert "demo mode" in response.text
 
-    @pytest.mark.asyncio
-    async def test_post_chat_with_15_message_history(self):
-        """POST /api/chat with 15-message history → only last 10 sent to Claude."""
-        mock_bedrock = MagicMock()
-        mock_stream = AsyncMock()
-        mock_stream.text_stream.__aiter__ = AsyncMock(return_value=iter(["Response"]))
-        mock_stream.__aenter__ = AsyncMock(return_value=mock_stream)
-        mock_stream.__aexit__ = AsyncMock()
-        mock_bedrock.messages.stream.return_value = mock_stream
+    def test_post_chat_history_over_cap_rejected(self):
+        """POST /api/chat with >10-message history → 422 (input cap, pre-Bedrock)."""
+        # history is capped at max_length=10 on ChatRequest so oversized input is
+        # rejected before any Bedrock call — the public chat FURL's cost guardrail.
+        long_history = [
+            {"role": "user", "content": f"Message {i}"}
+            for i in range(15)
+        ]
 
-        with patch('services.claude_service.client', mock_bedrock):
-            with patch('services.rag_service.retrieve_context', return_value=""):
-                # Create 15 messages in history
-                long_history = [
-                    ChatMessage(role="user", content=f"Message {i}")
-                    for i in range(15)
-                ]
+        response = client.post("/api/chat", json={
+            "message": "Latest message",
+            "session_id": "test-123",
+            "language": "en",
+            "history": long_history,
+        })
 
-                response = client.post("/api/chat", json={
-                    "message": "Latest message",
-                    "session_id": "test-123",
-                    "language": "en",
-                    "history": [msg.model_dump() for msg in long_history]
-                })
-
-                assert response.status_code == 200
-
-                # Verify only last 10 messages + current message were sent to Claude
-                call_args = mock_bedrock.messages.stream.call_args
-                messages_sent = call_args[1]['messages']
-
-                # Should have 10 history messages + 1 current message = 11 total
-                assert len(messages_sent) == 11
+        assert response.status_code == 422
 
 
 class TestDetectedLanguageHeader:

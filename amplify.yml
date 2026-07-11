@@ -13,6 +13,11 @@ applications:
             - npm ci --prefer-offline --no-audit
         build:
           commands:
+            # Amplify does not reliably expose console env vars to the Next.js
+            # SSR runtime. Bake the server-side vars (read at runtime by the
+            # /api proxy route) into .env.production so they survive into the
+            # deployed compute. NEXT_PUBLIC_* are already inlined at build time.
+            - env | grep -e '^BACKEND_FURL_URL=' -e '^ORIGIN_VERIFY_SECRET=' >> .env.production || true
             - npm run build
       artifacts:
         baseDirectory: .next
