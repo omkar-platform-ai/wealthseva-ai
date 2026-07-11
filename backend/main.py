@@ -2,12 +2,10 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from origin_verify import OriginVerifyMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from rate_limit import limiter
 from routers import chat, portfolio, risk, insights, goals, idbi, tts, nudges
-
-limiter = Limiter(key_func=get_remote_address, default_limits=["30/minute"])
 
 app = FastAPI(
     title="WealthSeva AI",

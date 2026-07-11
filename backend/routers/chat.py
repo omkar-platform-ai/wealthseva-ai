@@ -1,7 +1,9 @@
 import asyncio
-from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+import os
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse, StreamingResponse
 from models.schemas import ChatRequest, Language
+from rate_limit import limiter
 from services.account_service import get_account_context
 from services.claude_service import stream_chat
 from services.language_service import detect_language
@@ -29,9 +31,23 @@ _DEMO_SIP_HINDI = (
 )
 
 
+# Per-route cap on top of the global 30/minute umbrella. The public chat FURL
+# is the only unauthenticated Bedrock-spending surface, so it gets a tighter
+# per-IP limit (keyed via client_ip_key → X-Forwarded-For). `request: Request`
+# is required by slowapi to resolve the key.
 @router.post("/chat")
-async def chat(req: ChatRequest):
+@limiter.limit("10/minute")
+async def chat(request: Request, req: ChatRequest):
     """Main streaming chat endpoint with language detection and RAG."""
+    # Kill-switch: flip CHAT_PUBLIC_ENABLED=false in the Lambda console to
+    # disable the public chat surface in seconds (no redeploy) before any
+    # Bedrock call is made.
+    if os.environ.get("CHAT_PUBLIC_ENABLED", "true").lower() != "true":
+        return JSONResponse(
+            status_code=503,
+            content={"error": "chat disabled", "code": "CHAT_DISABLED"},
+        )
+
     if req.message == "DEMO_MODE_SIP_HINDI":
         async def demo_stream():
             for word in _DEMO_SIP_HINDI.split(" "):

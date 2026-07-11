@@ -11,7 +11,11 @@ Behaviour:
   - secret set + header matches -> request proceeds.
 
 ``/health`` is always exempt so health probes work without the header.
-``hmac.compare_digest`` avoids a timing side-channel.
+``/api/chat`` is exempt because the public streaming chat surface is hit
+directly by the browser (the Function URL, no CloudFront/proxy in front) so it
+never carries the header; it is guarded instead by rate limit + input caps +
+CORS + a kill-switch. Exact-match (not prefix), so the other endpoints stay
+gated. ``hmac.compare_digest`` avoids a timing side-channel.
 """
 import hmac
 import os
@@ -20,7 +24,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-_EXEMPT_PATHS = {"/health"}
+_EXEMPT_PATHS = {"/health", "/api/chat"}
 
 
 class OriginVerifyMiddleware(BaseHTTPMiddleware):

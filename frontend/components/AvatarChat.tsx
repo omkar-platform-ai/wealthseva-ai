@@ -30,6 +30,15 @@ type AvatarState = 'idle' | 'listening' | 'speaking';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
+// Chat hits the public Lambda Function URL DIRECTLY (streaming survives; the
+// Amplify SSR proxy would buffer it). Falls back to the same-origin/backend
+// path for local dev where NEXT_PUBLIC_CHAT_URL is unset.
+const CHAT_URL = process.env.NEXT_PUBLIC_CHAT_URL ?? `${BACKEND_URL}/api/chat`;
+// When serving serverless (NEXT_PUBLIC_CHAT_URL set), the other endpoints go
+// same-origin through the Amplify proxy → poll `/api/health`. In local dev,
+// poll the backend's root `/health` directly.
+const HEALTH_URL = process.env.NEXT_PUBLIC_CHAT_URL ? '/api/health' : `${BACKEND_URL}/health`;
+
 interface Props {
   initialMessage?: string;
 }
@@ -94,7 +103,7 @@ export default function AvatarChat({ initialMessage }: Props) {
     const checkHealth = async () => {
       setHealth(prev => ({ ...prev, loading: true }));
       try {
-        const res = await fetch(`${BACKEND_URL}/health`);
+        const res = await fetch(HEALTH_URL);
         setHealth({ healthy: res.ok, loading: false });
       } catch {
         setHealth({ healthy: false, loading: false });
@@ -169,7 +178,7 @@ export default function AvatarChat({ initialMessage }: Props) {
     setLoading(true);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/api/chat`, {
+      const response = await fetch(CHAT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
