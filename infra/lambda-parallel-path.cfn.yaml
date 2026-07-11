@@ -1,10 +1,13 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  WealthSeva AI — Lambda parallel path (ADR-001, Option B). Additive only: a
-  second backend compute path on a Lambda Function URL (response streaming).
-  The live EC2 instance and the CloudFront default behaviour are NOT touched.
-  Apply AFTER pushing the Lambda container image to ECR — see
-  docs/lambda-parallel-path.md.
+  WealthSeva AI — serverless backend on a Lambda Function URL (ADR-001,
+  Option B; PRODUCTION as of the 2026-07-11 cutover). The Amplify `main`
+  frontend calls this URL directly for streaming chat and via its SSR proxy
+  (which injects x-origin-verify) for the other endpoints. The former EC2
+  instance is kept STOPPED as rollback and is NOT managed by this stack;
+  CloudFront is not part of the Lambda path (CloudFront->Function-URL is
+  unsupported in this account/region — see docs/lambda-parallel-path.md).
+  Apply AFTER pushing the Lambda container image to ECR.
 
 Parameters:
   ImageUri:
@@ -42,9 +45,37 @@ Parameters:
     Type: String
     Default: https://main.d13rdix674q29k.amplifyapp.com
     Description: >
-      Comma-separated allowed frontend origins (CORS_ORIGINS). Default mirrors
-      the live EC2 backend's allowed origin (verified via Access-Control-Allow-
-      Origin 2026-07-10). Override if you add a custom domain / more branches.
+      Comma-separated allowed frontend origins (CORS_ORIGINS). Default is the
+      Amplify `main` production frontend origin. Add preview-branch origins or a
+      custom domain here (comma-separated) as needed.
+  OriginVerifySecret:
+    Type: String
+    NoEcho: true
+    MinLength: 32
+    Description: >
+      Shared secret for the app-level origin-verify gate (ORIGIN_VERIFY_SECRET,
+      Lambda function-env ONLY). The Amplify `main` SSR proxy injects it as the
+      x-origin-verify header on every non-chat request; the middleware
+      (backend/origin_verify.py) 403s requests lacking it. /health and /api/chat
+      are exempt (chat is hit directly by the browser, so it never carries the
+      header). This value MUST match the same-named server-side env var on the
+      Amplify `main` branch, and MUST NOT be added to the wealthseva/production
+      Secrets Manager secret (start.py injects that on EC2 too, which sends no
+      header -> a shared value would 403 all EC2 traffic). Pass the SAME value on
+      every deploy — generate once with `openssl rand -hex 32`; recover the live
+      value via `aws lambda get-function-configuration --function-name
+      wealthseva-backend-lambda --region ap-south-1 --query
+      Environment.Variables.ORIGIN_VERIFY_SECRET`.
+  ChatPublicEnabled:
+    Type: String
+    Default: "true"
+    AllowedValues: ["true", "false"]
+    Description: >
+      Kill-switch for the public streaming chat surface (CHAT_PUBLIC_ENABLED).
+      Set "false" to make POST /api/chat return 503 CHAT_DISABLED (flip here or
+      directly on the function — no redeploy needed to change the live var).
+      Chat is additionally protected by a 10/minute per-IP rate limit and
+      2000-char input caps.
 
 Resources:
   # Purpose-built, scoped-down role — deliberately NOT a copy of wealthseva-ec2-role.
@@ -98,7 +129,7 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: wealthseva-backend-lambda
-      Description: Parallel-path backend (ADR-001 Option B). EC2 stays primary until cutover.
+      Description: Production backend (ADR-001 Option B) — serverless, post-2026-07-11 cutover. EC2 is the stopped rollback.
       Role: !GetAtt LambdaExecRole.Arn
       PackageType: Image
       Code:
@@ -125,6 +156,16 @@ Resources:
           BEDROCK_MODEL_ID: !Ref BedrockModelId
           BEDROCK_REGION: !Ref AWS::Region
           CORS_ORIGINS: !Ref CorsOrigins
+          # Streaming mode for the Lambda Web Adapter. The Function URL is
+          # RESPONSE_STREAM, so the adapter must emit the HTTP response as a
+          # stream rather than the buffered JSON envelope — otherwise /api/chat
+          # ships as an outer-200 blob and does not stream. Also baked as ENV in
+          # backend/Dockerfile.lambda; declared here so the config is self-describing.
+          AWS_LWA_INVOKE_MODE: response_stream
+          # App-level origin-verify gate — see the OriginVerifySecret parameter.
+          ORIGIN_VERIFY_SECRET: !Ref OriginVerifySecret
+          # Public-chat kill-switch — see the ChatPublicEnabled parameter.
+          CHAT_PUBLIC_ENABLED: !Ref ChatPublicEnabled
           PORT: "8000"            # the app's listen port; Web Adapter forwards invokes here
           UVICORN_WORKERS: "1"    # Lambda = single process
       Tags:
@@ -133,9 +174,13 @@ Resources:
         - { Key: Path, Value: lambda-parallel }
 
   # Function URL with response streaming — required for /api/chat chunked output.
-  # AuthType NONE keeps it simple for the validation window; BEFORE cutover, gate
-  # it behind a CloudFront origin custom header (x-origin-verify) so the URL
-  # can't be invoked directly — see docs/lambda-parallel-path.md §Hardening.
+  # AuthType NONE is deliberate and permanent here: CloudFront->Function-URL is
+  # unsupported in this account/region (proven exhaustively 2026-07-10/11 — OAC,
+  # AWS_IAM and every resource-policy shape 403 at the Lambda service layer),
+  # so the URL is public and instead protected at the app layer by the
+  # origin-verify gate (x-origin-verify, injected by the Amplify SSR proxy) plus,
+  # for the exempt /api/chat, a per-IP rate limit + input caps + kill-switch.
+  # See docs/lambda-parallel-path.md §Security.
   FunctionUrl:
     Type: AWS::Lambda::Url
     Properties:
@@ -171,7 +216,10 @@ Resources:
 
 Outputs:
   FunctionUrl:
-    Description: Invoke this directly to validate the Lambda path before wiring CloudFront.
+    Description: >
+      Production backend URL — the Amplify frontend calls it directly for chat
+      and via its SSR proxy for the other endpoints. Set as BACKEND_FURL_URL and
+      (with /api/chat appended) NEXT_PUBLIC_CHAT_URL on the Amplify main branch.
     Value: !GetAtt FunctionUrl.FunctionUrl
   FunctionArn:
     Value: !GetAtt WealthSevaBackendLambda.Arn

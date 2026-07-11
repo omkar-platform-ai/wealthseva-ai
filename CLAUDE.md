@@ -109,6 +109,7 @@ or auto-dispatch is approved after Jul 9), update this section.
 - Pinecone namespaces: idbi-data-{lang} — separate namespace per language
 - RAG: index IDBI synthetic datasets; retrieve top-3 chunks per query using Titan embeddings
 - Graceful degradation: Missing AWS credentials return mock responses, never 500 errors
+- Deployment (prod, post-2026-07-11 cutover): serverless — backend on a Lambda Function URL (RESPONSE_STREAM). The Amplify `main` frontend calls it directly for streaming `/api/chat` and via its SSR proxy (`frontend/app/api/[...path]/route.ts`, injects `x-origin-verify`) for the other endpoints. The public FURL is gated by `backend/origin_verify.py` plus chat rate-limit / input-caps / `CHAT_PUBLIC_ENABLED` kill-switch. EC2 is a stopped rollback; CloudFront is NOT in the Lambda path (CF→Function-URL is unsupported in this account/region). Stack: `infra/lambda-parallel-path.cfn.yaml`; runbook: `docs/lambda-parallel-path.md`
 
 ## Demo Priorities (for judges)
 1. Language switch mid-conversation (English → Hindi live demo)
