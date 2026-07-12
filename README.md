@@ -354,7 +354,9 @@ See `docs/rbi-ai-compliance-analysis.md` for the full compliance mapping across 
 wealthseva-ai/
 ├── .github/workflows/
 │   ├── ci.yml              # Lint + type-check + test on every PR
-│   └── deploy.yml          # Deploy on main push
+│   ├── deploy.yml          # Build + push Lambda image on main push
+│   ├── preview-lambda.yml  # Manual feature-branch preview on Lambda infra
+│   └── uptime.yml          # Scheduled /health ping (every 5 min)
 ├── frontend/               # Next.js 14 App Router
 │   ├── app/[locale]/       # next-intl locale routing (en/hi/mr/ta/bn)
 │   │   ├── advisor/        # Avatar chat page
