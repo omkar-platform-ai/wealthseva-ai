@@ -56,7 +56,7 @@ The key differentiator is the combination that has never been delivered together
 
 ## Architecture Overview
 
-WealthSeva is a decoupled two-service architecture: a **Next.js 14** frontend and a **FastAPI** backend communicating over a well-defined REST/SSE API. Claude inference runs through **Amazon Bedrock** (Mumbai region, `ap-south-1`; IAM role auth on EC2 — no API key needed). The RAG pipeline retrieves context from **Pinecone** per-language namespaces before every Claude call. User sessions and profiles are stored in **Supabase**. Avatar voice synthesis runs primarily through **Sarvam Bulbul v3** for all five languages, with **ElevenLabs** as an automatic fallback if Sarvam is unavailable for a locale — Sarvam is India-headquartered with India-resident audio processing, strengthening the DPDP data-residency posture across the voice stack.
+WealthSeva is a decoupled two-service architecture: a **Next.js 14** frontend and a **FastAPI** backend communicating over a well-defined REST/SSE API. In production the backend runs **serverless on an AWS Lambda Function URL** (response-streaming mode, `ap-south-1`). Claude inference runs through **Amazon Bedrock** (Mumbai region, `ap-south-1`; IAM role auth — no API key needed). The RAG pipeline retrieves IDBI dataset context before every Claude call (keyword retrieval today, with a Pinecone / embeddings semantic path available when configured). User sessions and profiles are stored in **Supabase**. Avatar voice synthesis runs primarily through **Sarvam Bulbul v3** for all five languages, with **ElevenLabs** as an automatic fallback if Sarvam is unavailable for a locale — Sarvam is India-headquartered with India-resident audio processing, strengthening the DPDP data-residency posture across the voice stack.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -81,9 +81,9 @@ graph TD
         UI["AvatarChat · Dashboard · GoalPlanner · RiskQuiz<br/>LanguageSwitcher EN · HI · MR · TA · BN"]
     end
 
-    subgraph BE["FastAPI Backend · Python 3.12 · ap-south-1"]
-        RT["Routers<br/>chat · portfolio · risk · goals<br/>insights · idbi · tts"]
-        SV["Services<br/>claude · language · rag · risk"]
+    subgraph BE["FastAPI Backend · Python 3.12 · AWS Lambda · ap-south-1"]
+        RT["Routers<br/>chat · portfolio · risk · goals · insights<br/>idbi · tts · nudges"]
+        SV["Services<br/>claude · language · rag · risk · account"]
     end
 
     BR["Amazon Bedrock<br/>Claude Sonnet"]
@@ -286,7 +286,7 @@ source venv/bin/activate
 pytest tests/ -v
 ```
 
-Covers: `test_health`, `test_chat`, `test_risk`, `test_portfolio`, `test_goals`, `test_idbi`, `test_rag_insights`.
+Covers 13 suites: `test_health`, `test_chat`, `test_risk`, `test_portfolio`, `test_goals`, `test_idbi`, `test_rag_insights`, `test_rag_semantic`, `test_tts`, `test_nudges`, `test_anthropic_fallback`, `test_language_service`, `test_account_service`.
 
 ### Frontend
 
@@ -301,28 +301,33 @@ npm run build         # Production build (catches missing env vars and import er
 
 ## Deployment
 
-The live demo runs on **AWS EC2** (backend, `ap-south-1`) + **AWS Amplify** (frontend). See `docs/solution_document.md` for the full architecture write-up.
+The live demo runs **serverless**: the backend is an **AWS Lambda Function URL** (response-streaming, `ap-south-1`) and the frontend is on **AWS Amplify**. EC2 remains a stopped rollback target. See `docs/lambda-parallel-path.md` for the runbook and `docs/solution_document.md` for the full architecture write-up.
 
-### Backend (AWS EC2)
+### Backend (AWS Lambda)
+
+The backend ships as a Lambda-targeted container image (see `backend/Dockerfile`, AWS Lambda Web Adapter with `AWS_LWA_INVOKE_MODE=response_stream`) fronted by a Lambda Function URL. Infrastructure is defined in `infra/lambda-parallel-path.cfn.yaml`.
 
 ```bash
-ssh -i key.pem ec2-user@<EC2_IP>
-
-git clone https://github.com/omkar-platform-ai/wealthseva-ai.git
-cd wealthseva-ai/backend
-pip install -r requirements.txt
-# On EC2, Bedrock auth uses the instance IAM role — no AWS_ACCESS_KEY_ID needed
-uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+# Build and push the Lambda image, then deploy the stack:
+aws cloudformation deploy \
+  --template-file infra/lambda-parallel-path.cfn.yaml \
+  --stack-name wealthseva-lambda --region ap-south-1 \
+  --capabilities CAPABILITY_NAMED_IAM
+# Bedrock auth uses the Lambda execution role — no AWS_ACCESS_KEY_ID needed.
 ```
+
+The public Function URL is gated by `backend/origin_verify.py` (`x-origin-verify` header), a chat rate limit, input caps, and a `CHAT_PUBLIC_ENABLED` kill-switch. CloudFront is **not** in the Lambda path (CF→Function-URL is unsupported in this account/region).
+
+**Rollback:** restart the stopped EC2 instance (`aws ec2 start-instances --instance-ids <id> --region ap-south-1`) and point the frontend `NEXT_PUBLIC_BACKEND_URL` back at it.
 
 ### Frontend (AWS Amplify)
 
-The frontend deploys to **AWS Amplify**. A push to `main` triggers an automatic build and deploy (see `.github/workflows/deploy.yml`); Amplify builds the `frontend/` app per the root `amplify.yml`.
+The frontend deploys to **AWS Amplify** (`main` branch). A push to `main` triggers an automatic build; Amplify builds the `frontend/` app per the root `amplify.yml`. The browser calls the Lambda Function URL directly for streaming `/api/chat`; all other endpoints route through the Amplify SSR proxy (`frontend/app/api/[...path]/route.ts`), which injects the `x-origin-verify` header.
 
 ```bash
 # One-time: connect the repo in the Amplify console (build root: frontend/),
 # then set the backend URL under App settings > Environment variables:
-NEXT_PUBLIC_BACKEND_URL=<your EC2 backend URL>
+NEXT_PUBLIC_BACKEND_URL=<your Lambda Function URL>
 # Every subsequent push to main deploys automatically.
 ```
 
@@ -355,7 +360,11 @@ wealthseva-ai/
 │   │   ├── advisor/        # Avatar chat page
 │   │   ├── dashboard/      # Portfolio + risk overview
 │   │   ├── demo/           # Scripted 5-step judge demo (no API keys needed)
-│   │   └── goals/          # Goal planner
+│   │   ├── goals/          # Goal planner
+│   │   ├── insights/       # Daily market insights
+│   │   ├── roadmap/        # Localized in-app roadmap
+│   │   └── (auth)/         # Auth entry route
+│   ├── app/api/[...path]/  # SSR proxy → Lambda backend (injects x-origin-verify)
 │   ├── components/         # AvatarChat, LanguageSwitcher, PortfolioCard, GoalPlanner...
 │   ├── messages/           # i18n strings: en.json hi.json mr.json ta.json bn.json
 │   ├── i18n.ts
@@ -364,27 +373,38 @@ wealthseva-ai/
 ├── backend/                # FastAPI + Python 3.12
 │   ├── main.py             # App factory, CORS, rate limiting, /health
 │   ├── start.py            # Container entrypoint (loads .env / AWS Secrets Manager, runs uvicorn)
-│   ├── routers/            # chat, portfolio, risk, insights, goals, idbi, tts
+│   ├── routers/            # chat, portfolio, risk, insights, goals, idbi, tts, nudges
+│   ├── origin_verify.py    # x-origin-verify gate for the public Lambda Function URL
 │   ├── services/
 │   │   ├── claude_service.py    # Bedrock streaming, portfolio analysis, goal planning
 │   │   ├── language_service.py  # Language detection, prompt routing, voice mapping
-│   │   ├── rag_service.py       # Pinecone retrieval (per-language namespaces)
-│   │   └── risk_service.py      # Risk scoring + recommended allocation
+│   │   ├── rag_service.py       # RAG retrieval (keyword KB; Pinecone/embeddings path when configured)
+│   │   ├── risk_service.py      # Risk scoring + recommended allocation
+│   │   └── account_service.py   # Demo customer account snapshot → chat context
 │   ├── models/schemas.py        # Pydantic models
-│   ├── tests/                   # pytest suite (7 files)
-│   ├── Dockerfile               # Python 3.12-slim, runs start.py on port 8000
+│   ├── tests/                   # pytest suite (13 files)
+│   ├── Dockerfile               # Lambda container image (AWS Lambda Web Adapter, response streaming)
 │   └── requirements.txt
 ├── ai/
-│   ├── system_prompts/     # wealth_advisor_{en,hi,mr,ta,bn}.md — RBI-compliant prompts
+│   ├── system_prompts/     # wealth_advisor_{en,hi,mr,ta,bn}.md + risk_profiler.md — RBI-compliant prompts
 │   └── rag/
 │       └── index_datasets.py
+├── infra/
+│   └── lambda-parallel-path.cfn.yaml   # CloudFormation — Lambda Function URL stack
+├── architecture/           # System & AWS architecture diagrams (.drawio + .svg, light/dark)
+├── data/                   # mock_index.json, sample_transactions.csv — demo/mock data
+├── demo/                   # demo_checklist.md, backup video pointer
 ├── docs/
-│   ├── rbi-ai-compliance-analysis.md
 │   ├── solution_document.md
+│   ├── lambda-parallel-path.md          # Serverless deployment runbook
+│   ├── rbi-ai-compliance-analysis.md
 │   └── demo_script.md
 ├── scripts/
 │   └── setup.sh            # One-command local setup
+├── amplify.yml             # AWS Amplify build spec (frontend)
 ├── .env.example            # All required env vars (copy to .env)
+├── CLAUDE.md               # Project context for Claude Code
+├── ROADMAP.md
 └── README.md
 ```
 
@@ -425,7 +445,7 @@ New to the project? Follow this path to get oriented quickly:
 | Language detection | langdetect (offline, 55 languages) |
 | RAG | LangChain + Pinecone (per-language namespaces) |
 | Database | Supabase (PostgreSQL + Auth) |
-| Cloud | AWS EC2 ap-south-1 (backend) + AWS Amplify (frontend) |
+| Cloud | AWS Lambda Function URL ap-south-1 (backend, serverless) + AWS Amplify (frontend); EC2 stopped rollback |
 | CI/CD | GitHub Actions — lint + test on PR; deploy on main |
 
 ---
