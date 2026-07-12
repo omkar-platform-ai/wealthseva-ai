@@ -1,253 +1,171 @@
-<svg viewBox="0 0 1100 900" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
-  <title>WealthSeva AI — Prototype Architecture, AS DEPLOYED (Jul 8 2026)</title>
-  <desc>Actual prototype AWS deployment. Frontend live on Amplify, backend live on EC2 (Docker via ECR), Bedrock Claude 3.7 Sonnet (APAC profile) with Anthropic-API fallback, Secrets Manager + CloudWatch Logs live. CloudFront/WAF/ACM planned but NOT yet live. Supabase + Pinecone kept as external deps.</desc>
-
-  <defs>
-    <marker id="arr" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto">
-      <path d="M0,0 L0,8 L8,4 z" fill="#4B5563"/>
-    </marker>
-  </defs>
-
-  <!-- Background -->
-  <rect width="1100" height="900" fill="#0D1117" rx="10"/>
-
-  <!-- ── HEADER ───────────────────────────────────────────────── -->
-  <rect x="0" y="0" width="1100" height="72" fill="#161B22" rx="10"/>
-  <rect x="0" y="52" width="1100" height="20" fill="#161B22"/>
-
-  <rect x="18" y="16" width="116" height="24" fill="#FF9900" rx="12"/>
-  <text x="76" y="32" text-anchor="middle" font-size="11" font-weight="bold" fill="#0D1117">PROTOTYPE</text>
-
-  <rect x="146" y="16" width="176" height="24" fill="#1F2937" rx="12" stroke="#374151" stroke-width="1"/>
-  <text x="234" y="32" text-anchor="middle" font-size="10" font-weight="bold" fill="#E5E7EB">🗓 As-built · Jul 8, 2026</text>
-
-  <text x="560" y="30" text-anchor="middle" font-size="19" font-weight="bold" fill="#F9FAFB">WealthSeva AI — EC2 Prototype (as deployed)</text>
-  <text x="560" y="50" text-anchor="middle" font-size="11" fill="#9CA3AF">Live · ap-south-1 (Mumbai) · frontend: main.d13rdix674q29k.amplifyapp.com</text>
-
-  <rect x="898" y="16" width="186" height="24" fill="#059669" rx="12"/>
-  <text x="991" y="32" text-anchor="middle" font-size="10" font-weight="bold" fill="#FFFFFF">✓ Live: Amplify + EC2</text>
-
-  <!-- ── LEGEND ─────────────────────────────────────────────── -->
-  <rect x="18" y="82" width="1064" height="22" fill="#161B22" rx="4"/>
-  <rect x="40"  y="88" width="9" height="9" fill="#3B82F6" rx="2"/>
-  <text x="54"  y="97" font-size="9" fill="#9CA3AF">Live / deployed on AWS</text>
-  <rect x="205" y="88" width="9" height="9" fill="#10B981" rx="2"/>
-  <text x="219" y="97" font-size="9" fill="#9CA3AF">External SaaS — kept</text>
-  <rect x="360" y="88" width="9" height="9" fill="#1F2937" rx="2" stroke="#B45309" stroke-width="1" stroke-dasharray="2,1"/>
-  <text x="374" y="97" font-size="9" fill="#9CA3AF">Pending — not yet live</text>
-  <rect x="530" y="88" width="9" height="9" fill="#1F2937" rx="2" stroke="#4B5563" stroke-width="1" stroke-dasharray="2,1"/>
-  <text x="544" y="97" font-size="9" fill="#6B7280">Kept for prototype (residency gap)</text>
-  <rect x="760" y="88" width="9" height="9" fill="#111827" rx="2" stroke="#374151" stroke-width="1" stroke-dasharray="2,1"/>
-  <text x="774" y="97" font-size="9" fill="#4B5563">Deferred → Phase 2</text>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 1: USERS
-  ════════════════════════════════════════════════════════ -->
-  <text x="28" y="124" font-size="8" font-weight="bold" fill="#4B5563" letter-spacing="1.5">USERS</text>
-  <rect x="18" y="110" width="1064" height="60" fill="#1E293B" rx="7" stroke="#334155" stroke-width="1"/>
-
-  <rect x="80"  y="120" width="280" height="42" fill="#0F172A" rx="6" stroke="#334155" stroke-width="1"/>
-  <text x="130" y="136" font-size="11" font-weight="bold" fill="#E2E8F0">📱💻 Browser</text>
-  <text x="130" y="151" font-size="9"  fill="#9CA3AF">Mobile + Desktop · 5 languages · Next.js 14</text>
-
-  <rect x="390" y="120" width="260" height="42" fill="#1C1408" rx="6" stroke="#78350F" stroke-width="1"/>
-  <rect x="390" y="120" width="80" height="14" fill="#78350F" rx="3"/>
-  <text x="430" y="130" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#FCD34D">SHIPPED</text>
-  <text x="450" y="145" font-size="10.5" font-weight="bold" fill="#FCD34D">🔊 Sarvam Bulbul v3</text>
-  <text x="450" y="158" font-size="9"   fill="#4ADE80">India-resident · ElevenLabs fallback</text>
-
-  <!-- arrow -->
-  <line x1="560" y1="170" x2="560" y2="186" stroke="#374151" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="568" y="181" font-size="8.5" fill="#4B5563">HTTPS</text>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 2: EDGE  — PENDING (not yet live)
-  ════════════════════════════════════════════════════════ -->
-  <rect x="18" y="188" width="1064" height="92" fill="#1A1206" rx="7" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6,3"/>
-  <text x="30" y="204" font-size="8" font-weight="bold" fill="#F59E0B" letter-spacing="1.2">EDGE &amp; SECURITY — PENDING · NOT YET LIVE (planned Day 2)</text>
-  <text x="30" y="216" font-size="8.5" fill="#CBD5E1">Frontend already served over HTTPS via Amplify-managed CDN. A dedicated CloudFront + WAF in front of the EC2 backend is not yet provisioned — frontend currently calls EC2 over HTTP.</text>
-
-  <!-- CloudFront -->
-  <rect x="50"  y="224" width="280" height="50" fill="#231708" rx="5" stroke="#B45309" stroke-width="1" stroke-dasharray="4,2"/>
-  <rect x="50"  y="224" width="60" height="14" fill="#78350F" rx="3"/>
-  <text x="80"  y="234" text-anchor="middle" font-size="7" font-weight="bold" fill="#FCD34D">PENDING</text>
-  <text x="120" y="242" font-size="10.5" font-weight="bold" fill="#FBBF24">🌐 Amazon CloudFront</text>
-  <text x="120" y="255" font-size="9"   fill="#CBD5E1">Planned unified CDN → Amplify + EC2 origins</text>
-  <text x="120" y="267" font-size="9"   fill="#9CA3AF">Not yet provisioned</text>
-
-  <!-- WAF -->
-  <rect x="360" y="224" width="280" height="50" fill="#231708" rx="5" stroke="#B45309" stroke-width="1" stroke-dasharray="4,2"/>
-  <rect x="360" y="224" width="60" height="14" fill="#78350F" rx="3"/>
-  <text x="390" y="234" text-anchor="middle" font-size="7" font-weight="bold" fill="#FCD34D">PENDING</text>
-  <text x="430" y="242" font-size="10.5" font-weight="bold" fill="#FBBF24">🛡️ AWS WAF</text>
-  <text x="430" y="255" font-size="9"   fill="#CBD5E1">OWASP managed rules · rate limit 30/min/IP</text>
-  <text x="430" y="267" font-size="9"   fill="#9CA3AF">Not yet provisioned</text>
-
-  <!-- ACM -->
-  <rect x="670" y="224" width="280" height="50" fill="#231708" rx="5" stroke="#B45309" stroke-width="1" stroke-dasharray="4,2"/>
-  <rect x="670" y="224" width="60" height="14" fill="#78350F" rx="3"/>
-  <text x="700" y="234" text-anchor="middle" font-size="7" font-weight="bold" fill="#FCD34D">PENDING</text>
-  <text x="740" y="242" font-size="10.5" font-weight="bold" fill="#FBBF24">🔐 ACM (TLS cert)</text>
-  <text x="740" y="255" font-size="9"   fill="#CBD5E1">For CloudFront once it is live</text>
-  <text x="740" y="267" font-size="9"   fill="#9CA3AF">EC2 currently plain HTTP :8000</text>
-
-  <!-- arrow -->
-  <line x1="560" y1="280" x2="560" y2="296" stroke="#374151" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 3: COMPUTE — Amplify + EC2 side by side (LIVE)
-  ════════════════════════════════════════════════════════ -->
-  <rect x="18" y="298" width="1064" height="176" fill="#111827" rx="7" stroke="#21262D" stroke-width="1"/>
-  <text x="30" y="315" font-size="8" font-weight="bold" fill="#4B5563" letter-spacing="1.5">COMPUTE — ap-south-1 — LIVE</text>
-
-  <!-- ── Amplify (left) ── -->
-  <rect x="38"  y="320" width="468" height="144" fill="#0D1F30" rx="6" stroke="#1D4ED8" stroke-width="1"/>
-  <rect x="38"  y="320" width="52" height="15" fill="#065F46" rx="3"/>
-  <text x="64"  y="331" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#6EE7B7">LIVE</text>
-  <text x="88"  y="350" font-size="11.5" font-weight="bold" fill="#93C5FD">🚀 AWS Amplify Hosting</text>
-  <text x="88"  y="366" font-size="10"  font-weight="bold" fill="#60A5FA">Next.js 14 Frontend</text>
-  <text x="88"  y="383" font-size="9"   fill="#4ADE80">✓ Live: main.d13rdix674q29k.amplifyapp.com</text>
-  <text x="88"  y="397" font-size="9"   fill="#CBD5E1">✓ Auto-deploy on push to main (amplify.yml)</text>
-  <text x="88"  y="411" font-size="9"   fill="#CBD5E1">✓ appRoot: frontend · SSR · next-intl i18n</text>
-  <text x="88"  y="425" font-size="9"   fill="#CBD5E1">✓ Amplify-managed HTTPS + CDN + env vars</text>
-  <text x="88"  y="443" font-size="8.5" fill="#94A3B8">Replaced Vercel · calls EC2 via NEXT_PUBLIC_BACKEND_URL</text>
-
-  <!-- ── EC2 (right) ── -->
-  <rect x="534" y="320" width="528" height="144" fill="#0D2010" rx="6" stroke="#15803D" stroke-width="1.5"/>
-  <rect x="534" y="320" width="52" height="15" fill="#065F46" rx="3"/>
-  <text x="560" y="331" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#6EE7B7">LIVE</text>
-  <text x="596" y="350" font-size="11.5" font-weight="bold" fill="#86EFAC">🖥️ EC2 — t3.medium (ap-south-1)</text>
-  <text x="596" y="366" font-size="10"  font-weight="bold" fill="#4ADE80">Docker — FastAPI (uvicorn ×2 · port 8000)</text>
-  <text x="596" y="383" font-size="9"   fill="#CBD5E1">Image from ECR: wealthseva-backend (:SHA + :latest)</text>
-  <text x="596" y="397" font-size="9"   fill="#CBD5E1">docker run --network host --restart unless-stopped</text>
-  <text x="596" y="411" font-size="9"   fill="#CBD5E1">IAM Role → Bedrock · Secrets Manager · ECR</text>
-  <text x="596" y="425" font-size="9"   fill="#CBD5E1">Logs → CloudWatch (/wealthseva/backend)</text>
-  <text x="596" y="443" font-size="8.5" fill="#4ADE80">Deployed via GitHub Actions CI/CD (deploy.yml)</text>
-
-  <!-- arrow -->
-  <line x1="560" y1="474" x2="560" y2="490" stroke="#374151" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 4: AI / BEDROCK (LIVE)
-  ════════════════════════════════════════════════════════ -->
-  <rect x="18" y="492" width="1064" height="92" fill="#150E2A" rx="7" stroke="#3730A3" stroke-width="1.5"/>
-  <text x="30" y="508" font-size="8" font-weight="bold" fill="#A78BFA" letter-spacing="1.5">AI LAYER — AMAZON BEDROCK (ap-south-1) — LIVE · IAM auth (no API key on EC2)</text>
-
-  <!-- Claude -->
-  <rect x="38"  y="514" width="330" height="62" fill="#1A1035" rx="5" stroke="#5B21B6" stroke-width="1"/>
-  <rect x="38"  y="514" width="58" height="13" fill="#14532D" rx="3"/>
-  <text x="67"  y="524" text-anchor="middle" font-size="7" font-weight="bold" fill="#4ADE80">LIVE ✓</text>
-  <text x="78"  y="539" font-size="10.5" font-weight="bold" fill="#C4B5FD">🤖 Claude 3.7 Sonnet · via Bedrock</text>
-  <text x="78"  y="552" font-size="8"   fill="#A78BFA">apac.anthropic.claude-3-7-sonnet-20250219-v1:0</text>
-  <text x="78"  y="564" font-size="8"   fill="#A78BFA">APAC regional profile · claude_service.py</text>
-  <text x="78"  y="574" font-size="8"   fill="#FCD34D">↩ Fallback: Anthropic API (Claude Sonnet 4.5)</text>
-
-  <!-- Titan -->
-  <rect x="380" y="514" width="330" height="62" fill="#1A1035" rx="5" stroke="#5B21B6" stroke-width="1"/>
-  <rect x="380" y="514" width="58" height="13" fill="#14532D" rx="3"/>
-  <text x="409" y="524" text-anchor="middle" font-size="7" font-weight="bold" fill="#4ADE80">LIVE ✓</text>
-  <text x="420" y="539" font-size="10.5" font-weight="bold" fill="#C4B5FD">🔢 Titan Embeddings v2</text>
-  <text x="420" y="552" font-size="8"   fill="#A78BFA">amazon.titan-embed-text-v2:0 · ap-south-1</text>
-  <text x="420" y="564" font-size="8"   fill="#A78BFA">rag_service.py · precomputed KB embeddings</text>
-  <text x="420" y="574" font-size="8"   fill="#9CA3AF">Degrades to keyword retrieval on throttle</text>
-
-  <!-- S3 -->
-  <rect x="722" y="514" width="342" height="62" fill="#0F172A" rx="5" stroke="#4B5563" stroke-width="1" stroke-dasharray="4,2"/>
-  <rect x="722" y="514" width="82" height="13" fill="#1F2937" rx="3" stroke="#4B5563" stroke-width="1"/>
-  <text x="763" y="524" text-anchor="middle" font-size="7" font-weight="bold" fill="#9CA3AF">PROVISIONED</text>
-  <text x="812" y="539" font-size="10.5" font-weight="bold" fill="#94A3B8">🪣 Amazon S3 — wealthseva-ai-assets</text>
-  <text x="812" y="552" font-size="8.5" fill="#6B7280">ap-south-1 · env-configured (AWS_S3_BUCKET)</text>
-  <text x="812" y="564" font-size="8.5" fill="#6B7280">No active backend S3 calls yet</text>
-  <text x="812" y="574" font-size="8"   fill="#F59E0B">Add SSE-S3 encrypt · block public access</text>
-
-  <!-- arrow -->
-  <line x1="560" y1="584" x2="560" y2="600" stroke="#374151" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 5: DATA + SECRETS
-  ════════════════════════════════════════════════════════ -->
-  <rect x="18" y="602" width="1064" height="106" fill="#111827" rx="7" stroke="#374151" stroke-width="1"/>
-  <text x="30" y="618" font-size="8" font-weight="bold" fill="#4B5563" letter-spacing="1.5">DATA &amp; SECRETS</text>
-
-  <!-- Supabase keep -->
-  <rect x="38"  y="624" width="294" height="76" fill="#0F172A" rx="5" stroke="#334155" stroke-width="1" stroke-dasharray="4,2"/>
-  <rect x="38"  y="624" width="116" height="13" fill="#1F2937" rx="3" stroke="#4B5563" stroke-width="1"/>
-  <text x="96"  y="634" text-anchor="middle" font-size="7" font-weight="bold" fill="#9CA3AF">KEEP FOR PROTOTYPE</text>
-  <text x="78"  y="650" font-size="10.5" font-weight="bold" fill="#6B7280">🗄️ Supabase (PostgreSQL)</text>
-  <text x="78"  y="664" font-size="9"   fill="#6B7280">User data · goals · risk profiles</text>
-  <text x="78"  y="677" font-size="8.5" fill="#F59E0B">⚠ Phase 2: → Aurora Serverless v2</text>
-  <text x="78"  y="690" font-size="8"   fill="#4B5563">Data residency gap — acknowledged</text>
-
-  <!-- Pinecone keep -->
-  <rect x="352" y="624" width="294" height="76" fill="#0F172A" rx="5" stroke="#334155" stroke-width="1" stroke-dasharray="4,2"/>
-  <rect x="352" y="624" width="116" height="13" fill="#1F2937" rx="3" stroke="#4B5563" stroke-width="1"/>
-  <text x="410" y="634" text-anchor="middle" font-size="7" font-weight="bold" fill="#9CA3AF">KEEP FOR PROTOTYPE</text>
-  <text x="392" y="650" font-size="10.5" font-weight="bold" fill="#6B7280">🔍 Pinecone (Vector DB)</text>
-  <text x="392" y="664" font-size="9"   fill="#6B7280">RAG index · 5 language namespaces</text>
-  <text x="392" y="677" font-size="8.5" fill="#F59E0B">⚠ Phase 2: → OpenSearch Serverless</text>
-  <text x="392" y="690" font-size="8"   fill="#4B5563">Falls back to keyword until Titan quota granted</text>
-
-  <!-- Secrets Manager (LIVE) -->
-  <rect x="666" y="624" width="398" height="76" fill="#0D2010" rx="5" stroke="#15803D" stroke-width="1.5"/>
-  <rect x="666" y="624" width="52" height="13" fill="#065F46" rx="3"/>
-  <text x="692" y="634" text-anchor="middle" font-size="7" font-weight="bold" fill="#6EE7B7">LIVE</text>
-  <text x="726" y="650" font-size="10.5" font-weight="bold" fill="#86EFAC">🔑 AWS Secrets Manager</text>
-  <text x="726" y="664" font-size="9"   fill="#CBD5E1">Secret: wealthseva/production</text>
-  <text x="726" y="677" font-size="9"   fill="#CBD5E1">EC2 IAM Role fetches at startup (start.py) — hard-fail if absent</text>
-  <text x="726" y="690" font-size="8.5" fill="#94A3B8">Keys: Sarvam · ElevenLabs · Supabase · Pinecone · IDBI</text>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 6: CI/CD & OPS — actual pipeline
-  ════════════════════════════════════════════════════════ -->
-  <rect x="18" y="720" width="1064" height="80" fill="#161B22" rx="7" stroke="#21262D" stroke-width="1"/>
-  <text x="30" y="736" font-size="8" font-weight="bold" fill="#4B5563" letter-spacing="1.2">CI/CD &amp; OPS — GitHub Actions (CI gate → ECR → EC2) · Amplify auto-deploy · CloudWatch Logs + uptime cron</text>
-
-  <!-- Step 1 -->
-  <rect x="38"  y="742" width="306" height="50" fill="#0D2137" rx="5" stroke="#1D4ED8" stroke-width="1"/>
-  <text x="191" y="758" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#60A5FA">1 · CI quality gate (ci.yml)</text>
-  <text x="191" y="772" text-anchor="middle" font-size="8.5" fill="#CBD5E1">Backend: ruff + pytest</text>
-  <text x="191" y="784" text-anchor="middle" font-size="8.5" fill="#CBD5E1">Frontend: lint · type-check · build</text>
-
-  <!-- Step 2 -->
-  <rect x="364" y="742" width="306" height="50" fill="#0D2137" rx="5" stroke="#1D4ED8" stroke-width="1"/>
-  <text x="517" y="758" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#60A5FA">2 · Build &amp; push (deploy.yml)</text>
-  <text x="517" y="772" text-anchor="middle" font-size="8.5" fill="#CBD5E1">docker build (repo-root context)</text>
-  <text x="517" y="784" text-anchor="middle" font-size="8.5" fill="#CBD5E1">→ ECR wealthseva-backend :SHA + :latest</text>
-
-  <!-- Step 3 -->
-  <rect x="690" y="742" width="374" height="50" fill="#0D2137" rx="5" stroke="#1D4ED8" stroke-width="1"/>
-  <text x="877" y="758" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#60A5FA">3 · Deploy to EC2 + Ops</text>
-  <text x="877" y="772" text-anchor="middle" font-size="8.5" fill="#CBD5E1">SSH → ECR login (IAM) → docker pull + run → /health</text>
-  <text x="877" y="784" text-anchor="middle" font-size="8.5" fill="#CBD5E1">CloudWatch Logs · uptime cron pings /health every 5 min</text>
-
-  <!-- ════════════════════════════════════════════════════════
-       ROW 7: DEFERRED
-  ════════════════════════════════════════════════════════ -->
-  <rect x="18" y="812" width="1064" height="70" fill="#0B1A10" rx="7" stroke="#1A3A1A" stroke-width="1"/>
-  <text x="30" y="828" font-size="8" font-weight="bold" fill="#4ADE80" letter-spacing="1.2">PHASE 2 DEFERRED — Jul 9 → Jul 31 (data residency + observability)</text>
-
-  <rect x="38"  y="834" width="162" height="40" fill="#0F1F0F" rx="4" stroke="#166534" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="119" y="851" text-anchor="middle" font-size="9"   fill="#6B7280">ECS Fargate + ALB</text>
-  <text x="119" y="864" text-anchor="middle" font-size="8"   fill="#4B5563">Replace EC2</text>
-
-  <rect x="216" y="834" width="162" height="40" fill="#0F1F0F" rx="4" stroke="#166534" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="297" y="851" text-anchor="middle" font-size="9"   fill="#6B7280">Aurora Serverless v2</text>
-  <text x="297" y="864" text-anchor="middle" font-size="8"   fill="#4B5563">Replace Supabase</text>
-
-  <rect x="394" y="834" width="162" height="40" fill="#0F1F0F" rx="4" stroke="#166534" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="475" y="851" text-anchor="middle" font-size="9"   fill="#6B7280">OpenSearch Serverless</text>
-  <text x="475" y="864" text-anchor="middle" font-size="8"   fill="#4B5563">Replace Pinecone</text>
-
-  <rect x="572" y="834" width="162" height="40" fill="#0F1F0F" rx="4" stroke="#166534" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="653" y="851" text-anchor="middle" font-size="9"   fill="#6B7280">Amazon Cognito</text>
-  <text x="653" y="864" text-anchor="middle" font-size="8"   fill="#4B5563">Replace Supabase Auth</text>
-
-  <rect x="750" y="834" width="162" height="40" fill="#0F1F0F" rx="4" stroke="#166534" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="831" y="851" text-anchor="middle" font-size="9"   fill="#6B7280">Bedrock Guardrails</text>
-  <text x="831" y="864" text-anchor="middle" font-size="8"   fill="#4B5563">RBI FREE-AI compliance</text>
-
-  <rect x="928" y="834" width="136" height="40" fill="#0F1F0F" rx="4" stroke="#166534" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="996" y="851" text-anchor="middle" font-size="9"   fill="#6B7280">X-Ray + CW alarms</text>
-  <text x="996" y="864" text-anchor="middle" font-size="8"   fill="#4B5563">Logs already live</text>
-
+<svg xmlns="http://www.w3.org/2000/svg" width="1760" height="990" viewBox="0 0 1760 990" font-family="Arial, Helvetica, sans-serif">
+<title>WealthSeva AI — Prototype Architecture (Serverless), ap-south-1, 2026-07-12</title>
+<desc>Current-state AWS serverless architecture after the 2026-07-11 EC2-to-Lambda cutover. Desktop and mobile browsers use two paths: streaming chat goes directly to a public Lambda Function URL; all other API calls go through the Amplify SSR proxy which injects an x-origin-verify header. The Lambda backend calls Amazon Bedrock (Claude 3.7 Sonnet, Titan Embeddings keyword-fallback), Secrets Manager, CloudWatch, and external SaaS (Supabase, Pinecone, Sarvam, ElevenLabs).</desc>
+<defs><marker id="ah" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 z" fill="#232F3E"/></marker><marker id="ahg" markerWidth="9" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 z" fill="#687078"/></marker></defs>
+<rect x="0" y="0" width="1760" height="990" fill="#FFFFFF"/>
+<text x="40" y="38" font-size="22" font-weight="bold" fill="#232F3E">WealthSeva AI — Prototype Architecture (Serverless) · ap-south-1 · 2026-07-12</text>
+<text x="40" y="60" font-size="12" fill="#545B64">Post 2026-07-11 EC2 → Lambda cutover · IDBI Innovate 2026, Track 01 · hybrid routing: chat streams direct, everything else via SSR proxy</text>
+<rect x="510" y="78" width="520" height="118" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="522" y="98" font-size="12" font-weight="bold" fill="#232F3E">Clients</text>
+<rect x="40" y="230" width="1340" height="610" rx="4" fill="#FFFFFF" stroke="#232F3E" stroke-width="1.6"/>
+<rect x="52" y="240" width="22" height="22" rx="3" fill="#232F3E"/>
+<text x="62.5" y="255.5" font-size="11" font-weight="bold" fill="#FFFFFF" text-anchor="middle">&#9729;</text>
+<text x="82" y="256" font-size="13" font-weight="bold" fill="#232F3E">AWS Cloud</text>
+<rect x="60" y="272" width="1300" height="530" rx="4" fill="none" stroke="#147EBA" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="72" y="292" font-size="12" font-weight="bold" fill="#147EBA">Region: ap-south-1 (Mumbai)</text>
+<rect x="90" y="310" width="340" height="170" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="102" y="330" font-size="12" font-weight="bold" fill="#232F3E">Edge / Frontend</text>
+<rect x="490" y="310" width="350" height="345" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="502" y="330" font-size="12" font-weight="bold" fill="#232F3E">Compute (serverless)</text>
+<rect x="1000" y="310" width="310" height="204" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="1012" y="330" font-size="12" font-weight="bold" fill="#232F3E">AI — Amazon Bedrock (ap-south-1)</text>
+<rect x="1000" y="560" width="310" height="190" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="1012" y="580" font-size="12" font-weight="bold" fill="#232F3E">Data &amp; Secrets</text>
+<rect x="90" y="510" width="340" height="240" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="102" y="530" font-size="12" font-weight="bold" fill="#232F3E">Ops &amp; Cost</text>
+<rect x="1420" y="272" width="300" height="368" rx="4" fill="#FAFAFA" stroke="#687078" stroke-width="1.6" stroke-dasharray="6,4"/>
+<text x="1432" y="292" font-size="12" font-weight="bold" fill="#687078">External SaaS — outside AWS</text>
+<text x="770" y="190" font-size="10.5" fill="#545B64" text-anchor="middle">Next.js 14 avatar-chat UI · 5 languages: EN / HI / MR / TA / BN</text>
+<rect x="540" y="108" width="200" height="62" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="551" y="119" width="34" height="34" rx="6" fill="#232F3E"/>
+<rect x="557" y="127" width="22" height="14" rx="2" fill="none" stroke="#FFFFFF" stroke-width="2"/><line x1="564" y1="145" x2="572" y2="145" stroke="#FFFFFF" stroke-width="2"/><line x1="568" y1="141" x2="568" y2="145" stroke="#FFFFFF" stroke-width="2"/>
+<text x="596" y="134" font-size="11" font-weight="bold" fill="#232F3E">Desktop browser</text>
+<text x="596" y="150" font-size="10" fill="#545B64">avatar-chat web UI</text>
+<rect x="800" y="108" width="200" height="62" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="811" y="119" width="34" height="34" rx="6" fill="#232F3E"/>
+<rect x="822" y="125" width="12" height="20" rx="3" fill="none" stroke="#FFFFFF" stroke-width="2"/><circle cx="828" cy="141.5" r="1.4" fill="#FFFFFF"/>
+<text x="856" y="134" font-size="11" font-weight="bold" fill="#232F3E">Mobile browser</text>
+<text x="856" y="150" font-size="10" fill="#545B64">same UI, same 2 paths</text>
+<rect x="108" y="336" width="304" height="134" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="119" y="347" width="34" height="34" rx="6" fill="#E7157B"/>
+<text x="136" y="367.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">AMP</text>
+<text x="164" y="362" font-size="11" font-weight="bold" fill="#232F3E">AWS Amplify Hosting</text>
+<text x="164" y="378" font-size="10" fill="#545B64">branch main · auto-deploy on push</text>
+<text x="164" y="392" font-size="10" fill="#545B64">main.d13rdix674q29k.amplifyapp.com</text>
+<text x="164" y="406" font-size="10" fill="#545B64">Next.js 14 SSR · App Router · next-intl</text>
+<text x="164" y="420" font-size="10" fill="#545B64">Amplify-managed HTTPS + CDN (CloudFront)</text>
+<text x="164" y="434" font-size="10" fill="#545B64">SSR proxy app/api/[...path]/route.ts</text>
+<text x="164" y="448" font-size="10" fill="#545B64">→ injects x-origin-verify (server-side)</text>
+<rect x="508" y="336" width="314" height="90" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="519" y="347" width="34" height="34" rx="6" fill="#8C4FFF"/>
+<text x="536" y="367.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">URL</text>
+<text x="564" y="362" font-size="11" font-weight="bold" fill="#232F3E">Lambda Function URL — sole ingress</text>
+<text x="564" y="378" font-size="10" fill="#545B64">AuthType NONE — public, app-gated</text>
+<text x="564" y="392" font-size="10" fill="#545B64">InvokeMode RESPONSE_STREAM</text>
+<text x="564" y="406" font-size="10" fill="#545B64">chat gate: 10 req/min per IP · 2000-char cap</text>
+<text x="564" y="420" font-size="10" fill="#545B64">kill-switch CHAT_PUBLIC_ENABLED · CORS</text>
+<rect x="508" y="476" width="314" height="160" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="519" y="487" width="34" height="34" rx="6" fill="#ED7100"/>
+<text x="536" y="508.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">λ</text>
+<text x="564" y="502" font-size="11" font-weight="bold" fill="#232F3E">AWS Lambda · wealthseva-backend-lambda</text>
+<text x="564" y="518" font-size="10" fill="#545B64">container image from ECR · 3008 MB · 60 s</text>
+<text x="564" y="532" font-size="10" fill="#545B64">~3.1 s cold start · scales to zero</text>
+<text x="564" y="546" font-size="10" fill="#545B64">FastAPI via AWS Lambda Web Adapter</text>
+<text x="564" y="560" font-size="10" fill="#545B64">response_stream mode · uvicorn (start.py)</text>
+<text x="564" y="574" font-size="10" fill="#545B64">origin-verify middleware: 403s non-chat</text>
+<text x="564" y="588" font-size="10" fill="#545B64">without header (/health, /api/chat exempt)</text>
+<rect x="1018" y="336" width="274" height="90" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1029" y="347" width="34" height="34" rx="6" fill="#01A88D"/>
+<text x="1046" y="368.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">AI</text>
+<text x="1074" y="362" font-size="11" font-weight="bold" fill="#232F3E">Claude 3.7 Sonnet</text>
+<text x="1074" y="378" font-size="10" fill="#545B64">apac.anthropic.claude-3-7-sonnet-20250219-v1:0</text>
+<text x="1074" y="392" font-size="10" fill="#545B64">APAC inference profile · streaming</text>
+<rect x="1018" y="436" width="274" height="68" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1029" y="447" width="34" height="34" rx="6" fill="#01A88D"/>
+<text x="1046" y="468.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">T2</text>
+<text x="1074" y="462" font-size="11" font-weight="bold" fill="#232F3E">Titan Embeddings v2</text>
+<text x="1074" y="478" font-size="10" fill="#545B64">amazon.titan-embed-text-v2:0</text>
+<text x="1074" y="492" font-size="8.5" fill="#B7791F">keyword-fallback — quota denied, RAG keyword-only</text>
+<rect x="1018" y="586" width="274" height="82" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1029" y="597" width="34" height="34" rx="6" fill="#DD344C"/>
+<text x="1046" y="618.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">SM</text>
+<text x="1074" y="612" font-size="11" font-weight="bold" fill="#232F3E">AWS Secrets Manager</text>
+<text x="1074" y="628" font-size="10" fill="#545B64">secret wealthseva/production</text>
+<text x="1074" y="642" font-size="10" fill="#545B64">injected at Lambda cold start (start.py)</text>
+<text x="1074" y="656" font-size="10" fill="#545B64">(ORIGIN_VERIFY_SECRET: Lambda env only)</text>
+<rect x="1018" y="676" width="274" height="66" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1029" y="687" width="34" height="34" rx="6" fill="#DD344C"/>
+<text x="1046" y="707.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">IAM</text>
+<text x="1074" y="702" font-size="11" font-weight="bold" fill="#232F3E">IAM · wealthseva-lambda-role</text>
+<text x="1074" y="718" font-size="10" fill="#545B64">Bedrock Invoke* (wildcard-region profile)</text>
+<text x="1074" y="732" font-size="10" fill="#545B64">Secrets read · CloudWatch Logs</text>
+<rect x="108" y="536" width="304" height="58" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="119" y="547" width="34" height="34" rx="6" fill="#E7157B"/>
+<text x="136" y="568.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">CW</text>
+<text x="164" y="562" font-size="11" font-weight="bold" fill="#232F3E">Amazon CloudWatch Logs</text>
+<text x="164" y="578" font-size="10" fill="#545B64">/aws/lambda/wealthseva-backend-lambda</text>
+<rect x="108" y="602" width="304" height="66" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="119" y="613" width="34" height="34" rx="6" fill="#E7157B"/>
+<text x="136" y="634.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">$</text>
+<text x="164" y="628" font-size="11" font-weight="bold" fill="#232F3E">Cost guardrails — Budgets · SNS · alarm</text>
+<text x="164" y="644" font-size="10" fill="#545B64">billing alarm added at 2026-07-11 cutover</text>
+<text x="164" y="658" font-size="10" fill="#545B64">Lambda scales to zero → idle ≈ $0</text>
+<rect x="108" y="676" width="304" height="66" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="119" y="687" width="34" height="34" rx="6" fill="#ED7100"/>
+<text x="136" y="707.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">ECR</text>
+<text x="164" y="702" font-size="11" font-weight="bold" fill="#232F3E">Amazon ECR · wealthseva-backend</text>
+<text x="164" y="718" font-size="10" fill="#545B64">Lambda container image (Dockerfile.lambda)</text>
+<rect x="1436" y="302" width="268" height="80" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1447" y="313" width="34" height="34" rx="6" fill="#687078"/>
+<text x="1464" y="334.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">DB</text>
+<text x="1492" y="328" font-size="11" font-weight="bold" fill="#232F3E">Supabase — PostgreSQL</text>
+<text x="1492" y="344" font-size="10" fill="#545B64">user data · goals · risk profiles</text>
+<text x="1492" y="358" font-size="10" fill="#545B64">kept for prototype · residency gap ack&#x27;d</text>
+<rect x="1436" y="392" width="268" height="66" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1447" y="403" width="34" height="34" rx="6" fill="#687078"/>
+<text x="1464" y="424.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">P</text>
+<text x="1492" y="418" font-size="11" font-weight="bold" fill="#232F3E">Pinecone — vector DB</text>
+<text x="1492" y="434" font-size="10" fill="#545B64">kept · RAG keyword-only for now</text>
+<rect x="1436" y="468" width="268" height="74" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1447" y="479" width="34" height="34" rx="6" fill="#687078"/>
+<text x="1464" y="499.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TTS</text>
+<text x="1492" y="494" font-size="11" font-weight="bold" fill="#232F3E">Sarvam Bulbul v3 — TTS (primary)</text>
+<text x="1492" y="510" font-size="10" fill="#545B64">India-resident · via backend /api/tts</text>
+<rect x="1436" y="552" width="268" height="66" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="1447" y="563" width="34" height="34" rx="6" fill="#687078"/>
+<text x="1464" y="583.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">TTS</text>
+<text x="1492" y="578" font-size="11" font-weight="bold" fill="#232F3E">ElevenLabs — TTS fallback</text>
+<text x="1492" y="594" font-size="10" fill="#545B64">via backend /api/tts</text>
+<rect x="90" y="856" width="470" height="70" rx="4" fill="#FFFFFF" stroke="#D5DBDB" stroke-width="1.2"/>
+<rect x="101" y="867" width="34" height="34" rx="6" fill="#687078"/>
+<text x="118" y="888.55" font-size="13" font-weight="bold" fill="#FFFFFF" text-anchor="middle">GH</text>
+<text x="146" y="882" font-size="11" font-weight="bold" fill="#232F3E">CI/CD — GitHub Actions (external)</text>
+<text x="146" y="898" font-size="8.5" fill="#545B64">ci.yml (ruff + pytest) → deploy.yml (image → ECR → CFN/Lambda)</text>
+<text x="146" y="912" font-size="8.5" fill="#545B64">preview-lambda.yml manual + FURL smoke test · Amplify auto-builds on push</text>
+<path d="M 700,196 L 700,336" fill="none" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="712" y="256" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="start">1 · stream /api/chat — browser → Function URL direct (Amplify SSR would buffer)</text>
+<path d="M 560,196 L 560,214 L 256,214 L 256,336" fill="none" stroke="#232F3E" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#ah)"/>
+<text x="300" y="208" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="start">2 · other /api/* — same-origin fetch</text>
+<path d="M 412,381 L 508,381" fill="none" stroke="#232F3E" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#ah)"/>
+<path d="M 665,426 L 665,476" fill="none" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="675" y="455" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="start">3 · invoke</text>
+<path d="M 822,490 L 985,490 L 985,375 L 1018,375" fill="none" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="830" y="483" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="start">4 · Bedrock InvokeModel</text>
+<path d="M 822,585 L 960,585 L 960,620 L 1018,620" fill="none" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="830" y="578" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="start">5 · GetSecretValue</text>
+<path d="M 822,540 L 1420,540" fill="none" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="1130" y="531" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="middle">6 · DB / vectors / TTS API calls</text>
+<path d="M 508,557 L 412,557" fill="none" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="460" y="549" font-size="10.5" font-weight="bold" fill="#232F3E" text-anchor="middle">7 · logs</text>
+<path d="M 412,709 L 460,709 L 460,600 L 508,600" fill="none" stroke="#687078" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#ahg)"/>
+<text x="466" y="668" font-size="10.5" fill="#232F3E" text-anchor="start">deploy image</text>
+<path d="M 260,856 L 260,742" fill="none" stroke="#687078" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#ahg)"/>
+<text x="268" y="800" font-size="10.5" fill="#232F3E" text-anchor="start">build &amp; push</text>
+<text x="460" y="371" font-size="9" fill="#232F3E" text-anchor="middle">x-origin-verify</text>
+<text x="830" y="600" font-size="9.5" fill="#545B64" text-anchor="start">(cold start)</text>
+<text x="830" y="500" font-size="9.5" fill="#545B64" text-anchor="start">/ stream</text>
+<rect x="1420" y="660" width="300" height="130" rx="4" fill="#F2F3F3" stroke="#AAB7B8" stroke-width="1.2"/>
+<text x="1432" y="680" font-size="12" font-weight="bold" fill="#232F3E">Legend</text>
+<line x1="1434" y1="697" x2="1474" y2="697" stroke="#232F3E" stroke-width="2" marker-end="url(#ah)"/>
+<text x="1482" y="701" font-size="10.5" fill="#232F3E">streaming chat (direct)</text>
+<line x1="1434" y1="717" x2="1474" y2="717" stroke="#232F3E" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#ah)"/>
+<text x="1482" y="721" font-size="10.5" fill="#232F3E">proxied request / response</text>
+<line x1="1434" y1="737" x2="1474" y2="737" stroke="#687078" stroke-width="2" stroke-dasharray="7,5" marker-end="url(#ahg)"/>
+<text x="1482" y="741" font-size="10.5" fill="#232F3E">CI/CD</text>
+<rect x="1434" y="754" width="48" height="18" rx="9" fill="#1D8102"/>
+<text x="1458" y="766.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Live</text>
+<rect x="1490" y="754" width="94" height="18" rx="9" fill="#687078"/>
+<text x="1537" y="766.5" font-size="10" font-weight="bold" fill="#FFFFFF" text-anchor="middle">External SaaS</text>
+<text x="590" y="880" font-size="10" fill="#545B64">Deliberate design: no API Gateway / VPC / ALB — the Function URL is the sole ingress, secured at the app layer.</text>
+<text x="590" y="896" font-size="10" fill="#545B64">CloudFront → Function URL is unsupported in this account/region (permanent); CloudFront appears only as the Amplify-managed CDN.</text>
 </svg>

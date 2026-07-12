@@ -1,0 +1,143 @@
+<mxfile host="app.diagrams.net" modified="2026-07-12" agent="cowork" version="24.0.0">
+<diagram id="wealthseva-light" name="WealthSeva Production (serverless)">
+<mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1720" pageHeight="1330" math="0" shadow="0" background="#FFFFFF">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+<mxCell id="g_cloud" value="AWS Cloud" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#232F3E;strokeWidth=1.6;dashed=0;verticalAlign=top;align=left;fontColor=#232F3E;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="40" y="265" width="1180" height="1005" as="geometry"/></mxCell>
+<mxCell id="g_region" value="Region: ap-south-1 (Mumbai)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#00A4A6;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#00A4A6;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="66" y="322" width="1128" height="930" as="geometry"/></mxCell>
+<mxCell id="g_edge" value="Edge / Frontend" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#879196;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#687078;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="90" y="360" width="560" height="150" as="geometry"/></mxCell>
+<mxCell id="g_compute" value="Compute" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#879196;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#687078;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="90" y="545" width="1050" height="205" as="geometry"/></mxCell>
+<mxCell id="g_ai" value="AI — Amazon Bedrock (ap-south-1)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#879196;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#687078;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="90" y="795" width="610" height="210" as="geometry"/></mxCell>
+<mxCell id="g_data" value="Data &amp; Secrets" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#879196;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#687078;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="740" y="795" width="400" height="210" as="geometry"/></mxCell>
+<mxCell id="g_ops" value="Ops &amp; Cost" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#879196;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#687078;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="90" y="1035" width="1050" height="190" as="geometry"/></mxCell>
+<mxCell id="g_extbnd" value="External SaaS &amp; Voice (non-AWS)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#7D3AC1;strokeWidth=1.6;dashed=1;dashPattern=8 5;verticalAlign=top;align=left;fontColor=#7D3AC1;fontSize=12;fontStyle=1;spacingLeft=10;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="1280" y="322" width="380" height="700" as="geometry"/></mxCell>
+<mxCell id="title" value="WealthSeva AI — Production Architecture (serverless)
+Region ap-south-1 (Mumbai) · ADR-001 Option B · post-2026-07-11 serverless cutover · 2026-07-12" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#F2F3F3;strokeColor=#D5DBDB;align=left;verticalAlign=middle;spacingLeft=18;fontColor=#232F3E;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="40" y="24" width="1620" height="54" as="geometry"/></mxCell>
+<mxCell id="v_browser" value="Browser — Next.js 14 avatar chat
+5 languages: EN · HI · MR · TA · BN" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#5A6472;fontColor=#232F3E;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1"><mxGeometry x="60" y="105" width="300" height="116" as="geometry"/></mxCell>
+<mxCell id="v_github" value="GitHub Actions — CI/CD
+CI gate → ECR build/push →
+CloudFormation / Lambda deploy
+Amplify auto-deploy on push to main" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#5A6472;fontColor=#232F3E;fontSize=11;fontStyle=1;verticalAlign=top;spacingTop=8;" vertex="1" parent="1"><mxGeometry x="1305" y="105" width="355" height="116" as="geometry"/></mxCell>
+<mxCell id="v_gate" value="[gate] Origin-verify gate
+403 if x-origin-verify
+missing / mismatched
+/health &amp; /api/chat exempt" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FDECEE;strokeColor=#DD344C;strokeWidth=1.8;fontColor=#232F3E;fontSize=10;fontStyle=0;verticalAlign=top;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="274.0" y="589.0" width="152" height="92" as="geometry"/></mxCell>
+<mxCell id="v_guard" value="Chat guardrails — /api/chat (Path A)
+10 req/min per-IP rate limit
+&lt;= 2000-char input caps
+CHAT_PUBLIC_ENABLED kill-switch · CORS" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;fillColor=#FEF6E7;strokeColor=#ED7100;strokeWidth=1.5;dashed=1;dashPattern=6 4;fontColor=#232F3E;fontSize=10;verticalAlign=top;spacingTop=6;" vertex="1" parent="1"><mxGeometry x="700" y="372" width="330" height="96" as="geometry"/></mxCell>
+<mxCell id="v_amplify" value="AMP" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7157B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="151.0" y="381.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_amplify" value="AWS Amplify Hosting
+Next.js 14 SSR · App Router
+next-intl i18n · branch main
+HTTPS + CDN · SSR proxy route" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="95" y="441.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_cloudfront" value="CF" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#8C4FFF;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="441.0" y="381.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_cloudfront" value="CloudFront
+Amplify-managed CDN
+frontend delivery ONLY
+(not in the Lambda path)" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="385" y="441.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_furl" value="URL" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#8C4FFF;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="146.0" y="606.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_furl" value="Lambda Function URL
+AuthType NONE · public
+InvokeMode RESPONSE_STREAM
+app-gated (see paths)" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="90" y="666.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_lambda" value="λ" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#ED7100;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="491.0" y="606.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_lambda" value="AWS Lambda
+wealthseva-backend-lambda
+container/ECR · 3008 MB · 60 s
+~3.1 s cold · FastAPI + LWA" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="435" y="666.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_iam" value="IAM" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#DD344C;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="751.0" y="606.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_iam" value="IAM Role
+wealthseva-lambda-role
+Bedrock · SecretsManager
+CloudWatch Logs" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="695" y="666.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_ec2" value="EC2" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#D9DEE3;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;opacity=60;" vertex="1" parent="1"><mxGeometry x="981.0" y="606.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_ec2" value="Amazon EC2  t3.medium
+i-0c2877eae9f724ede
+STOPPED — rollback only
+out of active path" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="925" y="666.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="tag_ec2" value="STOPPED" style="rounded=1;arcSize=40;html=1;fillColor=#DD344C;strokeColor=none;fontColor=#ffffff;fontSize=9;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="976" y="588.0" width="68" height="16" as="geometry"/></mxCell>
+<mxCell id="v_claude" value="BR" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#01A88D;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="221.0" y="861.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_claude" value="Bedrock — Claude 3.7 Sonnet
+apac.anthropic.claude-3-7-
+sonnet-20250219-v1:0
+APAC profile · streaming" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="165" y="921.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_titan" value="TE" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#01A88D;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="491.0" y="861.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_titan" value="Bedrock — Titan Embeddings v2
+amazon.titan-embed-text-v2:0
+quota denied -&gt;
+RAG keyword-fallback" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="435" y="921.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_secrets" value="SM" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#DD344C;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="871.0" y="861.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_secrets" value="AWS Secrets Manager
+secret: wealthseva/production
+injected at cold start
+(start.py -&gt; env)" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="815" y="921.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_cwlogs" value="CW" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7157B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="201.0" y="1083.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_cwlogs" value="CloudWatch Logs
+/aws/lambda/
+wealthseva-backend-lambda" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="145" y="1143.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_alarm" value="AL" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7157B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="441.0" y="1083.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_alarm" value="CloudWatch Alarm
+billing / Bedrock
+invocations high" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="385" y="1143.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_budgets" value="$" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7157B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="681.0" y="1083.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_budgets" value="AWS Budgets
+wealthseva-monthly
+cost guardrail" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="625" y="1143.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_sns" value="SNS" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#E7157B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=15;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="921.0" y="1083.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_sns" value="Amazon SNS
+wealthseva-cost-alerts
+-&gt; email subscription" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="865" y="1143.0" width="170" height="52" as="geometry"/></mxCell>
+<mxCell id="v_supabase" value="DB" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#5B6B7B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1441.0" y="401.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_supabase" value="Supabase (PostgreSQL)
+user data · goals · risk
+external SaaS · residency gap" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1375" y="461.0" width="190" height="44" as="geometry"/></mxCell>
+<mxCell id="tag_supabase" value="EXTERNAL" style="rounded=1;arcSize=40;html=1;fillColor=#7D3AC1;strokeColor=none;fontColor=#ffffff;fontSize=8.5;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1434" y="383.0" width="72" height="16" as="geometry"/></mxCell>
+<mxCell id="v_pinecone" value="VDB" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#5B6B7B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1441.0" y="556.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_pinecone" value="Pinecone (vector DB)
+RAG vector store
+external SaaS · keyword-fallback" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1375" y="616.0" width="190" height="44" as="geometry"/></mxCell>
+<mxCell id="tag_pinecone" value="EXTERNAL" style="rounded=1;arcSize=40;html=1;fillColor=#7D3AC1;strokeColor=none;fontColor=#ffffff;fontSize=8.5;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1434" y="538.0" width="72" height="16" as="geometry"/></mxCell>
+<mxCell id="v_sarvam" value="TTS" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#5B6B7B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1441.0" y="711.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_sarvam" value="Sarvam Bulbul v3
+India-resident TTS (primary)
+external SaaS · /api/tts" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1375" y="771.0" width="190" height="44" as="geometry"/></mxCell>
+<mxCell id="tag_sarvam" value="EXTERNAL" style="rounded=1;arcSize=40;html=1;fillColor=#7D3AC1;strokeColor=none;fontColor=#ffffff;fontSize=8.5;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1434" y="693.0" width="72" height="16" as="geometry"/></mxCell>
+<mxCell id="v_eleven" value="TTS" style="rounded=1;arcSize=20;whiteSpace=wrap;html=1;fillColor=#5B6B7B;strokeColor=#ffffff;fontColor=#ffffff;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1441.0" y="866.0" width="58" height="58" as="geometry"/></mxCell>
+<mxCell id="l_eleven" value="ElevenLabs
+TTS fallback
+external SaaS" style="text;html=1;align=center;verticalAlign=top;fontSize=10.5;fontColor=#232F3E;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="1"><mxGeometry x="1375" y="926.0" width="190" height="44" as="geometry"/></mxCell>
+<mxCell id="tag_eleven" value="EXTERNAL" style="rounded=1;arcSize=40;html=1;fillColor=#7D3AC1;strokeColor=none;fontColor=#ffffff;fontSize=8.5;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="1434" y="848.0" width="72" height="16" as="geometry"/></mxCell>
+<mxCell id="n2" value="1 · POST /api/chat — direct stream (no header)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#ED7100;strokeWidth=2.6;" edge="1" parent="1" source="v_browser" target="v_furl"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="130" y="221"/><mxPoint x="130" y="606"/></Array></mxGeometry></mxCell>
+<mxCell id="n3" value="2 · /api/* same-origin" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_browser" target="v_amplify"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="230" y="221"/><mxPoint x="230" y="381"/></Array></mxGeometry></mxCell>
+<mxCell id="n4" value="injects x-origin-verify" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_amplify" target="v_furl"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="150" y="439"/><mxPoint x="150" y="560"/><mxPoint x="175" y="606"/></Array></mxGeometry></mxCell>
+<mxCell id="n5" value="static assets (CDN)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#9AA6B2;strokeWidth=1.5;dashed=1;dashPattern=3 4;" edge="1" parent="1" source="v_browser" target="v_cloudfront"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="300" y="221"/><mxPoint x="470" y="381"/></Array></mxGeometry></mxCell>
+<mxCell id="n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#3B4A5A;strokeWidth=2;" edge="1" parent="1" source="v_furl" target="v_gate"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="204" y="635"/><mxPoint x="274" y="635"/></Array></mxGeometry></mxCell>
+<mxCell id="n7" value="invoke" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#3B4A5A;strokeWidth=2;" edge="1" parent="1" source="v_gate" target="v_lambda"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="426" y="635"/><mxPoint x="491" y="635"/></Array></mxGeometry></mxCell>
+<mxCell id="n8" value="3 · InvokeModel (stream)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#ED7100;strokeWidth=2.6;" edge="1" parent="1" source="v_lambda" target="v_claude"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="500" y="664"/><mxPoint x="500" y="770"/><mxPoint x="250" y="770"/><mxPoint x="250" y="861"/></Array></mxGeometry></mxCell>
+<mxCell id="n9" value="3 · InvokeModel (embed)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#3B4A5A;strokeWidth=2;" edge="1" parent="1" source="v_lambda" target="v_titan"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="520" y="664"/><mxPoint x="520" y="861"/></Array></mxGeometry></mxCell>
+<mxCell id="n10" value="4 · GetSecretValue (cold start)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#3B4A5A;strokeWidth=2;" edge="1" parent="1" source="v_lambda" target="v_secrets"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="548" y="664"/><mxPoint x="548" y="772"/><mxPoint x="900" y="772"/><mxPoint x="900" y="861"/></Array></mxGeometry></mxCell>
+<mxCell id="n11" value="5 · Postgres" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_lambda" target="v_supabase"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="520" y="664"/><mxPoint x="520" y="780"/><mxPoint x="1240" y="780"/><mxPoint x="1240" y="430"/><mxPoint x="1438" y="430"/></Array></mxGeometry></mxCell>
+<mxCell id="n12" value="5 · vectors" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_lambda" target="v_pinecone"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="528" y="664"/><mxPoint x="528" y="784"/><mxPoint x="1252" y="784"/><mxPoint x="1252" y="585"/><mxPoint x="1438" y="585"/></Array></mxGeometry></mxCell>
+<mxCell id="n13" value="6 · /api/tts primary" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_lambda" target="v_sarvam"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="536" y="664"/><mxPoint x="536" y="788"/><mxPoint x="1264" y="788"/><mxPoint x="1264" y="740"/><mxPoint x="1438" y="740"/></Array></mxGeometry></mxCell>
+<mxCell id="n14" value="6 · TTS fallback" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_lambda" target="v_eleven"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="544" y="664"/><mxPoint x="544" y="792"/><mxPoint x="1276" y="792"/><mxPoint x="1276" y="895"/><mxPoint x="1438" y="895"/></Array></mxGeometry></mxCell>
+<mxCell id="n15" value="7 · logs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_lambda" target="v_cwlogs"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="505" y="664"/><mxPoint x="505" y="774"/><mxPoint x="150" y="774"/><mxPoint x="150" y="1083"/><mxPoint x="230" y="1083"/></Array></mxGeometry></mxCell>
+<mxCell id="n16" value="8 · alert" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_budgets" target="v_sns"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="739" y="1112"/><mxPoint x="921" y="1112"/></Array></mxGeometry></mxCell>
+<mxCell id="n17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#5B6B8C;strokeWidth=2;dashed=1;dashPattern=8 5;" edge="1" parent="1" source="v_alarm" target="v_sns"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="470" y="1141"/><mxPoint x="470" y="1172"/><mxPoint x="950" y="1172"/><mxPoint x="950" y="1141"/></Array></mxGeometry></mxCell>
+<mxCell id="n18" value="assumes" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=10;fontColor=#232F3E;labelBackgroundColor=#ffffff;endArrow=block;endFill=1;strokeColor=#DD344C;strokeWidth=1.5;dashed=1;dashPattern=2 4;endArrow=open;" edge="1" parent="1" source="v_iam" target="v_lambda"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="751" y="635"/><mxPoint x="549" y="635"/></Array></mxGeometry></mxCell>
+<mxCell id="legend" value="Legend
+
+▬ Streaming (chat / Bedrock) — Path A
+┈ Proxied / integration — Path B
+┈ Static assets via managed CDN
+┈ IAM role attachment
+
+Status:  Live · Stopped-rollback · External SaaS
+Numbered arrows = request-flow order.
+CloudFront never fronts the Function URL." style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=#C6CDD3;align=left;verticalAlign=top;spacingLeft=14;spacingTop=8;fontColor=#232F3E;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1280" y="1040" width="380" height="240" as="geometry"/></mxCell>
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>

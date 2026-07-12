@@ -1,0 +1,283 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 1330" font-family="Arial,Helvetica,sans-serif">
+<title>WealthSeva AI — Production Architecture (serverless) · ap-south-1 · 2026-07-12</title>
+<desc>Current-state production architecture for WealthSeva AI, a multilingual avatar wealth advisor (IDBI Innovate 2026). Serverless backend on AWS Lambda behind a public Function URL in ap-south-1. Two request paths: streaming chat goes directly from the browser to the Function URL; all other endpoints go through the Amplify SSR proxy which injects an x-origin-verify header. Bedrock Claude 3.7 Sonnet and Titan Embeddings v2 (keyword-fallback). EC2 is stopped as rollback. External SaaS (Supabase, Pinecone, Sarvam, ElevenLabs) sit outside the AWS Cloud boundary. CloudFront appears only as the Amplify-managed frontend CDN and never fronts the Function URL.</desc>
+<defs>
+<marker id="arrOrange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ED7100"/></marker>
+<marker id="arrDark" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#3B4A5A"/></marker>
+<marker id="arrBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5B6B8C"/></marker>
+<marker id="arrGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#9AA6B2"/></marker>
+<marker id="arrRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.5" markerHeight="7.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#DD344C"/></marker>
+</defs>
+<rect x="0" y="0" width="1720" height="1330" fill="#FFFFFF"/>
+<rect x="40" y="24" width="1620" height="54" rx="8" fill="#F2F3F3" stroke="#D5DBDB"/>
+<text x="60" y="52" font-size="20" font-weight="700" fill="#232F3E">WealthSeva AI — Production Architecture (serverless)</text>
+<text x="60" y="70" font-size="12.5" fill="#5A6472">Region ap-south-1 (Mumbai) · ADR-001 Option B · post-2026-07-11 serverless cutover · 2026-07-12</text>
+<text x="1640" y="52" text-anchor="end" font-size="12" font-weight="700" fill="#232F3E">IDBI Innovate 2026 · Track 01</text>
+<g>
+<rect x="40" y="265" width="1180" height="1005" rx="12" fill="none" stroke="#232F3E" stroke-width="1.7" />
+<rect x="50" y="253" width="77" height="24" rx="5" fill="#ffffff" stroke="#232F3E" stroke-width="1.2"/>
+<text x="58" y="269" font-family="Arial" font-size="12.5" font-weight="700" fill="#232F3E">AWS Cloud</text>
+</g>
+<g>
+<rect x="66" y="322" width="1128" height="930" rx="12" fill="none" stroke="#00A4A6" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="76" y="310" width="206" height="24" rx="5" fill="#ffffff" stroke="#00A4A6" stroke-width="1.2"/>
+<text x="84" y="326" font-family="Arial" font-size="12.5" font-weight="700" fill="#00A4A6">Region: ap-south-1 (Mumbai)</text>
+</g>
+<g>
+<rect x="90" y="360" width="560" height="150" rx="12" fill="none" stroke="#879196" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="100" y="348" width="120" height="24" rx="5" fill="#ffffff" stroke="#879196" stroke-width="1.2"/>
+<text x="108" y="364" font-family="Arial" font-size="12.5" font-weight="700" fill="#687078">Edge / Frontend</text>
+</g>
+<g>
+<rect x="90" y="545" width="1050" height="205" rx="12" fill="none" stroke="#879196" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="100" y="533" width="62" height="24" rx="5" fill="#ffffff" stroke="#879196" stroke-width="1.2"/>
+<text x="108" y="549" font-family="Arial" font-size="12.5" font-weight="700" fill="#687078">Compute</text>
+</g>
+<g>
+<rect x="90" y="795" width="610" height="210" rx="12" fill="none" stroke="#879196" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="100" y="783" width="242" height="24" rx="5" fill="#ffffff" stroke="#879196" stroke-width="1.2"/>
+<text x="108" y="799" font-family="Arial" font-size="12.5" font-weight="700" fill="#687078">AI — Amazon Bedrock (ap-south-1)</text>
+</g>
+<g>
+<rect x="740" y="795" width="400" height="210" rx="12" fill="none" stroke="#879196" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="750" y="783" width="113" height="24" rx="5" fill="#ffffff" stroke="#879196" stroke-width="1.2"/>
+<text x="758" y="799" font-family="Arial" font-size="12.5" font-weight="700" fill="#687078">Data &amp; Secrets</text>
+</g>
+<g>
+<rect x="90" y="1035" width="1050" height="190" rx="12" fill="none" stroke="#879196" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="100" y="1023" width="84" height="24" rx="5" fill="#ffffff" stroke="#879196" stroke-width="1.2"/>
+<text x="108" y="1039" font-family="Arial" font-size="12.5" font-weight="700" fill="#687078">Ops &amp; Cost</text>
+</g>
+<g>
+<rect x="1280" y="322" width="380" height="700" rx="12" fill="none" stroke="#7D3AC1" stroke-width="1.7" stroke-dasharray="7 5"/>
+<rect x="1290" y="310" width="235" height="24" rx="5" fill="#ffffff" stroke="#7D3AC1" stroke-width="1.2"/>
+<text x="1298" y="326" font-family="Arial" font-size="12.5" font-weight="700" fill="#7D3AC1">External SaaS &amp; Voice (non-AWS)</text>
+</g>
+<polyline points="130,221 130,606" fill="none" stroke="#ED7100" stroke-width="2.8"  marker-end="url(#arrOrange)" stroke-linejoin="round"/>
+<rect x="35" y="339" width="266" height="17" rx="4" fill="#ffffff" stroke="#ED7100" stroke-width="0.8" opacity="0.96"/>
+<text x="168" y="351" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">1 · POST /api/chat — direct stream (no header)</text>
+<polyline points="230,221 230,381" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="164" y="292" width="131" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="230" y="304" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">2 · /api/* same-origin</text>
+<polyline points="150,439 150,560 175,606" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="82" y="536" width="137" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="150" y="548" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">injects x-origin-verify</text>
+<polyline points="300,221 470,381" fill="none" stroke="#9AA6B2" stroke-width="1.6" stroke-dasharray="3 4" marker-end="url(#arrGrey)" stroke-linejoin="round"/>
+<rect x="328" y="292" width="114" height="17" rx="4" fill="#ffffff" stroke="#9AA6B2" stroke-width="0.8" opacity="0.96"/>
+<text x="385" y="304" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">static assets (CDN)</text>
+<polyline points="204,635 274,635" fill="none" stroke="#3B4A5A" stroke-width="2.2"  marker-end="url(#arrDark)" stroke-linejoin="round"/>
+<polyline points="426,635 491,635" fill="none" stroke="#3B4A5A" stroke-width="2.2"  marker-end="url(#arrDark)" stroke-linejoin="round"/>
+<rect x="438" y="626" width="42" height="17" rx="4" fill="#ffffff" stroke="#3B4A5A" stroke-width="0.8" opacity="0.96"/>
+<text x="458" y="638" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">invoke</text>
+<polyline points="500,664 500,770 250,770 250,861" fill="none" stroke="#ED7100" stroke-width="2.8"  marker-end="url(#arrOrange)" stroke-linejoin="round"/>
+<rect x="301" y="739" width="142" height="17" rx="4" fill="#ffffff" stroke="#ED7100" stroke-width="0.8" opacity="0.96"/>
+<text x="372" y="751" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">3 · InvokeModel (stream)</text>
+<polyline points="520,664 520,861" fill="none" stroke="#3B4A5A" stroke-width="2.2"  marker-end="url(#arrDark)" stroke-linejoin="round"/>
+<rect x="527" y="739" width="137" height="17" rx="4" fill="#ffffff" stroke="#3B4A5A" stroke-width="0.8" opacity="0.96"/>
+<text x="595" y="751" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">3 · InvokeModel (embed)</text>
+<polyline points="548,664 548,772 900,772 900,861" fill="none" stroke="#3B4A5A" stroke-width="2.2"  marker-end="url(#arrDark)" stroke-linejoin="round"/>
+<rect x="687" y="739" width="182" height="17" rx="4" fill="#ffffff" stroke="#3B4A5A" stroke-width="0.8" opacity="0.96"/>
+<text x="778" y="751" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">4 · GetSecretValue (cold start)</text>
+<polyline points="520,664 520,780 1240,780 1240,430 1438,430" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="1202" y="459" width="75" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="1240" y="471" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">5 · Postgres</text>
+<polyline points="528,664 528,784 1252,784 1252,585 1438,585" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="1217" y="656" width="70" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="1252" y="668" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">5 · vectors</text>
+<polyline points="536,664 536,788 1264,788 1264,740 1438,740" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="1204" y="803" width="120" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="1264" y="815" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">6 · /api/tts primary</text>
+<polyline points="544,664 544,792 1276,792 1276,895 1438,895" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="1227" y="959" width="98" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="1276" y="971" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">6 · TTS fallback</text>
+<polyline points="505,664 505,774 150,774 150,1083 230,1083" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="124" y="931" width="53" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="150" y="943" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">7 · logs</text>
+<polyline points="739,1112 921,1112" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<rect x="801" y="1103" width="58" height="17" rx="4" fill="#ffffff" stroke="#5B6B8C" stroke-width="0.8" opacity="0.96"/>
+<text x="830" y="1115" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">8 · alert</text>
+<polyline points="470,1141 470,1172 950,1172 950,1141" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)" stroke-linejoin="round"/>
+<polyline points="751,635 549,635" fill="none" stroke="#DD344C" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrRed)" stroke-linejoin="round"/>
+<rect x="626" y="626" width="47" height="17" rx="4" fill="#ffffff" stroke="#DD344C" stroke-width="0.8" opacity="0.96"/>
+<text x="650" y="638" text-anchor="middle" font-family="Arial" font-size="10" font-weight="600" fill="#232F3E">assumes</text>
+<g>
+<rect x="60" y="105" width="300" height="116" rx="9" fill="#ffffff" stroke="#5A6472" stroke-width="1.6"/>
+<text x="210.0" y="129" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#232F3E">Browser — Next.js 14 avatar chat</text>
+<text x="210.0" y="147" text-anchor="middle" font-family="Arial" font-size="10.8" fill="#5A6472">5 languages: EN · HI · MR · TA · BN</text>
+</g>
+<g>
+<rect x="1305" y="105" width="355" height="116" rx="9" fill="#ffffff" stroke="#5A6472" stroke-width="1.6"/>
+<text x="1482.5" y="129" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#232F3E">GitHub Actions — CI/CD</text>
+<text x="1482.5" y="147" text-anchor="middle" font-family="Arial" font-size="10.8" fill="#5A6472">CI gate → ECR build/push →</text>
+<text x="1482.5" y="161" text-anchor="middle" font-family="Arial" font-size="10.8" fill="#5A6472">CloudFormation / Lambda deploy</text>
+<text x="1482.5" y="175" text-anchor="middle" font-family="Arial" font-size="10.8" fill="#5A6472">Amplify auto-deploy on push to main</text>
+</g>
+<rect x="274.0" y="589.0" width="152" height="92" rx="9" fill="#FDECEE" stroke="#DD344C" stroke-width="1.8"/>
+<text x="350" y="609.0" text-anchor="middle" font-size="12" font-weight="700" fill="#B0223A">Origin-verify gate</text>
+<text x="350" y="627.0" text-anchor="middle" font-size="10" fill="#232F3E">403 if x-origin-verify</text>
+<text x="350" y="641.0" text-anchor="middle" font-size="10" fill="#232F3E">missing / mismatched</text>
+<text x="350" y="655.0" text-anchor="middle" font-size="10" fill="#232F3E">/health &amp; /api/chat exempt</text>
+<rect x="700" y="372" width="330" height="96" rx="9" fill="#FEF6E7" stroke="#ED7100" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="865.0" y="392" text-anchor="middle" font-size="12" font-weight="700" fill="#B5610A">Chat guardrails — /api/chat (Path A)</text>
+<text x="865.0" y="410" text-anchor="middle" font-size="10.3" fill="#232F3E">10 req/min per-IP rate limit</text>
+<text x="865.0" y="425" text-anchor="middle" font-size="10.3" fill="#232F3E">&lt;= 2000-char input caps</text>
+<text x="865.0" y="440" text-anchor="middle" font-size="10.3" fill="#232F3E">CHAT_PUBLIC_ENABLED kill-switch · CORS</text>
+<g>
+<rect x="151.0" y="381.0" width="58" height="58" rx="11" ry="11" fill="#E7157B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="180" y="416" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">AMP</text>
+<text x="180" y="454.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">AWS Amplify Hosting</text>
+<text x="180" y="469.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">Next.js 14 SSR · App Router</text>
+<text x="180" y="482.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">next-intl i18n · branch main</text>
+<text x="180" y="495.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">HTTPS + CDN · SSR proxy route</text>
+</g>
+<g>
+<rect x="441.0" y="381.0" width="58" height="58" rx="11" ry="11" fill="#8C4FFF" stroke="#ffffff" stroke-width="1.5"/>
+<text x="470" y="416" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">CF</text>
+<text x="470" y="454.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">CloudFront</text>
+<text x="470" y="469.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">Amplify-managed CDN</text>
+<text x="470" y="482.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">frontend delivery ONLY</text>
+<text x="470" y="495.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">(not in the Lambda path)</text>
+</g>
+<g>
+<rect x="146.0" y="606.0" width="58" height="58" rx="11" ry="11" fill="#8C4FFF" stroke="#ffffff" stroke-width="1.5"/>
+<text x="175" y="641" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">URL</text>
+<text x="175" y="679.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">Lambda Function URL</text>
+<text x="175" y="694.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">AuthType NONE · public</text>
+<text x="175" y="707.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">InvokeMode RESPONSE_STREAM</text>
+<text x="175" y="720.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">app-gated (see paths)</text>
+</g>
+<g>
+<rect x="491.0" y="606.0" width="58" height="58" rx="11" ry="11" fill="#ED7100" stroke="#ffffff" stroke-width="1.5"/>
+<text x="520" y="641" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">λ</text>
+<text x="520" y="679.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">AWS Lambda</text>
+<text x="520" y="694.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">wealthseva-backend-lambda</text>
+<text x="520" y="707.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">container/ECR · 3008 MB · 60 s</text>
+<text x="520" y="720.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">~3.1 s cold · FastAPI + LWA</text>
+</g>
+<g>
+<rect x="751.0" y="606.0" width="58" height="58" rx="11" ry="11" fill="#DD344C" stroke="#ffffff" stroke-width="1.5"/>
+<text x="780" y="641" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">IAM</text>
+<text x="780" y="679.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">IAM Role</text>
+<text x="780" y="694.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">wealthseva-lambda-role</text>
+<text x="780" y="707.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">Bedrock · SecretsManager</text>
+<text x="780" y="720.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">CloudWatch Logs</text>
+</g>
+<g opacity="0.55">
+<rect x="981.0" y="606.0" width="58" height="58" rx="11" ry="11" fill="#8D99A6" stroke="#ffffff" stroke-width="1.5"/>
+<text x="1010" y="641" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">EC2</text>
+<text x="1010" y="679.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">Amazon EC2  t3.medium</text>
+<text x="1010" y="694.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">i-0c2877eae9f724ede</text>
+<text x="1010" y="707.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">STOPPED — rollback only</text>
+<text x="1010" y="720.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">out of active path</text>
+<rect x="976" y="590.0" width="68" height="16" rx="8" fill="#DD344C"/>
+<text x="1010" y="602.0" text-anchor="middle" font-family="Arial" font-size="9.5" font-weight="700" fill="#ffffff">STOPPED</text>
+</g>
+<g>
+<rect x="221.0" y="861.0" width="58" height="58" rx="11" ry="11" fill="#01A88D" stroke="#ffffff" stroke-width="1.5"/>
+<text x="250" y="896" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">BR</text>
+<text x="250" y="934.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">Bedrock — Claude 3.7 Sonnet</text>
+<text x="250" y="949.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">apac.anthropic.claude-3-7-</text>
+<text x="250" y="962.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">sonnet-20250219-v1:0</text>
+<text x="250" y="975.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">APAC profile · streaming</text>
+</g>
+<g>
+<rect x="491.0" y="861.0" width="58" height="58" rx="11" ry="11" fill="#01A88D" stroke="#ffffff" stroke-width="1.5"/>
+<text x="520" y="896" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">TE</text>
+<text x="520" y="934.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">Bedrock — Titan Embeddings v2</text>
+<text x="520" y="949.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">amazon.titan-embed-text-v2:0</text>
+<text x="520" y="962.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">quota denied -&gt;</text>
+<text x="520" y="975.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">RAG keyword-fallback</text>
+</g>
+<g>
+<rect x="871.0" y="861.0" width="58" height="58" rx="11" ry="11" fill="#DD344C" stroke="#ffffff" stroke-width="1.5"/>
+<text x="900" y="896" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">SM</text>
+<text x="900" y="934.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">AWS Secrets Manager</text>
+<text x="900" y="949.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">secret: wealthseva/production</text>
+<text x="900" y="962.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">injected at cold start</text>
+<text x="900" y="975.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">(start.py -&gt; env)</text>
+</g>
+<g>
+<rect x="201.0" y="1083.0" width="58" height="58" rx="11" ry="11" fill="#E7157B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="230" y="1118" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">CW</text>
+<text x="230" y="1156.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">CloudWatch Logs</text>
+<text x="230" y="1171.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">/aws/lambda/</text>
+<text x="230" y="1184.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">wealthseva-backend-lambda</text>
+</g>
+<g>
+<rect x="441.0" y="1083.0" width="58" height="58" rx="11" ry="11" fill="#E7157B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="470" y="1118" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">AL</text>
+<text x="470" y="1156.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">CloudWatch Alarm</text>
+<text x="470" y="1171.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">billing / Bedrock</text>
+<text x="470" y="1184.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">invocations high</text>
+</g>
+<g>
+<rect x="681.0" y="1083.0" width="58" height="58" rx="11" ry="11" fill="#E7157B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="710" y="1118" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">$</text>
+<text x="710" y="1156.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">AWS Budgets</text>
+<text x="710" y="1171.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">wealthseva-monthly</text>
+<text x="710" y="1184.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">cost guardrail</text>
+</g>
+<g>
+<rect x="921.0" y="1083.0" width="58" height="58" rx="11" ry="11" fill="#E7157B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="950" y="1118" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" fill="#ffffff">SNS</text>
+<text x="950" y="1156.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="12.5" font-weight="700" fill="#232F3E">Amazon SNS</text>
+<text x="950" y="1171.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">wealthseva-cost-alerts</text>
+<text x="950" y="1184.0" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="10.5" fill="#5A6472">-&gt; email subscription</text>
+</g>
+<g>
+<rect x="1441.0" y="401.0" width="58" height="58" rx="11" fill="#5B6B7B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="1470" y="435" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#ffffff">DB</text>
+<text x="1470" y="474.0" text-anchor="middle" font-family="Arial" font-size="12.5" font-weight="700" fill="#232F3E">Supabase (PostgreSQL)</text>
+<text x="1470" y="489.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">user data · goals · risk</text>
+<text x="1470" y="502.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">external SaaS · residency gap</text>
+<rect x="1434" y="385.0" width="72" height="16" rx="8" fill="#7D3AC1"/>
+<text x="1470" y="397.0" text-anchor="middle" font-family="Arial" font-size="9" font-weight="700" fill="#ffffff">EXTERNAL</text>
+</g>
+<g>
+<rect x="1441.0" y="556.0" width="58" height="58" rx="11" fill="#5B6B7B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="1470" y="590" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#ffffff">VDB</text>
+<text x="1470" y="629.0" text-anchor="middle" font-family="Arial" font-size="12.5" font-weight="700" fill="#232F3E">Pinecone (vector DB)</text>
+<text x="1470" y="644.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">RAG vector store</text>
+<text x="1470" y="657.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">external SaaS · keyword-fallback</text>
+<rect x="1434" y="540.0" width="72" height="16" rx="8" fill="#7D3AC1"/>
+<text x="1470" y="552.0" text-anchor="middle" font-family="Arial" font-size="9" font-weight="700" fill="#ffffff">EXTERNAL</text>
+</g>
+<g>
+<rect x="1441.0" y="711.0" width="58" height="58" rx="11" fill="#5B6B7B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="1470" y="745" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#ffffff">TTS</text>
+<text x="1470" y="784.0" text-anchor="middle" font-family="Arial" font-size="12.5" font-weight="700" fill="#232F3E">Sarvam Bulbul v3</text>
+<text x="1470" y="799.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">India-resident TTS (primary)</text>
+<text x="1470" y="812.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">external SaaS · /api/tts</text>
+<rect x="1434" y="695.0" width="72" height="16" rx="8" fill="#7D3AC1"/>
+<text x="1470" y="707.0" text-anchor="middle" font-family="Arial" font-size="9" font-weight="700" fill="#ffffff">EXTERNAL</text>
+</g>
+<g>
+<rect x="1441.0" y="866.0" width="58" height="58" rx="11" fill="#5B6B7B" stroke="#ffffff" stroke-width="1.5"/>
+<text x="1470" y="900" text-anchor="middle" font-family="Arial" font-size="13" font-weight="700" fill="#ffffff">TTS</text>
+<text x="1470" y="939.0" text-anchor="middle" font-family="Arial" font-size="12.5" font-weight="700" fill="#232F3E">ElevenLabs</text>
+<text x="1470" y="954.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">TTS fallback</text>
+<text x="1470" y="967.0" text-anchor="middle" font-family="Arial" font-size="10.5" fill="#5A6472">external SaaS</text>
+<rect x="1434" y="850.0" width="72" height="16" rx="8" fill="#7D3AC1"/>
+<text x="1470" y="862.0" text-anchor="middle" font-family="Arial" font-size="9" font-weight="700" fill="#ffffff">EXTERNAL</text>
+</g>
+<text x="940" y="1000" text-anchor="middle" font-size="9.5" fill="#5A6472">user data &amp; vectors = external SaaS (right)</text>
+<rect x="1280" y="1040" width="380" height="240" rx="10" fill="#F8F9FA" stroke="#C6CDD3"/>
+<text x="1296" y="1064" font-size="13" font-weight="700" fill="#232F3E">Legend</text>
+<polyline points="1298,1084 1348,1084" fill="none" stroke="#ED7100" stroke-width="2.8"  marker-end="url(#arrOrange)"/>
+<text x="1358" y="1088" font-size="10.6" fill="#232F3E">Streaming (chat / Bedrock) — Path A</text>
+<polyline points="1298,1108 1348,1108" fill="none" stroke="#5B6B8C" stroke-width="2.0" stroke-dasharray="8 5" marker-end="url(#arrBlue)"/>
+<text x="1358" y="1112" font-size="10.6" fill="#232F3E">Proxied / integration call — Path B</text>
+<polyline points="1298,1132 1348,1132" fill="none" stroke="#9AA6B2" stroke-width="1.6" stroke-dasharray="3 4" marker-end="url(#arrGrey)"/>
+<text x="1358" y="1136" font-size="10.6" fill="#232F3E">Static assets via managed CDN</text>
+<polyline points="1298,1156 1348,1156" fill="none" stroke="#DD344C" stroke-width="1.6" stroke-dasharray="2 4" marker-end="url(#arrRed)"/>
+<text x="1358" y="1160" font-size="10.6" fill="#232F3E">IAM role attachment</text>
+<text x="1296" y="1184" font-size="11.5" font-weight="700" fill="#232F3E">Status</text>
+<rect x="1296" y="1196" width="38" height="18" rx="9" fill="#01A88D"/>
+<text x="1315" y="1209" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ffffff">Live</text>
+<rect x="1342.0" y="1196" width="122" height="18" rx="9" fill="#DD344C"/>
+<text x="1403" y="1209" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ffffff">Stopped — rollback</text>
+<rect x="1472.0" y="1196" width="92" height="18" rx="9" fill="#7D3AC1"/>
+<text x="1518" y="1209" text-anchor="middle" font-size="9.5" font-weight="700" fill="#ffffff">External SaaS</text>
+<text x="1296" y="1250" font-size="10" fill="#5A6472">Numbered arrows = primary request flow order.</text>
+<text x="1296" y="1265" font-size="10" fill="#5A6472">CloudFront never fronts the Function URL (unsupported here).</text>
+</svg>
