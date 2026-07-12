@@ -293,8 +293,10 @@ async def generate_market_insights(language: Language) -> list:
 
     system_prompt = get_system_prompt(language)
     user_prompt = (
-        f"Give me 3 brief market insights for Indian retail investors today. "
-        f"Respond in {language.value}. Return as a JSON array of strings only, no markdown."
+        f"Give me exactly 3 brief market insights for Indian retail investors today. "
+        f"Respond in {language.value}. Return ONLY a JSON array of 3 strings, no markdown. "
+        f"Do NOT introduce yourself, and do NOT include any disclaimer, preamble, or the "
+        f"'I'm Shreya' self-introduction — each array element must be a standalone market insight."
     )
 
     # Try Bedrock first, then the Anthropic direct API on failure.
@@ -335,6 +337,16 @@ async def generate_market_insights(language: Language) -> list:
         # Ensure it's a list
         if not isinstance(insights, list):
             insights = [insights]
+
+        # Defensive: drop any self-introduction/disclaimer the model may
+        # prepend despite the prompt (the system prompt tells Shreya to
+        # introduce herself, which otherwise leaks in as insight #1).
+        intro_markers = ("i'm shreya", "informational purposes", "sebi-registered")
+        filtered = [
+            s for s in insights
+            if not (isinstance(s, str) and any(m in s.lower() for m in intro_markers))
+        ]
+        insights = filtered or insights
 
         # Cache the result
         _insights_cache[cache_key] = (insights, current_time)
