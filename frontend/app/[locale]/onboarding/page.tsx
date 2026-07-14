@@ -14,14 +14,14 @@ export default function OnboardingPage() {
           <ShieldCheck size={14} />
           {t('assessment_badge')}
         </span>
-        <h1 className="text-[30px] sm:text-[34px] font-extrabold tracking-tight text-idbi-ink mb-3 text-balance">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-idbi-ink mb-3 text-balance">
           {t('welcome')}
         </h1>
-        <p className="text-idbi-muted text-[15px] max-w-md mx-auto text-pretty">{t('subtitle')}</p>
+        <p className="text-idbi-muted text-base max-w-md mx-auto text-pretty">{t('subtitle')}</p>
       </div>
 
       {/* Quiz card */}
-      <div className="bg-white rounded-[24px] border border-idbi-line shadow-pop p-6 sm:p-8">
+      <div className="bg-white rounded-card border border-idbi-line shadow-pop p-6 sm:p-8">
         <RiskQuiz />
       </div>
 

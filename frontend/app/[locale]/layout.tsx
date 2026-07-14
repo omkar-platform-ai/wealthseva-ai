@@ -4,8 +4,13 @@ import { Montserrat } from 'next/font/google';
 import '../globals.css';
 import Navbar from '@/components/Navbar';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { ToastProvider } from '@/components/ui/Toast';
 
-const montserrat = Montserrat({ subsets: ['latin'] });
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
 
 export default async function LocaleLayout({
   children,
@@ -17,15 +22,17 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={montserrat.variable}>
       {/* pb-28 leaves room for the floating mobile bottom nav */}
       <body className={`${montserrat.className} antialiased bg-idbi-bg`}>
         <NextIntlClientProvider messages={messages}>
-          <Navbar />
-          <main className="min-h-screen pb-28 md:pb-0">
-            {children}
-          </main>
-          <MobileBottomNav />
+          <ToastProvider>
+            <Navbar />
+            <main className="min-h-screen pb-28 md:pb-0">
+              {children}
+            </main>
+            <MobileBottomNav />
+          </ToastProvider>
         </NextIntlClientProvider>
       </body>
     </html>

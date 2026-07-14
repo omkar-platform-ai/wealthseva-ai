@@ -6,6 +6,8 @@ import { TrendingUp, IndianRupee, ArrowRight } from 'lucide-react';
 import PortfolioCard from '@/components/PortfolioCard';
 import RiskProfileBadge from '@/components/RiskProfileBadge';
 import FadeIn from '@/components/FadeIn';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { cn, FOCUS_RING } from '@/lib/utils';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
@@ -30,6 +32,7 @@ function DashboardInner() {
   const isDemo = searchParams.get('demo') === 'true';
 
   const [summary, setSummary] = useState<PortfolioSummary>({ value: null, gainPct: null, risk: 'moderate', sip: null });
+  const [summaryLoading, setSummaryLoading] = useState(true);
   const [insights, setInsights] = useState<string[]>([]);
   const [insightsLoading, setInsightsLoading] = useState(false);
 
@@ -69,6 +72,8 @@ function DashboardInner() {
         });
       } catch {
         if (!cancelled) setSummary({ value: null, gainPct: null, risk: 'moderate', sip: null });
+      } finally {
+        if (!cancelled) setSummaryLoading(false);
       }
     }
 
@@ -98,39 +103,48 @@ function DashboardInner() {
   return (
     <div className="max-w-[1200px] mx-auto px-5 sm:px-7 py-8">
       {isDemo && (
-        <div className="mb-5 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm font-semibold">
+        <div className="mb-5 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-field text-amber-800 text-sm font-semibold">
           {t('demo_banner')}
         </div>
       )}
 
       {/* Header */}
       <div className="flex items-end justify-between gap-5 mb-6 flex-wrap">
-        <h1 className="text-[30px] font-extrabold tracking-tight text-idbi-ink">{t('title')}</h1>
-        <div className="flex items-center gap-2 bg-white border border-idbi-line px-3.5 py-2 rounded-xl shadow-[0_1px_2px_rgba(16,40,34,.04)]">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(34,176,125,.18)]" />
-          <span className="text-[12.5px] font-semibold text-idbi-slate">{t('sync_status')}</span>
+        <h1 className="text-2xl font-extrabold tracking-tight text-idbi-ink">{t('title')}</h1>
+        <div className="flex items-center gap-2 bg-white border border-idbi-line px-3.5 py-2 rounded-field shadow-flat">
+          <span className="w-2 h-2 rounded-full bg-idbi-green shadow-[0_0_0_3px_rgba(0,131,108,.18)]" />
+          <span className="text-sm font-semibold text-idbi-slate">{t('sync_status')}</span>
         </div>
       </div>
 
       {/* KPI ROW */}
       <FadeIn className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr_1fr] gap-[18px] mb-[18px]">
         {/* Portfolio value — gradient hero (real value from backend) */}
-        <div className="relative overflow-hidden rounded-[20px] p-6 text-white bg-gradient-to-b from-idbi-green to-idbi-deep shadow-[0_18px_40px_-22px_rgba(0,73,60,.8)]">
+        <div className="relative overflow-hidden rounded-card p-6 text-white bg-gradient-to-b from-idbi-green to-idbi-deep shadow-[0_18px_40px_-22px_rgba(0,73,60,.8)]">
           <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/[0.06]" />
           <div className="relative flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-[#BFE6DC]">{t('portfolio_value')}</p>
+            <p className="text-sm font-semibold text-idbi-mint">{t('portfolio_value')}</p>
             {gainPct != null && (
-              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${gainPositive ? 'text-[#0B4C3E] bg-[#8FE0C4]' : 'text-white bg-red-500/80'}`}>
+              <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full', gainPositive ? 'text-idbi-inkGreen bg-idbi-mintBright' : 'text-white bg-red-500/80')}>
                 {gainPositive ? '▲' : '▼'} {Math.abs(gainPct)}%
               </span>
             )}
           </div>
-          <p className="relative mt-2.5 mb-1 text-[34px] font-extrabold tracking-tight">
-            {portfolioValue != null ? `₹${portfolioValue.toLocaleString('en-IN')}` : '—'}
-          </p>
-          <p className="relative mb-3.5 text-[12.5px] text-[#A9DBCC]">
-            {portfolioValue != null ? t('value_subtitle_linked') : t('value_subtitle_empty')}
-          </p>
+          {summaryLoading ? (
+            <>
+              <Skeleton className="relative mt-2.5 mb-1 h-9 w-44 bg-white/25" />
+              <Skeleton className="relative mb-3.5 h-4 w-40 bg-white/20" />
+            </>
+          ) : (
+            <>
+              <p className="relative mt-2.5 mb-1 text-3xl font-extrabold tracking-tight tabular-nums">
+                {portfolioValue != null ? `₹${portfolioValue.toLocaleString('en-IN')}` : '—'}
+              </p>
+              <p className="relative mb-3.5 text-sm text-idbi-mintDim">
+                {portfolioValue != null ? t('value_subtitle_linked') : t('value_subtitle_empty')}
+              </p>
+            </>
+          )}
           <svg width="100%" height="46" viewBox="0 0 300 46" preserveAspectRatio="none" className="relative block">
             <defs>
               <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
@@ -147,23 +161,29 @@ function DashboardInner() {
         <RiskProfileBadge profile={riskProfile} />
 
         {/* Monthly SIP (sum of goal SIPs from /api/idbi/goals) */}
-        <div className="bg-white rounded-[20px] border border-idbi-line p-6 shadow-card">
+        <div className="bg-white rounded-card border border-idbi-line p-6 shadow-card">
           <div className="flex items-center justify-between">
-            <p className="text-[13px] font-semibold text-idbi-muted">{t('monthly_sip')}</p>
-            <span className="w-[30px] h-[30px] rounded-[9px] bg-idbi-light flex items-center justify-center">
+            <p className="text-sm font-semibold text-idbi-muted">{t('monthly_sip')}</p>
+            <span className="w-[30px] h-[30px] rounded-tile bg-idbi-light flex items-center justify-center">
               <IndianRupee size={15} className="text-idbi-green" strokeWidth={2.2} />
             </span>
           </div>
-          <p className="mt-2.5 mb-1 text-[32px] font-extrabold tracking-tight text-idbi-ink">
-            {monthlySip != null ? `₹${monthlySip.toLocaleString('en-IN')}` : '—'}
-          </p>
-          <p className="mb-3.5 text-[12.5px] text-idbi-muted">{monthlySip != null ? t('sip_subtitle_active') : t('sip_subtitle_empty')}</p>
-          <div className="h-2 rounded-full bg-idbi-light overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-idbi-green to-idbi-teal" style={{ width: monthlySip != null ? '72%' : '0%' }} />
-          </div>
-          <p className="mt-2 text-[11.5px] font-semibold text-idbi-faint">
-            {monthlySip != null ? t('sip_recommended', { pct: 72, amount: '22,000' }) : t('sip_setup_prompt')}
-          </p>
+          {summaryLoading ? (
+            <>
+              <Skeleton className="mt-2.5 mb-1 h-7 w-32" />
+              <Skeleton className="mb-1 h-4 w-40" />
+            </>
+          ) : (
+            <>
+              <p className="mt-2.5 mb-1 text-2xl font-extrabold tracking-tight text-idbi-ink tabular-nums">
+                {monthlySip != null ? `₹${monthlySip.toLocaleString('en-IN')}` : '—'}
+              </p>
+              <p className="text-sm text-idbi-muted">{monthlySip != null ? t('sip_subtitle_active') : t('sip_subtitle_empty')}</p>
+              {monthlySip == null && (
+                <p className="mt-2 text-xs font-semibold text-idbi-faint">{t('sip_setup_prompt')}</p>
+              )}
+            </>
+          )}
         </div>
       </FadeIn>
 
@@ -173,20 +193,20 @@ function DashboardInner() {
       </FadeIn>
 
       {/* Today's Insights */}
-      <FadeIn delay={0.16} className="bg-white rounded-[20px] border border-idbi-line p-6 shadow-card">
+      <FadeIn delay={0.16} className="bg-white rounded-card border border-idbi-line p-6 shadow-card">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-idbi-ink">{t('insights_title')}</h2>
-          <a href={`/${locale}/insights`} className="inline-flex items-center gap-1 text-[12.5px] font-bold text-idbi-green hover:text-idbi-dark transition-colors">
+          <a href={`/${locale}/insights`} className={cn('inline-flex items-center gap-1 text-sm font-bold text-idbi-green hover:text-idbi-dark transition-colors rounded-field', FOCUS_RING)}>
             {t('view_all')} <ArrowRight size={14} />
           </a>
         </div>
         {insightsLoading ? (
           <div className="grid sm:grid-cols-3 gap-3.5">
             {[0, 1, 2].map(i => (
-              <div key={i} className="border border-idbi-line rounded-[14px] p-4 animate-pulse">
-                <div className="w-[30px] h-[30px] rounded-[9px] bg-idbi-light mb-2.5" />
-                <div className="h-3 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-100 rounded w-1/2" />
+              <div key={i} className="border border-idbi-line rounded-field p-4 animate-pulse">
+                <div className="w-[30px] h-[30px] rounded-tile bg-idbi-light mb-2.5" />
+                <div className="h-3 bg-idbi-tint rounded w-3/4 mb-2" />
+                <div className="h-3 bg-idbi-track rounded w-1/2" />
               </div>
             ))}
           </div>
@@ -195,11 +215,11 @@ function DashboardInner() {
         ) : (
           <div className="grid sm:grid-cols-3 gap-3.5">
             {insights.slice(0, 3).map((item, i) => (
-              <div key={i} className="border border-idbi-line rounded-[14px] p-4 bg-[#FBFDFC]">
-                <div className="w-[30px] h-[30px] rounded-[9px] bg-idbi-light flex items-center justify-center mb-2.5">
+              <div key={i} className="border border-idbi-line rounded-field p-4 bg-idbi-surfaceAlt">
+                <div className="w-[30px] h-[30px] rounded-tile bg-idbi-light flex items-center justify-center mb-2.5">
                   <TrendingUp size={15} className="text-idbi-green" strokeWidth={2.2} />
                 </div>
-                <p className="text-[12.5px] leading-relaxed text-idbi-slate">{item}</p>
+                <p className="text-sm leading-relaxed text-idbi-slate">{item}</p>
               </div>
             ))}
           </div>

@@ -2,9 +2,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/navigation';
+import { Lock } from 'lucide-react';
 import AvatarChat from '@/components/AvatarChat';
 import MoneyMoments from '@/components/MoneyMoments';
 import ConsentGate from '@/components/ConsentGate';
+import { Button } from '@/components/ui/Button';
 
 export default function AdvisorPage() {
   const t = useTranslations('advisor');
@@ -32,22 +34,18 @@ export default function AdvisorPage() {
   if (declined) {
     return (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-        <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 text-center">
-          <span className="text-4xl mb-4 block">🔒</span>
+        <div className="bg-white rounded-card shadow-pop border border-idbi-line max-w-md w-full p-8 text-center">
+          <span className="mx-auto mb-4 flex w-12 h-12 items-center justify-center rounded-card bg-idbi-light">
+            <Lock className="text-idbi-green" size={24} />
+          </span>
           <h2 className="text-lg font-bold text-idbi-green mb-3">{tc('declined_title')}</h2>
-          <p className="text-sm text-gray-700 mb-6">{tc('declined_body')}</p>
-          <button
-            onClick={() => setDeclined(false)}
-            className="w-full bg-idbi-green text-white py-2 rounded-xl text-sm font-medium hover:bg-idbi-dark transition-colors"
-          >
+          <p className="text-sm text-idbi-slate mb-6">{tc('declined_body')}</p>
+          <Button onClick={() => setDeclined(false)} className="w-full">
             {tc('declined_review_cta')}
-          </button>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="w-full border border-gray-300 text-gray-600 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 transition-colors mt-3"
-          >
+          </Button>
+          <Button variant="secondary" onClick={() => router.push('/dashboard')} className="w-full mt-3">
             {tc('declined_exit_cta')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -70,7 +68,7 @@ export default function AdvisorPage() {
         <AvatarChat initialMessage={nudgeSeed} />
       </div>
 
-      <p className="text-xs text-gray-500 text-center mt-1">
+      <p className="text-xs text-idbi-faint text-center mt-1">
         {t('ai_disclaimer')}
       </p>
 

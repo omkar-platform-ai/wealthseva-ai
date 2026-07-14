@@ -5,6 +5,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ChevronDown, Info, Palmtree, Home, GraduationCap, Gem, Target, LucideIcon } from 'lucide-react';
 import { formatINR } from '@/lib/format';
 import FadeIn from '@/components/FadeIn';
+import { cn, FOCUS_RING } from '@/lib/utils';
 
 interface Preset {
   id: string;
@@ -51,9 +52,11 @@ const PRESET_ICONS: Record<string, LucideIcon> = {
 
 const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
-const inputCls =
-  'w-full border-[1.5px] border-idbi-line rounded-[12px] px-3.5 py-3 text-sm bg-[#FAFCFB] text-idbi-ink focus:outline-none focus:border-idbi-green focus:bg-white transition-colors';
-const labelCls = 'block text-[12.5px] font-semibold text-idbi-muted mb-1.5';
+const inputCls = cn(
+  'w-full border-2 border-idbi-line rounded-field px-3.5 py-3 text-sm bg-idbi-surface text-idbi-ink transition-colors focus-visible:border-idbi-green focus-visible:bg-white',
+  FOCUS_RING,
+);
+const labelCls = 'block text-sm font-semibold text-idbi-muted mb-1.5';
 
 export default function GoalPlanner() {
   const t = useTranslations('goals');
@@ -140,22 +143,24 @@ export default function GoalPlanner() {
               <button
                 key={preset.id}
                 onClick={() => selectPreset(preset)}
-                className={`text-left rounded-2xl p-4 border-2 transition-all ${
+                className={cn(
+                  'text-left rounded-card p-4 border-2 transition-all',
+                  FOCUS_RING,
                   active
-                    ? 'border-idbi-green bg-[#EFF8F5] shadow-card'
-                    : 'border-idbi-line bg-white hover:border-idbi-green/50'
-                }`}
+                    ? 'border-idbi-green bg-idbi-mintSoft shadow-card'
+                    : 'border-idbi-line bg-white hover:border-idbi-green/50',
+                )}
               >
-                <div className="w-[38px] h-[38px] rounded-[11px] bg-idbi-light flex items-center justify-center mb-3">
+                <div className="w-[38px] h-[38px] rounded-tile bg-idbi-light flex items-center justify-center mb-3">
                   <Icon size={19} className="text-idbi-green" />
                 </div>
                 <div className="font-bold text-sm text-idbi-ink">
                   {PRESET_KEY_MAP[preset.id] ? t(PRESET_KEY_MAP[preset.id]) : preset.id}
                 </div>
-                <div className="text-[13px] text-idbi-green font-bold mt-0.5">
+                <div className="text-sm text-idbi-green font-bold mt-0.5">
                   {formatINR(preset.target_amount, locale)}
                 </div>
-                <div className="text-[11.5px] text-idbi-faint font-medium">
+                <div className="text-xs text-idbi-faint font-medium">
                   {preset.years} {t('years_away')}
                 </div>
               </button>
@@ -165,7 +170,7 @@ export default function GoalPlanner() {
       )}
 
       {/* Form */}
-      <div className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6 space-y-5">
+      <div className="bg-white rounded-card border border-idbi-line shadow-card p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>{t('goal_name_label')}</label>
@@ -188,11 +193,13 @@ export default function GoalPlanner() {
         <button
           onClick={handleSubmit}
           disabled={!canSubmit}
-          className={`w-full rounded-[14px] py-3.5 font-bold text-[15px] text-white transition-all ${
+          className={cn(
+            'w-full rounded-field py-3.5 font-bold text-base text-white transition-all',
+            FOCUS_RING,
             canSubmit
-              ? 'bg-gradient-to-r from-idbi-green to-idbi-dark shadow-[0_12px_24px_-12px_rgba(0,131,108,.7)] hover:brightness-95'
-              : 'bg-[#A9C7BF] cursor-not-allowed'
-          }`}
+              ? 'bg-gradient-to-r from-idbi-green to-idbi-dark shadow-glow hover:brightness-95'
+              : 'bg-idbi-mintDim cursor-not-allowed',
+          )}
         >
           {submitting ? tCommon('loading') : t('calculate_button')}
         </button>
@@ -204,19 +211,19 @@ export default function GoalPlanner() {
       {result && (
         <FadeIn className="space-y-4">
           {(result.projections ?? []).map((proj, i) => (
-            <div key={i} className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6">
+            <div key={i} className="bg-white rounded-card border border-idbi-line shadow-card p-6">
               <h3 className="font-extrabold text-idbi-ink text-lg mb-4">{proj.name}</h3>
 
               <div className="grid grid-cols-2 gap-3.5 mb-6">
-                <div className="bg-idbi-light rounded-[15px] p-[18px]">
-                  <div className="text-[12px] font-semibold text-idbi-muted mb-1.5">{t('monthly_sip_label')}</div>
-                  <div className="text-[22px] font-extrabold text-idbi-green tracking-tight">
+                <div className="bg-idbi-light rounded-card p-[18px]">
+                  <div className="text-xs font-semibold text-idbi-muted mb-1.5">{t('monthly_sip_label')}</div>
+                  <div className="text-xl font-extrabold text-idbi-green tracking-tight tabular-nums">
                     {formatINR(proj.monthly_sip, locale)}
                   </div>
                 </div>
-                <div className="bg-[#FFF3E6] rounded-[15px] p-[18px]">
-                  <div className="text-[12px] font-semibold text-idbi-muted mb-1.5">{t('projected_value_label')}</div>
-                  <div className="text-[22px] font-extrabold text-idbi-orange tracking-tight">
+                <div className="bg-idbi-warm rounded-card p-[18px]">
+                  <div className="text-xs font-semibold text-idbi-muted mb-1.5">{t('projected_value_label')}</div>
+                  <div className="text-xl font-extrabold text-idbi-orange tracking-tight tabular-nums">
                     {formatINR(proj.projected_corpus, locale)}
                   </div>
                 </div>
@@ -224,8 +231,8 @@ export default function GoalPlanner() {
 
               {proj.yearly_data.length > 0 && (
                 <div>
-                  <div className="text-[13px] font-bold text-idbi-slate mb-3">{t('corpus_chart_label')}</div>
-                  <div className="bg-[#FBFDFC] border border-idbi-line rounded-[15px] p-3">
+                  <div className="text-sm font-bold text-idbi-slate mb-3">{t('corpus_chart_label')}</div>
+                  <div className="bg-idbi-surfaceAlt border border-idbi-line rounded-card p-3">
                     <ResponsiveContainer width="100%" height={200}>
                       <AreaChart data={proj.yearly_data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
                         <defs>
@@ -254,7 +261,7 @@ export default function GoalPlanner() {
                   <button
                     onClick={() => setOpenTrace(openTrace === i ? null : i)}
                     aria-expanded={openTrace === i}
-                    className="w-full flex items-center gap-2 text-sm font-bold text-idbi-green"
+                    className={cn('w-full flex items-center gap-2 text-sm font-bold text-idbi-green', FOCUS_RING)}
                   >
                     <Info size={16} />
                     {t('why_button')}
@@ -283,20 +290,20 @@ export default function GoalPlanner() {
           ))}
 
           {/* Total + advice */}
-          <div className="bg-white rounded-[20px] border border-idbi-line shadow-card p-6 space-y-4">
+          <div className="bg-white rounded-card border border-idbi-line shadow-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-idbi-muted font-medium">{t('total_monthly_label')}</span>
-              <span className="text-[26px] font-extrabold text-idbi-green tracking-tight">
+              <span className="text-2xl font-extrabold text-idbi-green tracking-tight tabular-nums">
                 {formatINR(result.total_monthly_required, locale)}
               </span>
             </div>
             {result.summary && (
               <div className="border-t border-idbi-line pt-4 flex gap-3">
-                <div className="w-8 h-8 shrink-0 rounded-[10px] bg-idbi-orange flex items-center justify-center">
+                <div className="w-8 h-8 shrink-0 rounded-tile bg-idbi-orange flex items-center justify-center">
                   <Info size={16} className="text-white" />
                 </div>
                 <div>
-                  <div className="text-[12.5px] font-bold text-idbi-orange mb-1">{t('advice_label')}</div>
+                  <div className="text-sm font-bold text-idbi-orange mb-1">{t('advice_label')}</div>
                   <p className="text-sm text-idbi-slate leading-relaxed">{result.summary}</p>
                 </div>
               </div>

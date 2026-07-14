@@ -2,9 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --idbi-green: #00836C;
-  --idbi-orange: #F37021;
+@layer components {
+  /* Keyboard focus ring — alias for the FOCUS_RING constant in lib/utils.ts.
+     Apply via className="focus-ring" or cn(FOCUS_RING, ...). */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-idbi-green focus-visible:ring-offset-2 focus-visible:ring-offset-idbi-bg;
+  }
 }
 
 body {
@@ -37,4 +40,14 @@ body {
   background: #CBD8D4;
   border-radius: 10px;
   border: 2px solid #F4F7F6;
+}
+
+/* Respect users who prefer reduced motion (safety net for CSS animations). */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

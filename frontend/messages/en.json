@@ -1,4 +1,28 @@
 {
+  "landing": {
+    "badge": "AI-assisted · Human-overseen",
+    "headline": "Wealth guidance that speaks your language.",
+    "subheadline": "Shreya is your AI wealth advisor from IDBI Bank — SIP planning, portfolio checks, and honest, explainable advice in English, हिंदी, मराठी, தமிழ் and বাংলা.",
+    "cta_primary": "Talk to Shreya",
+    "cta_secondary": "Take the 2-minute risk quiz",
+    "trust_sebi": "Aligned with SEBI investor-protection norms",
+    "trust_oversight": "AI-assisted, human-overseen",
+    "trust_privacy": "Your data stays private — DPDP-ready consent",
+    "feature_voice_title": "Speaks your language",
+    "feature_voice_desc": "Ask by voice or text in your mother tongue. Switch languages mid-conversation — Shreya keeps up.",
+    "feature_explain_title": "Explains every number",
+    "feature_explain_desc": "See the data, the rule and the maths behind each recommendation. No black boxes.",
+    "feature_moments_title": "Catches Money Moments",
+    "feature_moments_desc": "Idle cash, SIP shortfalls, tax-saving windows — Shreya flags what needs your attention.",
+    "how_title": "How it works",
+    "step1_title": "Set your risk profile",
+    "step1_desc": "Answer five quick questions to find your comfort with risk.",
+    "step2_title": "Talk to Shreya",
+    "step2_desc": "Ask about SIPs, goals or your portfolio — by voice or text.",
+    "step3_title": "Act with confidence",
+    "step3_desc": "Get clear, explainable steps you can act on today.",
+    "footer_note": "WealthSeva AI offers educational guidance, not a guarantee of returns. Consult a registered advisor before investing."
+  },
   "roadmap": {
     "title": "Product Roadmap",
     "subtitle": "What we've shipped for the demo — and where WealthSeva goes next.",
@@ -54,6 +78,8 @@
     "privacy_note": "Your answers stay on this device and are used only to tailor recommendations."
   },
   "risk": {
+    "submit_error": "Couldn't calculate your risk profile. Please try again.",
+    "retry": "Retry",
     "title": "Risk Profile Assessment",
     "step_label": "Step {current} of {total}",
     "question1": "I am comfortable with short-term losses in exchange for higher long-term returns.",
@@ -254,6 +280,8 @@
     "refresh": "Refresh"
   },
   "moments": {
+    "load_error": "Couldn't load Money Moments.",
+    "retry": "Retry",
     "title": "Money Moments",
     "severity_low": "Low",
     "severity_medium": "Medium",

@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { ChevronDown, Info, Sparkles, Check } from 'lucide-react';
+import { cn, FOCUS_RING } from '@/lib/utils';
+import { useToast } from '@/components/ui/Toast';
 
 // Allocation legend colours (kept on-brand: green/teal/orange family)
 const COLORS = ['#00836C', '#4FA9A7', '#F37021', '#F5C36B'];
@@ -28,9 +30,9 @@ interface RiskProfile {
 }
 
 const PROFILE_BADGE: Record<string, string> = {
-  conservative: 'bg-[#E4F4EC] text-[#1E7A4E]',
-  moderate: 'bg-[#FFF3D6] text-[#9A6C00]',
-  aggressive: 'bg-[#FDE7DD] text-[#C25A15]',
+  conservative: 'bg-idbi-risk-conservative-bg text-idbi-risk-conservative-text',
+  moderate: 'bg-idbi-risk-moderate-bg text-idbi-risk-moderate-text',
+  aggressive: 'bg-idbi-risk-aggressive-bg text-idbi-risk-aggressive-text',
 };
 
 // Backend returns English asset-class names as the allocation dict keys
@@ -49,6 +51,7 @@ const ALLOC_LABEL_KEY: Record<string, string> = {
 export default function RiskQuiz() {
   const t = useTranslations('risk');
   const locale = useLocale();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -107,9 +110,15 @@ export default function RiskQuiz() {
         setResult(data);
         setIsAnalyzing(false);
       }, 1200);
-    } catch (error) {
-      console.error('Error submitting quiz:', error);
+    } catch {
+      // Drop out of the analysing state and offer a retry, rather than
+      // stranding the user on the last question with no feedback.
       setIsAnalyzing(false);
+      toast({
+        tone: 'error',
+        message: t('submit_error'),
+        action: { label: t('retry'), onClick: () => submitQuiz(quizAnswers) },
+      });
     }
   };
 
@@ -154,15 +163,16 @@ export default function RiskQuiz() {
             {t('title')}
           </p>
           <div
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold capitalize ${
-              PROFILE_BADGE[result.profile] ?? PROFILE_BADGE.moderate
-            }`}
+            className={cn(
+              'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold capitalize',
+              PROFILE_BADGE[result.profile] ?? PROFILE_BADGE.moderate,
+            )}
           >
             {t(profileKey as 'result_conservative' | 'result_moderate' | 'result_aggressive')}
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-idbi-line shadow-card p-6">
+        <div className="bg-white rounded-card border border-idbi-line shadow-card p-6">
           <h3 className="text-base font-bold text-idbi-ink mb-4">{t('explanation_label')}</h3>
           <div className="grid md:grid-cols-2 gap-6 items-center">
             <div>
@@ -205,11 +215,11 @@ export default function RiskQuiz() {
         </div>
 
         {result.trace && (
-          <div className="bg-white rounded-2xl border border-idbi-line shadow-card p-6">
+          <div className="bg-white rounded-card border border-idbi-line shadow-card p-6">
             <button
               onClick={() => setShowWhy(!showWhy)}
               aria-expanded={showWhy}
-              className="w-full flex items-center gap-2 text-sm font-bold text-idbi-green"
+              className={cn('w-full flex items-center gap-2 text-sm font-bold text-idbi-green', FOCUS_RING)}
             >
               <Info size={16} />
               {t('why_button')}
@@ -243,7 +253,7 @@ export default function RiskQuiz() {
 
         <button
           onClick={retakeQuiz}
-          className="w-full py-3.5 rounded-2xl bg-idbi-green hover:bg-idbi-dark text-white font-bold transition-colors min-h-[54px]"
+          className={cn('w-full py-3.5 rounded-field bg-idbi-green hover:bg-idbi-dark text-white font-bold transition-colors min-h-[54px]', FOCUS_RING)}
         >
           {t('retake_button')}
         </button>
@@ -283,16 +293,19 @@ export default function RiskQuiz() {
               <button
                 key={option.value}
                 onClick={() => handleAnswer(option.value)}
-                className={`group w-full text-left py-4 px-5 rounded-2xl border-2 font-medium transition-all duration-200 min-h-[56px] flex items-center gap-3 ${
+                className={cn(
+                  'group w-full text-left py-4 px-5 rounded-field border-2 font-medium transition-all duration-200 min-h-[56px] flex items-center gap-3',
+                  FOCUS_RING,
                   isSel
                     ? 'border-idbi-green bg-idbi-light text-idbi-green'
-                    : 'border-idbi-line bg-white hover:border-idbi-green/50 hover:bg-[#FAFCFB] text-idbi-slate'
-                }`}
+                    : 'border-idbi-line bg-white hover:border-idbi-green/50 hover:bg-idbi-surface text-idbi-slate',
+                )}
               >
                 <span
-                  className={`shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-colors ${
-                    isSel ? 'bg-idbi-green text-white' : 'bg-idbi-light text-idbi-green group-hover:bg-idbi-green group-hover:text-white'
-                  }`}
+                  className={cn(
+                    'shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-sm font-bold transition-colors',
+                    isSel ? 'bg-idbi-green text-white' : 'bg-idbi-light text-idbi-green group-hover:bg-idbi-green group-hover:text-white',
+                  )}
                 >
                   {isSel ? <Check size={15} /> : option.value}
                 </span>

@@ -1,8 +1,10 @@
 'use client';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter, usePathname } from '../navigation';
-import { useState } from 'react';
-import { Globe } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Globe, Check } from 'lucide-react';
+import { cn, FOCUS_RING } from '@/lib/utils';
+import { useToast } from '@/components/ui/Toast';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English' },
@@ -17,8 +19,26 @@ export default function LanguageSwitcher() {
   const t = useTranslations('nav');
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [toast, setToast] = useState<{ show: boolean; message: string }>({ show: false, message: '' });
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click / Escape.
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   const switchLanguage = (newLocale: string) => {
     // next-intl's usePathname() strips the query string, so re-attach the
@@ -27,34 +47,28 @@ export default function LanguageSwitcher() {
     const search = typeof window !== 'undefined' ? window.location.search : '';
     router.push(search ? `${pathname}${search}` : pathname, { locale: newLocale });
     setOpen(false);
-    
-    // Show toast after switch
+
     const lang = LANGUAGES.find(l => l.code === newLocale);
     if (lang) {
-      setTimeout(() => {
-        setToast({ show: true, message: t('switched_to', { language: lang.native }) });
-        setTimeout(() => setToast({ show: false, message: '' }), 2000);
-      }, 100);
+      setTimeout(
+        () => toast({ tone: 'success', message: t('switched_to', { language: lang.native }), duration: 2500 }),
+        100,
+      );
     }
   };
 
   const current = LANGUAGES.find(l => l.code === locale);
 
   return (
-    <>
-    {toast.show && (
-      <div 
-        key={toast.message}
-        className="fixed top-20 right-4 bg-idbi-green text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300"
-        style={{ animation: 'slideInDown 0.3s ease-out' }}
-      >
-        {toast.message}
-      </div>
-    )}
-    <div className="relative">
+    <div className="relative" ref={wrapRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/40 text-white hover:bg-white/10 transition-colors font-medium text-sm"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={cn(
+          'flex items-center gap-2 px-3 py-2 rounded-field border border-white/40 text-white hover:bg-white/10 transition-colors font-medium text-sm',
+          FOCUS_RING,
+        )}
       >
         <Globe size={16} />
         <span>{current?.native ?? 'EN'}</span>
@@ -62,22 +76,31 @@ export default function LanguageSwitcher() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-44 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 z-50">
-          {LANGUAGES.map((lang) => (
+        <div
+          role="listbox"
+          className="absolute right-0 mt-2 w-44 max-w-[calc(100vw-2rem)] bg-white rounded-field shadow-pop border border-idbi-line z-50 overflow-hidden"
+        >
+          {LANGUAGES.map(lang => (
             <button
               key={lang.code}
+              role="option"
+              aria-selected={lang.code === locale}
               onClick={() => switchLanguage(lang.code)}
-              className={`w-full text-left px-4 py-3 hover:bg-idbi-light hover:text-idbi-green transition-colors first:rounded-t-xl last:rounded-b-xl flex justify-between items-center ${
-                lang.code === locale ? 'bg-idbi-light text-idbi-green font-semibold' : 'text-gray-900'
-              }`}
+              className={cn(
+                'w-full text-left px-4 py-3 hover:bg-idbi-light hover:text-idbi-green transition-colors flex justify-between items-center',
+                FOCUS_RING,
+                lang.code === locale ? 'bg-idbi-light text-idbi-green font-semibold' : 'text-idbi-ink',
+              )}
             >
               <span>{lang.native}</span>
-              <span className="text-xs text-gray-500">{lang.label}</span>
+              <span className="flex items-center gap-1.5">
+                {lang.code === locale && <Check size={13} />}
+                <span className="text-xs text-idbi-faint">{lang.label}</span>
+              </span>
             </button>
           ))}
         </div>
       )}
     </div>
-    </>
   );
 }

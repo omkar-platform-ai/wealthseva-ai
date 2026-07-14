@@ -5,7 +5,9 @@ import { Mic, Send, Volume2, VolumeX, X, RotateCcw, Headset } from 'lucide-react
 import { motion } from 'framer-motion';
 import { speak, createRecognizer, SpeakHandle, Recognizer } from '@/lib/voice';
 import EscalateAdvisorModal from '@/components/EscalateAdvisorModal';
+import ShreyaAvatar from '@/components/ShreyaAvatar';
 import { useRouter, usePathname } from '../navigation';
+import { cn, FOCUS_RING } from '@/lib/utils';
 
 interface Message {
   // 'divider' entries mark a mid-conversation language switch; they are
@@ -259,30 +261,23 @@ export default function AvatarChat({ initialMessage }: Props) {
     );
 
   return (
-    <div className="flex flex-col bg-white rounded-[22px] border border-idbi-line shadow-pop overflow-hidden h-[600px]">
+    <div className="flex flex-col bg-white rounded-card border border-idbi-line shadow-pop overflow-hidden h-[600px]">
       {/* Avatar header */}
       <div className="bg-gradient-to-br from-idbi-green to-idbi-deep px-5 py-4 flex items-center gap-3.5">
-        <div className="relative w-[46px] h-[46px] shrink-0">
-          {avatarState !== 'idle' && (
-            <motion.span
-              className={`absolute inset-0 rounded-full ${avatarState === 'speaking' ? 'bg-idbi-orange' : 'bg-emerald-400'}`}
-              animate={{ scale: [1, 1.6], opacity: [0.6, 0] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
-            />
-          )}
-          <div className="relative w-[46px] h-[46px] rounded-full bg-gradient-to-br from-idbi-orange to-[#F79B5E] flex items-center justify-center text-white font-bold text-lg">
-            S
-          </div>
-        </div>
+        <ShreyaAvatar
+          size="md"
+          state={loading ? 'thinking' : avatarState}
+          className="shrink-0 text-idbi-mint"
+        />
         <div>
           <p className="text-white font-bold text-base leading-tight">Shreya</p>
-          <p className="text-[#BFE6DC] text-xs font-medium mt-0.5">{statusLabel}</p>
+          <p className="text-idbi-mint text-xs font-medium mt-0.5">{statusLabel}</p>
         </div>
         <div className="ml-auto flex items-center gap-3">
           <button
             onClick={resetChat}
             disabled={loading}
-            className="text-[#BFE6DC] hover:text-white transition-colors disabled:opacity-50"
+            className={cn('text-idbi-mint hover:text-white transition-colors disabled:opacity-50', FOCUS_RING)}
             aria-label={t('reset_label' as never)}
             title={t('reset_label' as never)}
           >
@@ -290,7 +285,7 @@ export default function AvatarChat({ initialMessage }: Props) {
           </button>
           <button
             onClick={() => setEscalateOpen(true)}
-            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-[11.5px] font-semibold pl-2 pr-2.5 py-1 rounded-full transition-colors"
+            className={cn('flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-semibold pl-2 pr-2.5 py-1 rounded-full transition-colors', FOCUS_RING)}
             aria-label={t('escalate_chip' as never)}
             title={t('escalate_chip' as never)}
           >
@@ -299,14 +294,14 @@ export default function AvatarChat({ initialMessage }: Props) {
           </button>
           <button
             onClick={toggleVoice}
-            className="text-[#BFE6DC] hover:text-white transition-colors"
+            className={cn('text-idbi-mint hover:text-white transition-colors', FOCUS_RING)}
             aria-label={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
             title={voiceOn ? t('voice_off' as never) : t('voice_on' as never)}
           >
             {voiceOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
           </button>
           <span className={`w-2 h-2 rounded-full ${health.healthy ? 'bg-emerald-400 shadow-[0_0_0_3px_rgba(93,217,168,.25)]' : 'bg-red-500'}`} />
-          {!health.healthy && <span className="text-[11px] text-red-100">{t('reconnecting' as never)}</span>}
+          {!health.healthy && <span className="text-xs text-red-100">{t('reconnecting' as never)}</span>}
         </div>
       </div>
 
@@ -327,7 +322,7 @@ export default function AvatarChat({ initialMessage }: Props) {
                   <button
                     key={chip.key}
                     onClick={() => sendMessage(chip.text)}
-                    className="text-[13px] font-semibold bg-idbi-light text-idbi-green px-4 py-2.5 rounded-full hover:bg-idbi-green hover:text-white transition-colors"
+                    className={cn('text-sm font-semibold bg-idbi-light text-idbi-green px-4 py-2.5 rounded-full hover:bg-idbi-green hover:text-white transition-colors', FOCUS_RING)}
                   >
                     {chip.text}
                   </button>
@@ -335,7 +330,7 @@ export default function AvatarChat({ initialMessage }: Props) {
                 {/* Action chip — opens the escalation modal (not sent to the LLM) */}
                 <button
                   onClick={() => setEscalateOpen(true)}
-                  className="flex items-center gap-1.5 text-[13px] font-semibold border-[1.5px] border-idbi-green text-idbi-green px-4 py-2.5 rounded-full hover:bg-idbi-light transition-colors"
+                  className={cn('flex items-center gap-1.5 text-sm font-semibold border-2 border-idbi-green text-idbi-green px-4 py-2.5 rounded-full hover:bg-idbi-light transition-colors', FOCUS_RING)}
                 >
                   <Headset size={14} />
                   {t('escalate_chip' as never)}
@@ -348,17 +343,18 @@ export default function AvatarChat({ initialMessage }: Props) {
           msg.role === 'divider' ? (
             <div key={i} className="flex items-center gap-3 py-1" role="separator">
               <span className="flex-1 h-px bg-idbi-line" />
-              <span className="text-[11px] font-medium text-idbi-faint">{msg.content}</span>
+              <span className="text-xs font-medium text-idbi-faint">{msg.content}</span>
               <span className="flex-1 h-px bg-idbi-line" />
             </div>
           ) : (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className="max-w-[76%] flex flex-col gap-1.5">
-              <div className={`px-4 py-3 rounded-[18px] text-sm leading-relaxed ${
+              <div className={cn(
+                'px-4 py-3 rounded-field text-sm leading-relaxed',
                 msg.role === 'user'
                   ? 'bg-idbi-green text-white rounded-br-[5px]'
-                  : 'bg-[#F1F5F3] text-idbi-slate rounded-bl-[5px]'
-              }`}>
+                  : 'bg-idbi-tint text-idbi-slate rounded-bl-[5px]',
+              )}>
                 {msg.content || (
                   <span className="inline-flex gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-idbi-green" style={{ animation: 'ws-dot 1.2s infinite' }} />
@@ -370,12 +366,12 @@ export default function AvatarChat({ initialMessage }: Props) {
               {msg.role === 'assistant' && msg.sources && msg.sources.length > 0 && (
                 <div className="flex gap-1.5 flex-wrap px-1">
                   {msg.sources.includes('kb') && (
-                    <span className="text-[10.5px] font-medium text-idbi-faint bg-[#F1F5F3] px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-medium text-idbi-faint bg-idbi-tint px-2.5 py-1 rounded-full">
                       📚 {t('source_kb')}
                     </span>
                   )}
                   {msg.sources.includes('account') && (
-                    <span className="text-[10.5px] font-medium text-idbi-faint bg-[#F1F5F3] px-2.5 py-1 rounded-full">
+                    <span className="text-xs font-medium text-idbi-faint bg-idbi-tint px-2.5 py-1 rounded-full">
                       💼 {t('source_account')}
                     </span>
                   )}
@@ -394,21 +390,21 @@ export default function AvatarChat({ initialMessage }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mx-3.5 mb-2 flex items-center gap-2.5 bg-idbi-light rounded-[13px] px-3.5 py-2.5"
+          className="mx-3.5 mb-2 flex items-center gap-2.5 bg-idbi-light rounded-field px-3.5 py-2.5"
         >
-          <p className="flex-1 text-[12.5px] font-medium text-idbi-slate">
+          <p className="flex-1 text-sm font-medium text-idbi-slate">
             {t('continuity_prompt', { language: NATIVE_NAMES[suggestedLocale] })}
           </p>
           <button
             onClick={() => router.push(pathname, { locale: suggestedLocale })}
-            className="shrink-0 text-[12.5px] font-bold text-white bg-idbi-green px-3.5 py-1.5 rounded-full hover:bg-idbi-dark transition-colors"
+            className={cn('shrink-0 text-sm font-bold text-white bg-idbi-green px-3.5 py-1.5 rounded-full hover:bg-idbi-dark transition-colors', FOCUS_RING)}
           >
             {t('continuity_switch')}
           </button>
           <button
             onClick={() => setSuggestedLocale(null)}
             aria-label={t('continuity_dismiss')}
-            className="shrink-0 text-idbi-faint hover:text-idbi-slate transition-colors"
+            className={cn('shrink-0 text-idbi-faint hover:text-idbi-slate transition-colors', FOCUS_RING)}
           >
             <X size={14} />
           </button>
@@ -422,18 +418,20 @@ export default function AvatarChat({ initialMessage }: Props) {
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && sendMessage()}
           placeholder={t('placeholder')}
-          className="flex-1 min-w-0 border-[1.5px] border-idbi-line rounded-[14px] px-4 py-3 text-sm bg-[#FAFCFB] focus:outline-none focus:border-idbi-green focus:bg-white transition-colors"
+          className={cn('flex-1 min-w-0 border-2 border-idbi-line rounded-field px-4 py-3 text-sm bg-idbi-surface transition-colors focus-visible:border-idbi-green focus-visible:bg-white', FOCUS_RING)}
           disabled={loading}
         />
         {sttSupported && (
           <button
             onClick={toggleMic}
             disabled={loading}
-            className={`shrink-0 w-11 h-11 rounded-[13px] flex items-center justify-center transition-colors disabled:opacity-50 ${
+            className={cn(
+              'shrink-0 w-11 h-11 rounded-field flex items-center justify-center transition-colors disabled:opacity-50',
+              FOCUS_RING,
               avatarState === 'listening'
                 ? 'bg-red-500 text-white animate-pulse'
-                : 'border-[1.5px] border-idbi-line text-idbi-green hover:bg-idbi-light'
-            }`}
+                : 'border-2 border-idbi-line text-idbi-green hover:bg-idbi-light',
+            )}
             aria-label={t('mic_label' as never)}
             title={t('mic_label' as never)}
           >
@@ -443,7 +441,7 @@ export default function AvatarChat({ initialMessage }: Props) {
         <button
           onClick={() => sendMessage()}
           disabled={loading || !input.trim() || !health.healthy}
-          className="shrink-0 w-11 h-11 rounded-[13px] bg-idbi-green text-white flex items-center justify-center hover:bg-idbi-dark disabled:opacity-50 transition-colors shadow-[0_8px_16px_-8px_rgba(0,131,108,.8)]"
+          className={cn('shrink-0 w-11 h-11 rounded-field bg-idbi-green text-white flex items-center justify-center hover:bg-idbi-dark disabled:opacity-50 transition-colors shadow-glow', FOCUS_RING)}
         >
           <Send size={18} />
         </button>

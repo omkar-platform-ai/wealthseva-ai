@@ -2,6 +2,9 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import ShreyaAvatar from '@/components/ShreyaAvatar';
 
 // Keep identical to _DEMO_SIP_HINDI in backend/routers/chat.py.
 // Compliance: fund *category*, never a specific fund name.
@@ -23,6 +26,14 @@ const PORTFOLIO = [
 
 const TOTAL_PORTFOLIO = PORTFOLIO.reduce((s, h) => s + h.value, 0);
 
+// On-brand chip treatment per asset category (replaces the old emerald/blue/sky/amber set).
+const CATEGORY_CHIP: Record<string, string> = {
+  Equity: 'bg-idbi-light text-idbi-green',
+  Debt: 'bg-idbi-mintSoft text-idbi-deep',
+  Liquid: 'bg-idbi-tint text-idbi-slate',
+  Gold: 'bg-idbi-warm text-idbi-orangeDark',
+};
+
 function formatINR(n: number) {
   return `₹${n.toLocaleString('en-IN')}`;
 }
@@ -36,9 +47,9 @@ function StepProgress({ step }: { step: number }) {
     <div className="mb-8">
       <div className="flex justify-between text-sm mb-2">
         <span className="font-semibold text-idbi-green">{t('step_counter', { step })}</span>
-        <span className="text-gray-500">{t('percent_complete', { percent: Math.round((step / 5) * 100) })}</span>
+        <span className="text-idbi-muted tabular-nums">{t('percent_complete', { percent: Math.round((step / 5) * 100) })}</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
+      <div className="w-full bg-idbi-track rounded-full h-2 mb-3">
         <div
           className="bg-idbi-green h-2 rounded-full transition-all duration-700"
           style={{ width: `${(step / 5) * 100}%` }}
@@ -48,7 +59,7 @@ function StepProgress({ step }: { step: number }) {
         {stepLabels.map((label, i) => (
           <span
             key={i}
-            className={`text-xs transition-colors ${i + 1 <= step ? 'text-idbi-green font-semibold' : 'text-gray-400'}`}
+            className={`text-xs transition-colors ${i + 1 <= step ? 'text-idbi-green font-semibold' : 'text-idbi-faint'}`}
           >
             {label}
           </span>
@@ -63,28 +74,26 @@ function StepProgress({ step }: { step: number }) {
 function Step1Intro({ onStart }: { onStart: () => void }) {
   const t = useTranslations('demo');
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-      <div className="w-24 h-24 bg-gradient-to-br from-idbi-green to-idbi-teal rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-lg">
+    <div className="bg-white rounded-card border border-idbi-line shadow-card p-8 text-center">
+      <div className="w-24 h-24 bg-gradient-to-br from-idbi-green to-idbi-teal rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-card">
         👨‍💼
       </div>
-      <h2 className="text-3xl font-bold text-idbi-green mb-1">{t('s1_title')}</h2>
-      <p className="text-gray-500 mb-6">{t('s1_subtitle')}</p>
-      <div className="bg-idbi-light rounded-xl p-5 text-left text-sm text-gray-700 mb-6 space-y-2 max-w-sm mx-auto">
+      <h2 className="text-2xl font-extrabold tracking-tight text-idbi-ink mb-1">{t('s1_title')}</h2>
+      <p className="text-idbi-muted mb-6">{t('s1_subtitle')}</p>
+      <div className="bg-idbi-light rounded-field p-5 text-left text-sm text-idbi-slate mb-6 space-y-2 max-w-sm mx-auto">
         <p>💼 {t('s1_income_label')}: <strong>{t('s1_income_value')}</strong></p>
         <p>💰 {t('s1_invest_label')}: <strong>{t('s1_invest_value')}</strong> {t('s1_invest_note')}</p>
         <p>🎯 {t('s1_goal_label')}: {t('s1_goal_pre')} <strong>{t('s1_goal_value')}</strong></p>
         <p>📊 {t('s1_risk_label')}: <strong>{t('s1_risk_value')}</strong></p>
         <p>🗣️ {t('s1_lang_label')}: <strong>{t('s1_lang_value')}</strong></p>
       </div>
-      <p className="text-gray-500 text-sm mb-8 max-w-md mx-auto">
+      <p className="text-idbi-muted text-sm mb-8 max-w-md mx-auto">
         {t('s1_watch')}
       </p>
-      <button
-        onClick={onStart}
-        className="bg-idbi-green text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-idbi-dark transition-colors shadow-md"
-      >
-        {t('s1_start')} →
-      </button>
+      <Button size="lg" onClick={onStart}>
+        {t('s1_start')}
+        <ArrowRight size={18} />
+      </Button>
     </div>
   );
 }
@@ -114,55 +123,53 @@ function Step2RiskQuiz({ onComplete }: { onComplete: () => void }) {
 
   if (done) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+      <div className="bg-white rounded-card border border-idbi-line shadow-card p-8 text-center">
         <div className="text-6xl mb-4">✅</div>
-        <h2 className="text-2xl font-bold text-idbi-green mb-2">{t('s2_result_title')}</h2>
-        <p className="text-gray-600 mb-6">{t('s2_result_desc')}</p>
+        <h2 className="text-xl font-bold text-idbi-ink mb-2">{t('s2_result_title')}</h2>
+        <p className="text-idbi-muted mb-6">{t('s2_result_desc')}</p>
         <div className="flex gap-3 justify-center flex-wrap mb-8">
           {[
-            [t('s2_alloc_equity'), '60%', 'bg-emerald-100 text-emerald-800'],
-            [t('s2_alloc_debt'), '30%', 'bg-blue-100 text-blue-800'],
-            [t('s2_alloc_gold'), '10%', 'bg-amber-100 text-amber-800'],
+            [t('s2_alloc_equity'), '60%', CATEGORY_CHIP.Equity],
+            [t('s2_alloc_debt'), '30%', CATEGORY_CHIP.Debt],
+            [t('s2_alloc_gold'), '10%', CATEGORY_CHIP.Gold],
           ].map(([cat, pct, cls]) => (
             <div key={cat} className={`px-5 py-2 rounded-full text-sm font-semibold ${cls}`}>
               {cat}: {pct}
             </div>
           ))}
         </div>
-        <button
-          onClick={onComplete}
-          className="bg-idbi-green text-white px-8 py-3 rounded-xl font-bold text-base hover:bg-idbi-dark transition-colors shadow-md"
-        >
-          {t('next_step')} →
-        </button>
+        <Button onClick={onComplete}>
+          {t('next_step')}
+          <ArrowRight size={16} />
+        </Button>
       </div>
     );
   }
 
   const q = quiz[qIdx];
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
+    <div className="bg-white rounded-card border border-idbi-line shadow-card p-8">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-idbi-green">{t('s2_title')}</h2>
-        <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">{t('s2_counter', { n: qIdx + 1 })}</span>
+        <h2 className="text-xl font-bold text-idbi-ink">{t('s2_title')}</h2>
+        <span className="text-sm text-idbi-muted bg-idbi-tint px-3 py-1 rounded-full tabular-nums">{t('s2_counter', { n: qIdx + 1 })}</span>
       </div>
-      <div className="w-full bg-gray-100 rounded-full h-1.5 mb-6">
+      <div className="w-full bg-idbi-tint rounded-full h-1.5 mb-6">
         <div
           className="bg-idbi-orange h-1.5 rounded-full transition-all duration-500"
           style={{ width: `${((qIdx + 1) / 5) * 100}%` }}
         />
       </div>
-      <p className="text-lg font-medium text-gray-800 mb-6">{q.q}</p>
+      <p className="text-lg font-medium text-idbi-ink mb-6">{q.q}</p>
       <div className="space-y-3">
         {q.opts.map((opt, i) => {
           const isSelected = highlighted === i;
           return (
             <div
               key={i}
-              className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+              className={`p-4 rounded-field border-2 transition-all duration-300 ${
                 isSelected
                   ? 'border-idbi-green bg-idbi-light font-semibold text-idbi-green'
-                  : 'border-gray-200 text-gray-600'
+                  : 'border-idbi-line text-idbi-muted'
               }`}
             >
               <span className="font-bold mr-2">{['A', 'B', 'C', 'D'][i]}.</span>
@@ -192,10 +199,10 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
 
   if (uploading) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+      <div className="bg-white rounded-card border border-idbi-line shadow-card p-8 text-center">
         <div className="text-4xl mb-4 animate-bounce">📂</div>
-        <h2 className="text-xl font-bold text-idbi-green mb-2">{t('s3_uploading')}</h2>
-        <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+        <h2 className="text-xl font-bold text-idbi-ink mb-2">{t('s3_uploading')}</h2>
+        <div className="w-full bg-idbi-track rounded-full h-2 mt-4">
           <div className="bg-idbi-orange h-2 rounded-full animate-pulse w-3/4" />
         </div>
       </div>
@@ -203,41 +210,34 @@ function Step3Portfolio({ onComplete }: { onComplete: () => void }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
+    <div className="bg-white rounded-card border border-idbi-line shadow-card p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-idbi-green">{t('s3_title')}</h2>
-        <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">✓ {t('s3_loaded_badge')}</span>
+        <h2 className="text-xl font-bold text-idbi-ink">{t('s3_title')}</h2>
+        <span className="bg-idbi-light text-idbi-green text-xs font-semibold px-3 py-1 rounded-full">✓ {t('s3_loaded_badge')}</span>
       </div>
-      <div className="bg-idbi-light rounded-xl p-4 mb-4 flex justify-between items-center">
-        <span className="text-gray-600 text-sm">{t('s3_total_label')}</span>
-        <span className="text-2xl font-bold text-idbi-green">{formatINR(TOTAL_PORTFOLIO)}</span>
+      <div className="bg-idbi-light rounded-field p-4 mb-4 flex justify-between items-center">
+        <span className="text-idbi-muted text-sm">{t('s3_total_label')}</span>
+        <span className="text-2xl font-bold text-idbi-green tabular-nums">{formatINR(TOTAL_PORTFOLIO)}</span>
       </div>
       <div className="space-y-3">
         {PORTFOLIO.map((h, i) => (
-          <div key={i} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+          <div key={i} className="flex items-center justify-between py-3 border-b border-idbi-line last:border-0">
             <div>
-              <p className="font-medium text-gray-800 text-sm">{h.name}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full mt-0.5 inline-block ${
-                h.category === 'Equity' ? 'bg-emerald-100 text-emerald-700'
-                : h.category === 'Debt' ? 'bg-blue-100 text-blue-700'
-                : h.category === 'Liquid' ? 'bg-sky-100 text-sky-700'
-                : 'bg-amber-100 text-amber-700'
-              }`}>{catLabel(h.category)}</span>
+              <p className="font-medium text-idbi-ink text-sm">{h.name}</p>
+              <span className={`text-xs px-2 py-0.5 rounded-full mt-0.5 inline-block ${CATEGORY_CHIP[h.category] ?? CATEGORY_CHIP.Gold}`}>{catLabel(h.category)}</span>
             </div>
             <div className="text-right">
-              <p className="font-semibold text-gray-800 text-sm">{formatINR(h.value)}</p>
-              <p className="text-xs text-green-600 font-medium">+{h.gain}%</p>
+              <p className="font-semibold text-idbi-ink text-sm tabular-nums">{formatINR(h.value)}</p>
+              <p className="text-xs text-idbi-green font-medium tabular-nums">+{h.gain}%</p>
             </div>
           </div>
         ))}
       </div>
       <div className="mt-6 text-center">
-        <button
-          onClick={onComplete}
-          className="bg-idbi-green text-white px-8 py-3 rounded-xl font-bold text-base hover:bg-idbi-dark transition-colors shadow-md"
-        >
-          {t('next_step')} →
-        </button>
+        <Button onClick={onComplete}>
+          {t('next_step')}
+          <ArrowRight size={16} />
+        </Button>
       </div>
     </div>
   );
@@ -249,10 +249,10 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
   const t = useTranslations('demo');
   const fundSplit = t.raw('s4_fund_split') as string[];
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
+    <div className="bg-white rounded-card border border-idbi-line shadow-card p-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-idbi-green">{t('s4_title')}</h2>
-        <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-3 py-1 rounded-full">{t('s4_prefilled_badge')}</span>
+        <h2 className="text-xl font-bold text-idbi-ink">{t('s4_title')}</h2>
+        <span className="bg-idbi-warm text-idbi-orangeDark text-xs font-semibold px-3 py-1 rounded-full">{t('s4_prefilled_badge')}</span>
       </div>
       <div className="grid grid-cols-2 gap-4 mb-6">
         {[
@@ -261,30 +261,28 @@ function Step4Goals({ onComplete }: { onComplete: () => void }) {
           [t('s4_horizon_label'), t('s4_horizon_value')],
           [t('s4_earmarked_label'), t('s4_earmarked_value')],
         ].map(([label, value]) => (
-          <div key={label} className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-1">{label}</p>
-            <p className="font-bold text-gray-800">{value}</p>
+          <div key={label} className="bg-idbi-surface border border-idbi-line rounded-field p-4">
+            <p className="text-xs text-idbi-muted mb-1">{label}</p>
+            <p className="font-bold text-idbi-ink">{value}</p>
           </div>
         ))}
       </div>
-      <div className="bg-idbi-light rounded-xl p-5">
-        <p className="text-sm text-gray-600 mb-2">{t('s4_sip_label')}</p>
-        <p className="text-3xl font-bold text-idbi-green mb-1">{t('s4_sip_value')}</p>
-        <p className="text-xs text-gray-500 mb-3">{t('s4_sip_note')}</p>
+      <div className="bg-idbi-light rounded-field p-5">
+        <p className="text-sm text-idbi-muted mb-2">{t('s4_sip_label')}</p>
+        <p className="text-2xl font-extrabold text-idbi-green mb-1 tabular-nums">{t('s4_sip_value')}</p>
+        <p className="text-xs text-idbi-faint mb-3">{t('s4_sip_note')}</p>
         {/* Compliance: fund categories only, never specific fund names */}
-        <div className="bg-white rounded-lg p-3 text-xs text-gray-700 space-y-1">
+        <div className="bg-white rounded-tile p-3 text-xs text-idbi-slate space-y-1">
           {fundSplit.map((line, i) => (
             <p key={i}>{line}</p>
           ))}
         </div>
       </div>
       <div className="mt-6 text-center">
-        <button
-          onClick={onComplete}
-          className="bg-idbi-green text-white px-8 py-3 rounded-xl font-bold text-base hover:bg-idbi-dark transition-colors shadow-md"
-        >
-          {t('next_step')} →
-        </button>
+        <Button onClick={onComplete}>
+          {t('next_step')}
+          <ArrowRight size={16} />
+        </Button>
       </div>
     </div>
   );
@@ -307,22 +305,20 @@ function Step5HindiSIP() {
   const displayed = words.slice(0, count).join(' ');
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
+    <div className="bg-white rounded-card border border-idbi-line shadow-card p-8">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 bg-gradient-to-br from-idbi-green to-idbi-teal rounded-full flex items-center justify-center text-2xl shadow flex-shrink-0">
-          🤖
-        </div>
+        <ShreyaAvatar size="md" state={done ? 'idle' : 'speaking'} className="shrink-0 text-idbi-green" />
         <div>
-          <h2 className="text-xl font-bold text-idbi-green">WealthSeva AI</h2>
+          <h2 className="text-lg font-bold text-idbi-ink">WealthSeva AI</h2>
           {/* Intentional bilingual badge — this step showcases Hindi mode. */}
-          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
+          <span className="text-xs bg-idbi-warm text-idbi-orangeDark px-2 py-0.5 rounded-full font-medium">
             हिंदी मोड · Hindi Mode
           </span>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-idbi-light to-teal-50 rounded-xl p-6 min-h-[120px] mb-4">
-        <p className="text-gray-800 leading-relaxed text-base font-medium">
+      <div className="bg-gradient-to-br from-idbi-light to-idbi-mintSoft rounded-field p-6 min-h-[120px] mb-4">
+        <p className="text-idbi-ink leading-relaxed text-base font-medium">
           {displayed}
           {!done && (
             <span className="inline-block w-0.5 h-5 bg-idbi-green ml-0.5 align-middle animate-pulse" />
@@ -332,13 +328,13 @@ function Step5HindiSIP() {
 
       {done && (
         <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800">
+          <div className="bg-idbi-warmSoft border border-idbi-gold rounded-field p-4 text-sm text-idbi-slate">
             <strong>⚠️ {t('s5_disclosure_label')}</strong> {t('s5_disclosure_text')}
           </div>
-          <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
+          <div className="bg-idbi-light border border-idbi-green/20 rounded-field p-6 text-center">
             <div className="text-4xl mb-2">🎉</div>
-            <p className="text-green-700 font-bold text-lg">{t('s5_complete_title')}</p>
-            <p className="text-gray-500 text-sm mt-1">
+            <p className="text-idbi-green font-bold text-lg">{t('s5_complete_title')}</p>
+            <p className="text-idbi-muted text-sm mt-1">
               {t('s5_complete_desc')}
             </p>
           </div>
@@ -359,10 +355,10 @@ function DemoInner() {
 
   if (!isDemo) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <p className="text-gray-400 text-lg">
+      <div className="max-w-[680px] mx-auto px-5 py-16 text-center">
+        <p className="text-idbi-faint text-lg">
           {t.rich('not_demo_prompt', {
-            code: (chunks) => <code className="bg-gray-100 px-2 py-0.5 rounded">{chunks}</code>,
+            code: (chunks) => <code className="bg-idbi-tint px-2 py-0.5 rounded-tile">{chunks}</code>,
           })}
         </p>
       </div>
@@ -370,8 +366,8 @@ function DemoInner() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="mb-6 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm font-medium text-center">
+    <div className="max-w-2xl mx-auto px-5 sm:px-7 py-8">
+      <div className="mb-6 px-4 py-2.5 bg-idbi-warm border border-idbi-peach rounded-field text-idbi-orangeDark text-sm font-semibold text-center">
         🎬 {t('banner')}
       </div>
       <StepProgress step={step} />

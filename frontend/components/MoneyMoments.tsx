@@ -1,6 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { AlertTriangle } from 'lucide-react';
+import { cn, FOCUS_RING } from '@/lib/utils';
+import { useToast } from '@/components/ui/Toast';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { Button } from '@/components/ui/Button';
 
 interface WhyTrace {
   data_points: string[];
@@ -21,14 +26,14 @@ interface Nudge {
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:8000';
 
 const SEVERITY_CLASSES: Record<string, string> = {
-  high: 'border-idbi-orange bg-orange-50',
-  medium: 'border-amber-400 bg-amber-50',
+  high: 'border-idbi-orange bg-idbi-warm',
+  medium: 'border-idbi-gold bg-idbi-warmSoft',
   low: 'border-idbi-green bg-idbi-light',
 };
 
 const SEVERITY_BADGE: Record<string, string> = {
   high: 'bg-idbi-orange text-white',
-  medium: 'bg-amber-400 text-white',
+  medium: 'bg-idbi-gold text-idbi-inkGreen',
   low: 'bg-idbi-green text-white',
 };
 
@@ -44,22 +49,52 @@ interface Props {
 export default function MoneyMoments({ onNudgeSelect }: Props) {
   const t = useTranslations('moments');
   const locale = useLocale();
+  const { toast } = useToast();
   const [nudges, setNudges] = useState<Nudge[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
+  const [reload, setReload] = useState(0);
 
   // Re-fetch whenever the locale changes so nudge prose follows the language
   // selection. Figures are deterministic and identical across locales.
   useEffect(() => {
     setLoaded(false);
+    setError(false);
     fetch(`${BACKEND_URL}/api/nudges?language=${locale}`)
       .then(r => r.json())
       .then(d => setNudges(d.nudges ?? []))
-      .catch(() => {})
+      .catch(() => {
+        setError(true);
+        toast({
+          tone: 'error',
+          message: t('load_error'),
+          action: { label: t('retry'), onClick: () => setReload(x => x + 1) },
+        });
+      })
       .finally(() => setLoaded(true));
-  }, [locale]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, reload]);
 
-  if (!loaded || nudges.length === 0) return null;
+  // Still loading, or genuinely nothing to nudge about → stay quiet (this is a
+  // secondary, proactive widget). A load *failure*, however, is surfaced below.
+  if (!loaded) return null;
+  if (error) {
+    return (
+      <section className="mt-6">
+        <EmptyState
+          icon={<AlertTriangle size={20} />}
+          title={t('load_error')}
+          action={
+            <Button size="sm" variant="secondary" onClick={() => setReload(x => x + 1)}>
+              {t('retry')}
+            </Button>
+          }
+        />
+      </section>
+    );
+  }
+  if (nudges.length === 0) return null;
 
   return (
     <section className="mt-6">
@@ -70,7 +105,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
         {nudges.map(nudge => (
           <div
             key={nudge.id}
-            className={`rounded-[16px] border-l-4 p-4 ${SEVERITY_CLASSES[nudge.severity] ?? SEVERITY_CLASSES.low}`}
+            className={cn('rounded-card border-l-4 p-4', SEVERITY_CLASSES[nudge.severity] ?? SEVERITY_CLASSES.low)}
           >
             <div className="flex items-start gap-3">
               <span className="text-xl leading-none shrink-0" aria-hidden>
@@ -79,7 +114,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-semibold text-sm text-idbi-slate">{nudge.title}</p>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${SEVERITY_BADGE[nudge.severity]}`}>
+                  <span className={cn('text-xs font-bold px-2 py-0.5 rounded-full', SEVERITY_BADGE[nudge.severity])}>
                     {t(`severity_${nudge.severity}` as const)}
                   </span>
                 </div>
@@ -87,20 +122,20 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
 
                 <button
                   onClick={() => setExpanded(expanded === nudge.id ? null : nudge.id)}
-                  className="text-[11px] font-medium mt-2 text-idbi-green hover:underline"
+                  className={cn('text-xs font-medium mt-2 text-idbi-green hover:underline', FOCUS_RING)}
                 >
                   {expanded === nudge.id ? `${t('why_hide')} ↑` : `${t('why_show')} ↓`}
                 </button>
 
                 {expanded === nudge.id && (
-                  <div className="mt-2 bg-white/80 rounded-[10px] p-3 space-y-1.5">
+                  <div className="mt-2 bg-white/80 rounded-tile p-3 space-y-1.5">
                     {nudge.why_trace.data_points.map((pt, i) => (
-                      <p key={i} className="text-[11px] text-idbi-faint flex gap-1.5">
+                      <p key={i} className="text-xs text-idbi-faint flex gap-1.5">
                         <span className="text-idbi-green shrink-0">·</span>
                         <span>{pt}</span>
                       </p>
                     ))}
-                    <p className="text-[11px] text-idbi-slate font-medium flex gap-1.5 mt-1 pt-1 border-t border-idbi-line">
+                    <p className="text-xs text-idbi-slate font-medium flex gap-1.5 mt-1 pt-1 border-t border-idbi-line">
                       <span className="text-idbi-green shrink-0">∴</span>
                       <span>{nudge.why_trace.calculation}</span>
                     </p>
@@ -109,7 +144,7 @@ export default function MoneyMoments({ onNudgeSelect }: Props) {
 
                 <button
                   onClick={() => onNudgeSelect(nudge.chat_seed)}
-                  className="mt-3 text-[12px] font-bold text-white bg-idbi-green px-4 py-1.5 rounded-full hover:bg-idbi-dark transition-colors shadow-[0_4px_12px_-4px_rgba(0,131,108,.5)]"
+                  className={cn('mt-3 text-sm font-bold text-white bg-idbi-green px-4 py-1.5 rounded-full hover:bg-idbi-dark transition-colors shadow-glow', FOCUS_RING)}
                 >
                   {t('talk_to_shreya')} →
                 </button>
